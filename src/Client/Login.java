@@ -1,3 +1,5 @@
+package Client;
+
 import javax.swing.*;
 
 public class Login extends JFrame {
@@ -9,10 +11,10 @@ public class Login extends JFrame {
     JPanel panel = new JPanel();
     JTextField userField = new JTextField(15);
     JPasswordField passField = new JPasswordField(15);
-    JButton loginButton = new JButton("Login");
+    JButton loginButton = new JButton("Client.Login");
 
     Login() {
-        super("Login Authentication");
+        super("Client.Login Authentication");
         setSize(300, 200);
         setLocation(500, 280);
         panel.setLayout(null);
@@ -40,7 +42,7 @@ public class Login extends JFrame {
                 regFace.setVisible(true);
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(null, "Wrong Password / Username");
+                JOptionPane.showMessageDialog(this, "Wrong Password / Username");
                 userField.setText("");
                 passField.setText("");
                 userField.requestFocus();

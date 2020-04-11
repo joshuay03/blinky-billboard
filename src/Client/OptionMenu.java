@@ -1,3 +1,5 @@
+package Client;
+
 import javax.swing.*;
 
 public class OptionMenu extends JFrame {
@@ -6,7 +8,7 @@ public class OptionMenu extends JFrame {
         OptionMenu frame2 = new OptionMenu();
     }
 
-    JLabel welcome = new JLabel("OptionMenu Frame");
+    JLabel welcome = new JLabel("Client.OptionMenu Frame");
     JPanel panel = new JPanel();
 
     OptionMenu() {
