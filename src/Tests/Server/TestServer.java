@@ -2,9 +2,11 @@ package Tests.Server;
 
 import Server.Server;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.net.Socket;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestServer {
@@ -18,8 +20,13 @@ public class TestServer {
            Test 1: Constructing a Server object.
         */
     @BeforeAll
-    public void SetupServer() {
+    public void setupServerObject() {
         server = new Server(propsFile);
+    }
+
+    @BeforeEach
+    public void startServer() {
+        server.start();
     }
 
     /*
@@ -31,19 +38,34 @@ public class TestServer {
     }
 
     /*
-        Test 4: Check that a socket can connect to the server while the server is open.
+        Test 3: Check that a socket can connect to the server while the server is open.
      */
     @Test
-    public void setupRequestsCheckServerIsAliveTrue() {
+    public void createClientCheckServerIsAliveTrue() {
         assertEquals(true, server.isServerAliveUtil());
     }
 
     /*
-        Test 3: Check that a socket cannot connect to the server while the server is closed.
+        Test 4: Check that a socket cannot connect to the server while the server is closed.
      */
     @Test
-    public void setupRequestsCheckServerIsAliveFalse() {
+    public void createClientCheckServerIsAliveFalse() {
         server.close();
         assertEquals(false, server.isServerAliveUtil());
+    }
+
+    /*
+        Test 5: Check that multiple clients can connect to the server.
+     */
+    @Test void createClientHandleMultipleConnections() throws IOException {
+        Socket socket;
+        int count = 0;
+        int expected = 2;
+        for(int i = 0; i < 2; i++) {
+            socket = new Socket("localhost", server.getPort());
+            server.createClientThread();
+            count++;
+        }
+        assertEquals(expected, count);
     }
 }
