@@ -37,5 +37,4 @@ public class TestServer {
     public void setupRequests() throws IOException {
         assertEquals(true, server.isServerAliveUtil());
     }
-
 }
