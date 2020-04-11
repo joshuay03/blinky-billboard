@@ -4,14 +4,10 @@ import javax.swing.*;
 
 public class Login extends JFrame {
 
-    public static void main(String[] args) {
-        Login frame1 = new Login();
-    }
-
     JPanel panel = new JPanel();
     JTextField userField = new JTextField(15);
     JPasswordField passField = new JPasswordField(15);
-    JButton loginButton = new JButton("Client.Login");
+    JButton loginButton = new JButton("Login");
 
     Login() {
         super("Client.Login Authentication");

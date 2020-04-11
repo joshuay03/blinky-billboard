@@ -4,11 +4,7 @@ import javax.swing.*;
 
 public class OptionMenu extends JFrame {
 
-    public static void main(String[] args) {
-        OptionMenu frame2 = new OptionMenu();
-    }
-
-    JLabel welcome = new JLabel("Client.OptionMenu Frame");
+    JLabel welcome = new JLabel("OptionMenu Frame");
     JPanel panel = new JPanel();
 
     OptionMenu() {
