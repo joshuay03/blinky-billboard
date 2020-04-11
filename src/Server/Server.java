@@ -20,10 +20,11 @@ public class Server {
      */
     public Server(String propsFile) {
         port = retrievePort(propsFile);
+        port = 5056; // Override the port number for now
         try {
             server = new ServerSocket(port);
         }
-        catch(IOException e) {
+        catch(Exception e) {
             System.out.println("The port " + port + " is currently already in use.");
         }
     }
@@ -37,8 +38,23 @@ public class Server {
         return port;
     }
 
+    /**
+     * A helper method to determine whether or not the server is currently active.
+     * @return a boolean value representing whether or not the server can be connected to.
+     */
     public boolean isServerAliveUtil() {
-        return false;
+        boolean isAlive = false;
+        String host = "localhost"; // pass host in
+        try{
+            InetAddress ip = InetAddress.getByName(host);
+            Socket testSocket = new Socket(ip, port);
+            testSocket.close();
+            isAlive = true;
+        }
+        catch(Exception e) {
+            System.out.println(e + " - cannot connect to " + host + " on port " + port + ".");
+        }
+        return isAlive;
     }
 
     /**
@@ -59,6 +75,18 @@ public class Server {
                 return port_number; // "Was not able to abstract the port number from the given properties file."
             }
             return port_number;
+        }
+    }
+
+    /**
+     * Method to close the server.
+     */
+    public void close() {
+        try {
+            server.close();
+        }
+        catch(Exception e) {
+            System.out.println(e);
         }
     }
 }
