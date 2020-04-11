@@ -6,7 +6,7 @@ import java.net.*;
 /**
  * @author Nick
  * @version 3
- * A class containing elements to initiate a server for client-server connection.
+ * A class to initiate a server for client-server connection.
  */
 public class Server {
     private int port;
