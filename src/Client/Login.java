@@ -10,7 +10,7 @@ public class Login extends JFrame {
     JButton loginButton = new JButton("Login");
 
     Login() {
-        super("Client.Login Authentication");
+        super("Login Authentication");
         setSize(300, 200);
         setLocation(500, 280);
         panel.setLayout(null);
