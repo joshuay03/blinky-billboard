@@ -10,7 +10,7 @@ public class OptionMenu extends JFrame {
     JPanel panel = new JPanel();
 
     OptionMenu() {
-        super("Welcome");
+        super("Option Menu");
         setSize(300, 200);
         setLocation(500, 280);
         panel.setLayout(null);
