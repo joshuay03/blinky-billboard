@@ -3,16 +3,33 @@ package Tests;
 import Client.ClientConnection;
 
 import org.junit.jupiter.api.*;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClientConnection {
     ClientConnection clientConnection;
+    ServerSocket server;
+    Socket socket;
     String propFile = "t";
+    DataInputStream input;
 
     @BeforeAll
     public void initClientConnectionObject() {
-        clientConnection = new ClientConnection(propFile);
+        try {
+            server = new ServerSocket(5056);
+            clientConnection = new ClientConnection(propFile);
+            socket = server.accept();
+            input = new DataInputStream(socket.getInputStream());
+        }
+        catch(Exception e) {
+            System.out.println(e);
+        }
     }
 
     @BeforeEach
@@ -32,8 +49,10 @@ public class TestClientConnection {
         Test sending output to the server.
      */
     @Test
-    public void sendBasicOutput() {
-
+    public void sendBasicOutput() throws IOException {
+        String msg = "hello";
+        clientConnection.sendOutput(msg);
+        assertEquals(input.readUTF(), msg);
     }
 
     /*
@@ -41,7 +60,8 @@ public class TestClientConnection {
      */
     @Test
     public void retrieveBasicInput() {
-
+        String val = clientConnection.retrieveInput();
+        assertEquals("hello", val);
     }
 
     /*
@@ -49,6 +69,7 @@ public class TestClientConnection {
      */
     @Test
     public void closeClientConnection() {
-
+        boolean val = clientConnection.closeConnection();
+        assertEquals(true, val);
     }
 }
