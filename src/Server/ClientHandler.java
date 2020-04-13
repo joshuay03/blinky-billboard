@@ -33,9 +33,6 @@ public class ClientHandler extends Thread {
             catch (IOException e) {
                 System.out.println(e);
             }
-            finally {
-                closeConnection();
-            }
         }
     }
 
@@ -48,7 +45,7 @@ public class ClientHandler extends Thread {
     }
 
     public boolean closeConnection() {
-        boolean closed = false;
+        boolean closed = false; // For testing purposes only
         try {
             System.out.println("The connection to the client is being closed.");
             client.close();
