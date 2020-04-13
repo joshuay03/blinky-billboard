@@ -10,7 +10,7 @@ public class Login extends JFrame {
     JButton loginButton = new JButton("Login");
 
     Login() {
-        super("Login Authentication");
+        super("Login");
         setSize(300, 200);
         setLocation(500, 280);
         panel.setLayout(null);
@@ -33,9 +33,12 @@ public class Login extends JFrame {
         loginButton.addActionListener(ae -> {
             String user = userField.getText();
             char[] pass = passField.getPassword();
-            if (user.equals("josh") && String.valueOf(pass).equals("12345")) {
-                OptionMenu regFace = new OptionMenu();
-                regFace.setVisible(true);
+            if (user.equals("josh") && String.valueOf(pass).equals("123")) {
+                JButton[] buttons = new JButton[1];
+                JButton buttonTest = new JButton("Test");
+                buttons[0] = buttonTest;
+                OptionMenu optionMenuPanel = new OptionMenu(buttons);
+                optionMenuPanel.setVisible(true);
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Wrong Password / Username");
