@@ -33,7 +33,7 @@ public class TestServer {
     }
 
     /*
-        Retrieve the port from the properties file.
+        Test retrieving the port from the properties file.
      */
     @Test
     public void retrievePort() {
