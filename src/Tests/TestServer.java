@@ -1,4 +1,4 @@
-package Tests.Server;
+package Tests;
 
 import Server.Server;
 import org.junit.jupiter.api.*;
@@ -11,26 +11,29 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestServer {
     /*
-        Test 0: Declaring Server object and necessary properties.
+        Declare Server object and necessary properties.
     */
     Server server;
     String propsFile = "T";
 
     /*
-           Test 1: Constructing a Server object.
+           Construct a Server object.
         */
     @BeforeAll
     public void setupServerObject() {
         server = new Server(propsFile);
     }
 
+    /*
+        Start the server.
+     */
     @BeforeEach
     public void startServer() {
         server.start();
     }
 
     /*
-        Test 2: Retrieve the port from the properties file.
+        Retrieve the port from the properties file.
      */
     @Test
     public void retrievePort() {
@@ -38,7 +41,7 @@ public class TestServer {
     }
 
     /*
-        Test 3: Check that a socket can connect to the server while the server is open.
+        Check that a socket can connect to the server while the server is open.
      */
     @Test
     public void createClientCheckServerIsAliveTrue() {
@@ -46,7 +49,7 @@ public class TestServer {
     }
 
     /*
-        Test 4: Check that a socket cannot connect to the server while the server is closed.
+        Check that a socket cannot connect to the server while the server is closed.
      */
     @Test
     public void createClientCheckServerIsAliveFalse() {
@@ -55,7 +58,7 @@ public class TestServer {
     }
 
     /*
-        Test 5: Check that multiple clients can connect to the server.
+        Check that multiple clients can connect to the server.
      */
     @Test void createClientHandleMultipleConnections() throws IOException {
         Socket socket;

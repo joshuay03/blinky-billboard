@@ -88,7 +88,7 @@ public class Server {
 
     /**
      * A method to handle incoming socket requests and allocate a new thread indipendently
-     * to each socket. Creates new input and output streams, and a client and passes these objects
+     * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
      * @throws IOException
