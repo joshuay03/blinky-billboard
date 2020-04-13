@@ -32,8 +32,8 @@ public class Login extends JFrame {
     public void actionLogin() {
         loginButton.addActionListener(ae -> {
             String user = userField.getText();
-            String pass = passField.getText();
-            if (user.equals("josh") && pass.equals("12345")) {
+            char[] pass = passField.getPassword();
+            if (user.equals("josh") && String.valueOf(pass).equals("12345")) {
                 OptionMenu regFace = new OptionMenu();
                 regFace.setVisible(true);
                 dispose();
