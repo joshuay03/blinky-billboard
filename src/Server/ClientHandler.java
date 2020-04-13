@@ -7,7 +7,7 @@ import java.net.Socket;
 
 /**
  * @author Nick
- * @version 2
+ * @version 3
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
