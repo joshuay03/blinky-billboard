@@ -3,29 +3,34 @@ package Tests;
 import Server.ClientHandler;
 import org.junit.jupiter.api.*;
 
+import javax.xml.crypto.Data;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClientHandler {
     /*
         Declare necessary objects and properties.
      */
-    DataInputStream input;
-    DataOutputStream output;
-    Socket client;
+    DataInputStream socketInput, clientInput;
+    DataOutputStream socketOutput, clientOutput;
+    Socket socket, client;
+    ServerSocket server;
     ClientHandler clientHandler;
 
     /*
-        Init the clientHandler object.
+        Init the socket server.
      */
     @BeforeAll
-    public void initClientHandlerObject() {
+    public void initServer() {
         try {
-            client = new Socket();
-            input = new DataInputStream(client.getInputStream());
-            output = new DataOutputStream(client.getOutputStream());
-            clientHandler = new ClientHandler(client, input, output);
+            server = new ServerSocket(5057);
         }
         catch(Exception e) {
             System.out.println(e);
@@ -33,26 +38,40 @@ public class TestClientHandler {
     }
 
     /*
-        Test sending basic output to the client.
+        Init the client handler object.
      */
-    @Test
-    public void sendBasicOutput() {
-        clientHandler.sendOutput();
+    @BeforeEach
+    public void initThread() {
+        try {
+            client = new Socket("localhost", 5057);
+            clientInput = new DataInputStream(client.getInputStream());
+            clientOutput = new DataOutputStream(client.getOutputStream());
+            socket = server.accept();
+            socketInput = new DataInputStream(socket.getInputStream());
+            socketOutput = new DataOutputStream(socket.getOutputStream());
+            clientHandler = new ClientHandler(socket, socketInput, socketOutput);
+        }
+        catch( Exception e) {
+            System.out.println(e);
+        }
     }
 
     /*
-        Test retrieving basic input from the client.
+        Test that the client handler can handle a a simple request.
      */
     @Test
-    public void retrieveBasicInput() {
-        clientHandler.retrieveInput();
+    public void receiveBasicInputFromClient() throws IOException {
+        clientOutput.writeUTF("hello");
+        String msg = clientHandler.handleInboundRequests();
+        assertEquals("hello", msg);
     }
 
     /*
-        Test closing the threads connection to the server.
+        Test that the thread's connection can be closed while the server is open.
      */
-    @Test
-    public void closeThreadConnectionToServer() {
-        clientHandler.closeConnection();
+    @AfterAll @Test
+    public void closeConnection() {
+        boolean closed = clientHandler.closeConnection();
+        assertEquals(true, closed);
     }
 }
