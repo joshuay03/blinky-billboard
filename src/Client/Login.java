@@ -9,7 +9,7 @@ public class Login extends JFrame {
     JPasswordField passField = new JPasswordField(15);
     JButton loginButton = new JButton("Login");
 
-    Login() {
+    Login(User user) {
         super("Login");
         setSize(300, 200);
         setLocation(500, 280);
@@ -26,18 +26,15 @@ public class Login extends JFrame {
         getContentPane().add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-        actionLogin();
+        actionLogin(user);
     }
 
-    public void actionLogin() {
+    public void actionLogin(User user) {
         loginButton.addActionListener(ae -> {
-            String user = userField.getText();
-            char[] pass = passField.getPassword();
-            if (user.equals("josh") && String.valueOf(pass).equals("123")) {
-                JButton[] buttons = new JButton[1];
-                JButton buttonTest = new JButton("Test");
-                buttons[0] = buttonTest;
-                OptionMenu optionMenuPanel = new OptionMenu(buttons);
+            String username = userField.getText();
+            char[] password = passField.getPassword();
+            if (username.equals("josh") && String.valueOf(password).equals("123")) {
+                OptionMenu optionMenuPanel = new OptionMenu(user);
                 optionMenuPanel.setVisible(true);
                 dispose();
             } else {
@@ -48,5 +45,4 @@ public class Login extends JFrame {
             }
         });
     }
-
 }
