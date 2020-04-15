@@ -1,16 +1,18 @@
 package Server;
 
+import SocketCommunication.SocketCommunication;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 /**
- * @author Nick
- * @version 3
  * A class to handle each client individually on an assigned thread.
+ * Implements the SocketCommunication interface for communicating directly with the client socket.
+ * @see SocketCommunication
  */
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements SocketCommunication {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -57,5 +59,15 @@ public class ClientHandler extends Thread {
             System.out.println(e);
         }
         return closed;
+    }
+
+    @Override
+    public void sendOutput(String msg) {
+
+    }
+
+    @Override
+    public String retrieveInput() {
+        return null;
     }
 }

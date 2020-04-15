@@ -1,49 +1,40 @@
 package Server;
 
+import SocketCommunication.SocketConnection;
+
 import java.io.*;
 import java.net.*;
 
 /**
- * @author Nick
- * @version 3
  * A class to initiate a server for client-server connection.
+ * Extends the FileParse class.
+ * @see SocketConnection
  */
-public class Server {
-    private int port;
+public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
-    private String propFile;
 
     /**
-     * Constructor for the server object.
+     * Constructor for the server object. Calls the base class constructor.
      * @param propFile a file containing the relevent networking information.
-     * @see #retrievePort(String)
      */
     public Server(String propFile) {
-        this.propFile = propFile;
+        super(propFile);
     }
 
     /**
      * Method to initialise the server. Calls the retrievePort method and creates a new serversocket.
      */
-    public void start() {
-        port = retrievePort(propFile);
-        port = 5056; // Override the port number for now
+    @Override
+    public void start() throws IOException {
+        retrievePort();
         try {
-            server = new ServerSocket(port);
+            server = new ServerSocket(getPort());
+            super.start();
         }
         catch(Exception e) {
-            System.out.println("The port " + port + " is currently already in use.");
+            System.out.println("The port " + getPort() + " is currently already in use.");
         }
-    }
-
-    /**
-     * A helper method to get and return the current port which
-     * the server is currently operating on.
-     * @return the port which the server is operating on.
-     */
-    public int getPort() {
-        return port;
     }
 
     /**
@@ -55,36 +46,16 @@ public class Server {
         String host = "localhost"; // pass host in
         try{
             InetAddress ip = InetAddress.getByName(host);
-            Socket testSocket = new Socket(ip, port);
+            Socket testSocket = new Socket(ip, getPort());
             testSocket.close();
             isAlive = true;
         }
         catch(Exception e) {
-            System.out.println(e + " - cannot connect to " + host + " on port " + port + ".");
+            System.out.println(e + " - cannot connect to " + host + " on port " + getPort() + ".");
         }
         return isAlive;
     }
 
-    /**
-     * Retrieve the port number from the given properties file.
-     * @param propsFile
-     * @return the port number.
-     */
-    private int retrievePort(String propsFile) { // will be an interface as the clients will use this method too
-        Integer port_number = null;
-        try {
-            port_number = 5057; // server is listening on port 5057 - must use the properties file to change the port
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            if (port_number == null) {
-                return port_number; // "Was not able to abstract the port number from the given properties file."
-            }
-            return port_number;
-        }
-    }
 
     /**
      * A method to handle incoming socket requests and allocate a new thread indipendently
@@ -119,25 +90,28 @@ public class Server {
     /**
      * Method to close the server.
      */
-    public void close() {
-        try {
-            server.close();
-        }
-        catch(Exception e) {
-            System.out.println(e);
-        }
+    @Override
+    public void close() throws IOException{
+        server.close();
+        super.close();
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]){
         Server server = new Server("t");
         boolean serverOpen = true;
-        server.start();
-        while (true) {
-            if (serverOpen) {
-                server.createClientThread();
+        try {
+            server.start();
+            while (true) {
+                if (serverOpen) {
+                    server.createClientThread();
+                }
+                else
+                    server.close();
             }
-            else
-                server.close();
         }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+
     }
 }

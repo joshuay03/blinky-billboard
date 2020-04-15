@@ -1,6 +1,6 @@
 package Tests;
 
-import Client.ClientConnection;
+import Client.ClientCommunication;
 
 import org.junit.jupiter.api.*;
 
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClientConnection {
-    ClientConnection clientConnection;
+    ClientCommunication clientConnection;
     ServerSocket server;
     Socket socket;
     String propFile = "t";
@@ -23,7 +23,7 @@ public class TestClientConnection {
     public void initClientConnectionObject() {
         try {
             server = new ServerSocket(5056);
-            clientConnection = new ClientConnection(propFile);
+            clientConnection = new SocketCommunication(propFile);
             socket = server.accept();
             input = new DataInputStream(socket.getInputStream());
         }
