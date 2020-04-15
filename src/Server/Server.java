@@ -25,9 +25,8 @@ public class Server extends SocketConnection {
     /**
      * Method to initialise the server. Calls the retrievePort method and creates a new serversocket.
      */
-    @Override
     public void start() throws IOException {
-        retrievePort();
+        super.start();
         try {
             server = new ServerSocket(getPort());
             super.start();
@@ -90,7 +89,6 @@ public class Server extends SocketConnection {
     /**
      * Method to close the server.
      */
-    @Override
     public void close() throws IOException{
         server.close();
         super.close();

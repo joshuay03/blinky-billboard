@@ -17,7 +17,6 @@ import java.net.Socket;
  * @see SocketConnection
  */
 public class ClientCommunication extends SocketConnection implements SocketCommunication {
-    private String propFile;
     Socket socket;
     DataInputStream input;
     DataOutputStream output;
@@ -33,7 +32,6 @@ public class ClientCommunication extends SocketConnection implements SocketCommu
     /**
      * Method to initialise the client connection.
      */
-    @Override
     public void start() throws IOException{
         super.start();
         port = "5056"; // Override the port number for now
@@ -46,7 +44,6 @@ public class ClientCommunication extends SocketConnection implements SocketCommu
         output = new DataOutputStream(socket.getOutputStream());
     }
 
-    @Override
     public void close() throws IOException {
         super.close();
         socket.close();
