@@ -26,7 +26,7 @@ public class SocketConnection {
      * Retrieve the port number from the given properties file.
      * @throws IOException
      */
-    protected void retrievePort() throws IOException {
+    private void retrievePort() throws IOException {
         propFile = "t"; // Do something with prop file.
         port = null; // initially port is equal to null, if no port is found in prop file, remains null.
         port = "5056"; // server is listening on port 5056 - must use the properties file to change the port
@@ -41,7 +41,8 @@ public class SocketConnection {
      * on what type of socket is used and how it will be used.
      * @throws IOException
      */
-    protected void start() throws IOException {
+    public void start() throws IOException {
+        retrievePort();
         System.out.println("The connection has been started...");
     }
 
@@ -51,7 +52,7 @@ public class SocketConnection {
      * on what type of socket is used and how it will be used.
      * @throws IOException
      */
-    protected void close() throws IOException {
+    public void close() throws IOException {
         System.out.println("The connection has been closed...");
     }
 }
