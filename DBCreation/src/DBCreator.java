@@ -1,23 +1,14 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 public class DBCreator {
-    private Connection con;
     public static void main(String args[]) throws SQLException {
-        String pass = "1";
-        java.sql.Connection con = DriverManager.getConnection("jdbc:mariadb://192.168.0.191:3306/testDB", "liranTest", pass);
-
-        Statement st = con.createStatement();
-        ResultSet rs = st.executeQuery("drop table table1;");
-
-        System.out.println(rs);
-
-        st.close();
-
-        con.close();
-
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec(new String[]{"/bin/bash", "-c", "mariaDB -ppassword -u root -h localhost testDB < ../../blinkybillboard.sql"});
+            pr.waitFor();
+        } catch (IOException | InterruptedException e) {
+            System.out.println(e.toString());
+        }
     }
 }
