@@ -19,7 +19,6 @@ public class DBProps {
     }
 
 
-
     public static void main(String[] args) throws IOException {
         DBProps props = new DBProps();
 
