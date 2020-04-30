@@ -17,11 +17,4 @@ public class DBProps {
         this.password = props.getProperty("password");
         this.schema = props.getProperty("schema");
     }
-
-
-    public static void main(String[] args) throws IOException {
-        DBProps props = new DBProps();
-
-        System.out.println("Done");
-    }
 }
