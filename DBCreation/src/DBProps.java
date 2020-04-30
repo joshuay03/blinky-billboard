@@ -2,10 +2,10 @@ import java.io.*;
 import java.util.Properties;
 
 public class DBProps {
-    private String url;
-    private String schema;
-    private String username;
-    private String password;
+    public String url;
+    public String schema;
+    public String username;
+    public String password;
 
     DBProps() throws IOException {
 
