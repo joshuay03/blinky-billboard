@@ -1,0 +1,161 @@
+package BillboardSupport;
+
+import javax.swing.*;
+import java.awt.*;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+public class Billboard {
+
+    public Color getBackgroundColour() {
+        return backgroundColour;
+    }
+
+    public void setBackgroundColour(Color backgroundColour) {
+        this.backgroundColour = backgroundColour;
+    }
+
+    public Color getMessageColour() {
+        return messageColour;
+    }
+
+    public void setMessageColour(Color messageColour) {
+        this.messageColour = messageColour;
+    }
+
+    public Color getInformationColour() {
+        return informationColour;
+    }
+
+    public void setInformationColour(Color informationColour) {
+        this.informationColour = informationColour;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
+    }
+
+    public Image getBillboardImage() {
+        return billboardImage;
+    }
+
+    public void setBillboardImage(Image billboardImage) {
+        this.billboardImage = billboardImage;
+    }
+
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(LocalDateTime scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
+    public int getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(int repeatInterval) {
+        this.repeatInterval = repeatInterval;
+    }
+
+    public String getBillboardDatabaseKey() {
+        return billboardDatabaseKey;
+    }
+
+    public void setBillboardDatabaseKey(String billboardDatabaseKey) {
+        this.billboardDatabaseKey = billboardDatabaseKey;
+    }
+
+    private Color backgroundColour, messageColour, informationColour;
+
+    private String message, information;
+
+    private Image billboardImage;
+
+    // ADD variable to track who owns the Billboard
+
+    private LocalDateTime scheduledTime;
+    private int duration, repeatInterval; // in seconds - controlled at user level
+
+    private String billboardDatabaseKey;
+
+
+
+    /** New Billboard Object from scratch
+     * @param backgroundColour The colour of the Billboard background
+     * @param messageColour The colour of the text which displays the 'message' string.
+     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
+     * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
+     * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
+     * @param image The image to be displayed by the Billboard
+     * @param scheduledTime The time the billboard is first scheduled to display
+     * @param duration The amount of time in seconds to display the Billboard
+     * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
+     */
+
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, Image image, LocalDateTime scheduledTime, int duration, int repeatInterval) {
+        this.backgroundColour = backgroundColour;
+        this.messageColour = messageColour;
+        this.informationColour = informationColour;
+        this.message = message;
+        this.information = information;
+        this.billboardImage = image;
+        this.scheduledTime = scheduledTime;
+        this.duration = duration;
+        this.repeatInterval = repeatInterval;
+    }
+
+    /** Create Billboard Object from Database field
+     * @param backgroundColour The colour of the Billboard background
+     * @param messageColour The colour of the text which displays the 'message' string.
+     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
+     * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
+     * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
+     * @param image The image to be displayed by the Billboard
+     * @param scheduledTime The time the billboard is first scheduled to display
+     * @param duration The amount of time in seconds to display the Billboard
+     * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
+     * @param billboardDatabaseKey The key which corresponds to this Billboard in the database
+     */
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, Image image, LocalDateTime scheduledTime, int duration, int repeatInterval, String billboardDatabaseKey) {
+        this.backgroundColour = backgroundColour;
+        this.messageColour = messageColour;
+        this.informationColour = informationColour;
+        this.message = message;
+        this.information = information;
+        this.billboardImage = image;
+        this.scheduledTime = scheduledTime;
+        this.duration = duration;
+        this.repeatInterval = repeatInterval;
+        this.billboardDatabaseKey = billboardDatabaseKey;
+    }
+
+    /** Create Billboard from Billboard XML File
+     *
+     * @param billboardXML An XML String which conforms to the Billboard XML Spec.
+     */
+    public Billboard(String billboardXML) {
+    }
+
+    public Billboard(){
+
+    }
+
+
+
+
+}
