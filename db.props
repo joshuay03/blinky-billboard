@@ -1,6 +1,6 @@
 #
 #Thu Apr 30 21:32:50 AEST 2020
-url=localhost
-username=root
-password=password
+url=192.168.0.172
+username=liran
+password=liratabase
 schema=blinkyBillboard
