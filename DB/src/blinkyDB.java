@@ -29,7 +29,8 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
-    public ResultSet getBillboards() throws SQLException { // First database method - needs permission management
+    // Todo: Make a method which takes a client session object and populates a "db connection" field within it
+    public ResultSet getBillboards(/*User user*/) throws SQLException { // First database method - needs permission management
         return dbconn.createStatement().executeQuery("select * from Billboards");
     }
 }
