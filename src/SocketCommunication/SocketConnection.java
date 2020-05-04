@@ -8,6 +8,7 @@ import java.io.*;
 public class SocketConnection {
     protected String port;
     protected String propFile;
+    protected String IP;
 
     protected SocketConnection(String propFile) {
         this.propFile = propFile;
@@ -20,6 +21,10 @@ public class SocketConnection {
      */
     public int getPort() {
         return Integer.parseInt(port);
+    }
+
+    public String getIP() {
+        return IP;
     }
 
     /**
@@ -35,6 +40,10 @@ public class SocketConnection {
             if (line.startsWith("port:")) {
                 arr = line.split("port:", 0);
                 port = arr[1].trim();
+            }
+            else if (line.startsWith("IP:")) {
+                arr = line.split("IP:", 0);
+                IP = arr[1].trim();
             }
         }
 

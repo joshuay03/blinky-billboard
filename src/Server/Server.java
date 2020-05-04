@@ -94,19 +94,20 @@ public class Server extends SocketConnection {
 
     public static void main(String args[]){
         Server server = new Server("C:\\Users\\Nick\\Desktop\\BlinkyBillboard\\src\\Server\\properties.txt");
-        boolean serverOpen = true;
         try {
             server.start();
-
-            System.out.println("Server Alive: " + server.isServerAliveUtil());
+            boolean serverOpen = server.isServerAliveUtil();
+            System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
 
             while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }
-                else
+                else {
                     server.close();
+                    serverOpen = false;
+                }
             }
         }
         catch (Exception e) {
