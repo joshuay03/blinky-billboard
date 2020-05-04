@@ -59,6 +59,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
             while (controlPanelOpen) {
                 String outputData = scanner.nextLine();
                 if ( outputData.equalsIgnoreCase("exit")) {
+                    controlPanel.sendOutput(outputData);
                     controlPanel.close();
                     controlPanelOpen = false;
                 }
