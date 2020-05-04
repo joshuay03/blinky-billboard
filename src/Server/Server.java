@@ -100,7 +100,7 @@ public class Server extends SocketConnection {
             System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
 
-            while (true) {
+                while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }

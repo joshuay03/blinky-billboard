@@ -68,7 +68,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
     }
 
     @Override
-    public String retrieveInput() {
-        return null;
+    public void retrieveInput() {
+
     }
 }

@@ -55,7 +55,6 @@ public class ClientCommunication extends SocketConnection implements SocketCommu
     }
 
     @Override
-    public String retrieveInput() {
-        return null;
+    public void retrieveInput() {
     }
 }
