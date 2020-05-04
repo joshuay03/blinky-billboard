@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DataExportManager">
@@ -25,13 +25,13 @@
     <show-object-properties value="true" />
     <loaded-nodes>
       <connection connection-id="bcd67d47-dac8-417f-bf5c-7e7e5013d995">
-        <schema name="blinkyBillboard" object-types="procedure, table, view, function" />
+        <schema name="blinkyBillboard" object-types="function, procedure, table, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="bcd67d47-dac8-417f-bf5c-7e7e5013d995">
-      <console name="blinky" type="STANDARD" schema="blinkyBillboard" session="Main" />
+      <console name="blinky" type="STANDARD" schema="blinkyBillboard" session="Main"><![CDATA[drop database blinkyBillboard;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
@@ -73,7 +73,7 @@
           <driver-source value="EXTERNAL" />
           <driver-library value="$USER_HOME$/Downloads/mariadb-java-client-2.6.0.jar" />
           <driver value="org.mariadb.jdbc.Driver" />
-          <url value="jdbc:mariadb://192.168.0.172/blinkyBillboard" />
+          <url value="jdbc:mariadb://localhost/blinkyBillboard" />
           <type value="USER_PASSWORD" />
           <user value="liran" />
           <deprecated-pwd value="bGlyYXRhYmFzZQ==" />

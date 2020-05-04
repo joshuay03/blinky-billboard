@@ -6,6 +6,7 @@ public class DBCreator {
         File file = new File("blinkybillboard.sql");
         DBProps props = new DBProps();
         String path = file.getPath();
+        // Create schema if it doesn't exist
 
         try {
             Runtime rt = Runtime.getRuntime();
