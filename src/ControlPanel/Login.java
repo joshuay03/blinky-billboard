@@ -10,7 +10,7 @@ public class Login {
     protected JPasswordField passwordField;
     protected JButton loginButton;
 
-    public Login() {
+    public Login(ControlPanel controlPanel) {
         loginButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -19,7 +19,7 @@ public class Login {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Passed");
+                controlPanel.changePanel(new OptionMenu(controlPanel).optionMenuPanel);
             }
         });
     }
