@@ -7,13 +7,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Login extends ControlPanel {
+public class Login {
     protected JPanel loginPanel;
     protected JTextField usernameField;
     protected JPasswordField passwordField;
     protected JButton loginButton;
 
-    public Login() {
+    public Login(JFrame frame) {
         loginButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -23,11 +23,10 @@ public class Login extends ControlPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
-                    System.out.println(generateHash(passwordField.getPassword()));
-                    Login.super.setContentPane(new OptionMenu().optionMenuPanel);
-                    Login.super.pack();
-                    Login.super.setLocationRelativeTo(null);
-                    Login.super.setVisible(true);
+                    frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
                 }
                 catch(Exception ex) {
                     System.out.println(ex);
@@ -37,8 +36,8 @@ public class Login extends ControlPanel {
     }
 
     public static String generateHash(char[] input) throws NoSuchAlgorithmException {
-        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        final byte[] hashedBytes = digest.digest(
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = digest.digest(
                 new String(input).getBytes(StandardCharsets.UTF_8));
         String hex = bytesToHex(hashedBytes);
 

@@ -9,6 +9,6 @@ public class OptionMenu {
     protected JButton scheduleButton;
     protected JButton editButton;
 
-    public OptionMenu() {
+    public OptionMenu(JFrame frame) {
     }
 }
