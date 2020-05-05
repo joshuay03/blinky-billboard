@@ -30,8 +30,13 @@ USE `blinkyBillboard`;
 CREATE TABLE IF NOT EXISTS `Billboards` (
   `billboard_id` int(11) unsigned NOT NULL,
   `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
-  `creator` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User ID of the billboard''s creator',
-  `XML` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The billboard''s XML data - stored directly rather than as an external file',
+  `creator` varchar(100) NOT NULL COMMENT 'User ID of the billboard''s creator',
+  `backgroundColour` varchar(8) DEFAULT NULL,
+  `messageColour` varchar(8) DEFAULT NULL,
+  `informationColour` varchar(8) DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `information` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `billboardImage` blob DEFAULT NULL,
   PRIMARY KEY (`billboard_id`),
   KEY `fk_creator_idx` (`creator`),
   CONSTRAINT `Billboards_FK` FOREIGN KEY (`creator`) REFERENCES `Users` (`user_name`)
