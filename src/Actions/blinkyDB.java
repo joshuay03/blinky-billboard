@@ -37,4 +37,8 @@ public class blinkyDB {
     public ResultSet getBillboards(/*User user*/) throws SQLException { // First database method - needs permission management
         return dbconn.createStatement().executeQuery("select * from Billboards");
     }
+
+    public static void main(String[] args) throws IOException, SQLException {
+        blinkyDB db = new blinkyDB();
+    }
 }
