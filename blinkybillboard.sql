@@ -1,13 +1,11 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Users` (
-  `user_id` int(11) unsigned auto_increment NOT NULL,
   `user_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_permissions` char(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `max_priority` int(11) NOT NULL,
   `password_hash` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  CONSTRAINT Users_PK PRIMARY KEY (`user_id`),
-  UNIQUE KEY `user_name` (`user_name`)
+  CONSTRAINT Users_PK PRIMARY KEY (`user_name`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
@@ -17,11 +15,11 @@ UNLOCK TABLES;
 CREATE TABLE IF NOT EXISTS `Billboards` (
   `billboard_id` int(11) unsigned auto_increment NOT NULL,
   `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
-  `creator` int(11) unsigned NOT NULL COMMENT 'User ID of the billboard''s creator',
+  `creator` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL, 'Username of the billboard''s creator',
   `XML` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'The billboard''s XML data - stored directly rather than as an external file',
   CONSTRAINT Billboards_PK PRIMARY KEY (`billboard_id`),
   KEY `fk_creator_idx` (`creator`),
-  CONSTRAINT `fk_creator` FOREIGN KEY (`creator`) REFERENCES `Users` (`user_id`) ON DELETE NO ACTION
+  CONSTRAINT `fk_creator` FOREIGN KEY (`creator`) REFERENCES `Users` (`user_name`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
