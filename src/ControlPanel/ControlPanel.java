@@ -3,8 +3,7 @@ package ControlPanel;
 import javax.swing.*;
 import java.awt.*;
 
-public class ControlPanel extends JFrame {
-    private static ControlPanel controlPanel;
+public class ControlPanel extends JFrame implements Runnable {
 
     public ControlPanel() {
         super("Control Panel");
@@ -13,17 +12,26 @@ public class ControlPanel extends JFrame {
     }
 
     public static void main(String[] args) {
-        controlPanel = new ControlPanel();
-        Login panel = new Login(controlPanel);
-        controlPanel.setContentPane(panel.loginPanel);
-        controlPanel.pack();
-        controlPanel.setVisible(true);
-        controlPanel.setLocationRelativeTo(null);
+        ControlPanel controlPanel = new ControlPanel();
+        SwingUtilities.invokeLater(controlPanel);
     }
 
-    public void changePanel(JPanel panel) {
-        controlPanel.setContentPane(panel);
-        controlPanel.pack();
-        controlPanel.setVisible(true);
+    /**
+     * When an object implementing interface {@code Runnable} is used
+     * to create a thread, starting the thread causes the object's
+     * {@code run} method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method {@code run} is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        super.setContentPane(new Login().loginPanel);
+        super.pack();
+        super.setLocationRelativeTo(null);
+        super.setVisible(true);
     }
 }

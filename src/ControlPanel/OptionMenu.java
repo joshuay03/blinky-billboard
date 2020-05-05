@@ -9,7 +9,6 @@ public class OptionMenu {
     protected JButton scheduleButton;
     protected JButton editButton;
 
-    public OptionMenu(ControlPanel controlPanel) {
-        System.out.println("Test");
+    public OptionMenu() {
     }
 }
