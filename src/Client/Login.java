@@ -1,6 +1,13 @@
 package Client;
 
+import Actions.DBProps;
+
 import javax.swing.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Login extends JFrame {
 
@@ -30,19 +37,52 @@ public class Login extends JFrame {
     }
 
     public void actionLogin(User user) {
+
         loginButton.addActionListener(ae -> {
+
+            DBProps props = null;
+            Connection dbconn = null;
+            try {
+                props = new DBProps();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             String username = userField.getText();
             char[] password = passField.getPassword();
-            if (username.equals("josh") && String.valueOf(password).equals("123")) {
-                OptionMenu optionMenuPanel = new OptionMenu(user);
-                optionMenuPanel.setVisible(true);
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Wrong Password / Username");
-                userField.setText("");
-                passField.setText("");
-                userField.requestFocus();
+
+            try {
+                dbconn = DriverManager.getConnection("jdbc:mariadb://" + props.url + ":3306/" + props.schema, props.username, props.password);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+
+            try {
+                if (username != null && password != null) {
+
+                    // need to figure out how to unhash password password is currently hardcoded
+                    //need a function that hashes and unhashes passcode for create users and login 
+                    String sql = String.format("Select * from Users Where user_name= '%s' and password_hash= 'pass123'", username);
+                    ResultSet rs = dbconn.createStatement().executeQuery(sql);
+                    if (rs.next()) {
+                        //in this case enter when at least one result comes it means user is valid
+                        OptionMenu optionMenuPanel = new OptionMenu(user);
+                        optionMenuPanel.setVisible(true);
+                        dispose();
+                    } else {
+                        //in this case enter when  result size is zero  it means user is invalid
+                        JOptionPane.showMessageDialog(this, "Wrong Password / Username");
+                        userField.setText("");
+                        passField.setText("");
+                        userField.requestFocus();
+                    }
+                }
+
+            } catch (SQLException err) {
+                JOptionPane.showMessageDialog(this, err.getMessage());
+            }
+
+
         });
     }
 }
