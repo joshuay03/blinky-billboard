@@ -29,7 +29,6 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            super.start();
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
@@ -54,7 +53,6 @@ public class Server extends SocketConnection {
         }
         return isAlive;
     }
-
 
     /**
      * A method to handle incoming socket requests and allocate a new thread indipendently
@@ -95,21 +93,25 @@ public class Server extends SocketConnection {
     }
 
     public static void main(String args[]){
-        Server server = new Server("t");
-        boolean serverOpen = true;
+        Server server = new Server("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/src/Server/properties.txt");
         try {
             server.start();
-            while (true) {
+            boolean serverOpen = server.isServerAliveUtil();
+            System.out.println("Server Alive: " + serverOpen);
+            System.out.println("Currently operating on port: " + server.getPort());
+
+                while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }
-                else
+                else {
                     server.close();
+                    serverOpen = false;
+                }
             }
         }
         catch (Exception e) {
             System.out.println(e);
         }
-
     }
 }

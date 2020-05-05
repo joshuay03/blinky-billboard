@@ -37,7 +37,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     public static void main(String[] args) {
-        ControlPanel controlPanel = new ControlPanel("propFile Location");
+        ControlPanel controlPanel = new ControlPanel("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/src/Server/properties.txt");
         Scanner scanner = new Scanner(System.in);
         boolean controlPanelOpen = true;
 
@@ -101,16 +101,14 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     /**
      * // A method to communicate with another socket and retrieve a message.
      *
-     * @return a string containing the response from another socket.
      */
     @Override
-    public String retrieveInput() {
+    public void retrieveInput() {
         try {
             System.out.println(input.readUTF());
         }
         catch(Exception e) {
             System.out.println(e);
         }
-        return null;
     }
 }

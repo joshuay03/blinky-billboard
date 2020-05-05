@@ -17,7 +17,6 @@ public class ClientHandler extends Thread implements SocketCommunication {
     private DataOutputStream output;
     private Socket client;
 
-
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output) {
         this.client = client;
         this.input = input;
@@ -27,13 +26,15 @@ public class ClientHandler extends Thread implements SocketCommunication {
     @Override
     public void run() {
         String outputData;
-        while (true) {
+        boolean closed = false;
+        while (closed == false) {
             try {
                 outputData = handleInboundRequests(); // Handle the client's request and retrieve the response for that request
                 output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
             }
             catch (IOException e) {
-                System.out.println(e);
+                closed = closeConnection();
+                System.out.println("Connection closed");
             }
         }
     }
@@ -67,7 +68,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
     }
 
     @Override
-    public String retrieveInput() {
-        return null;
+    public void retrieveInput() {
+
     }
 }

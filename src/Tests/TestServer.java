@@ -28,7 +28,7 @@ public class TestServer {
         Start the server.
      */
     @BeforeEach
-    public void startServer() {
+    public void startServer() throws IOException {
         server.start();
     }
 
@@ -52,7 +52,7 @@ public class TestServer {
         Check that a socket cannot connect to the server while the server is closed.
      */
     @Test
-    public void createClientCheckServerIsAliveFalse() {
+    public void createClientCheckServerIsAliveFalse() throws IOException {
         server.close();
         assertEquals(false, server.isServerAliveUtil());
     }
