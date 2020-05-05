@@ -1,8 +1,8 @@
 package BillboardViewer;
 
 import BillboardSupport.Billboard;
-import BillboardSupport.DummyBillboards;
 import BillboardSupport.RenderedBillboard;
+import BillboardSupport.DummyBillboards;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -34,66 +34,55 @@ class MyKeyboardHandler extends KeyAdapter {
     }
 }
 
-public class Viewer {
+public class Viewer extends JFrame {
 
-    private JPanel billboardDisplay;
+    private RenderedBillboard displayedBillboard;
+    private Billboard currentBillboard;
 
-    private JFrame frame;
+    Viewer (String arg0){
+        super(arg0);
 
-    public static void main(String[] args) {
+        this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLayout(new BorderLayout());
 
-        Viewer viewer =  new Viewer();
-        viewer.initialSetup();
+        this.setUndecorated(true);
 
-        viewer.refreshHandler();
-    }
+        this.setBackground(Color.BLACK);
 
-    private void initialSetup() {
-        frame = new JFrame("Viewer");
+        this.addKeyListener(new MyKeyboardHandler());
+        this.addMouseListener(new MyMouseHandler());
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setUndecorated(true);
-        frame.pack();
+        displayedBillboard = new RenderedBillboard(DummyBillboards.messagePictureAndInformationBillboard(), Toolkit.getDefaultToolkit().getScreenSize());
+        this.getContentPane().add(displayedBillboard);
 
-        // Set to full-screen - N.B. this is done in a very lazy way. There are more advanced ways to do it which respect multi-screen setups: https://docs.oracle.com/javase/6/docs/api/java/awt/Toolkit.html#getScreenSize()
-        frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
-        // Register window, keyboard and mouse handlers
-        frame.addMouseListener(new MyMouseHandler());
-        frame.addKeyListener(new MyKeyboardHandler());
-
-        frame.setVisible(true);
+        repaint();
+        this.setVisible(true);
 
     }
 
     private void refreshHandler(){
+        //TODO - Make billboard refresh every 15 sec
+        while(true){
 
-        while (true) {
-            try {
-                // Contact the server
-
-                // If there is no error with contacting the server, proceed to populate view with Billboard
-                // Dummy object
-                DummyBillboards dummyBillboards = new DummyBillboards();
-                Billboard bb = dummyBillboards.informationOnlyBillboard();
-
-
-                // Try to render
-                frame.getContentPane().add(new RenderedBillboard(bb, Toolkit.getDefaultToolkit().getScreenSize()));
-
-
-            } catch (Exception e) {
-
-            }
-
-            try {
-                // Wait 15 seconds
+            try{
                 Thread.sleep(15 * 100);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
+            } catch (Exception e){
+                System.out.println("Something went wrong: " + e.getMessage());
             }
         }
     }
 
+    public static void main(String[] args) {
+        JFrame.setDefaultLookAndFeelDecorated(false);
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Viewer("Test");
+
+            }
+        });
+    }
 
 }
