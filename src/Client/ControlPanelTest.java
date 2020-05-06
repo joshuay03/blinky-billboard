@@ -1,6 +1,5 @@
 package Client;
 
-<<<<<<< HEAD
 import SocketCommunication.SocketCommunication;
 import SocketCommunication.SocketConnection;
 
@@ -8,12 +7,12 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ControlPanel extends SocketConnection implements SocketCommunication {
+public class ControlPanelTest extends SocketConnection implements SocketCommunication {
     private Socket socket;
     private DataInputStream input;
     private DataOutputStream output;
 
-    public ControlPanel(String propFile) {
+    public ControlPanelTest(String propFile) {
         super(propFile);
     }
 
@@ -50,23 +49,23 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     public static void main(String args[]){
-        ControlPanel controlPanel = new ControlPanel("C:\\Users\\Nick\\Desktop\\BlinkyBillboard\\src\\Server\\properties.txt");
+        ControlPanelTest controlPanelTest = new ControlPanelTest("C:\\Users\\Nick\\Desktop\\BlinkyBillboard\\src\\Server\\properties.txt");
         Scanner scanner = new Scanner(System.in);
 
         boolean controlPanelOpen = true;
         try {
-            controlPanel.start();
+            controlPanelTest.start();
 
             while (controlPanelOpen) {
                 String outputData = scanner.nextLine();
                 if ( outputData.equalsIgnoreCase("exit")) {
-                    controlPanel.sendOutput(outputData);
-                    controlPanel.close();
+                    controlPanelTest.sendOutput(outputData);
+                    controlPanelTest.close();
                     controlPanelOpen = false;
                 }
                 else {
-                    controlPanel.sendOutput(outputData);
-                    controlPanel.retrieveInput();
+                    controlPanelTest.sendOutput(outputData);
+                    controlPanelTest.retrieveInput();
                 }
             }
         }
@@ -75,18 +74,3 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
         }
     }
 }
-
-=======
-import Actions.DBCreator;
-
-public class ControlPanel {
-    public static void main(String[] args) {
-        /* creating the db only use when db not created*/
-//        DBCreator create = new DBCreator();
-//        create.CreateDB();
-        User user = new User(new String[]{"Create Billboards", "List Billboards", "Schedule Billboards", "Edit Users"});
-        Login loginPanel = new Login(user);
-
-    }
-}
->>>>>>> login_func

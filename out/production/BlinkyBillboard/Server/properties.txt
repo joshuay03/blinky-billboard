@@ -1,2 +1,0 @@
-port: 5056
-IP: localhost
