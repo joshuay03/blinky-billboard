@@ -1,10 +1,14 @@
 package BillboardSupport;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 public class Billboard {
 
@@ -48,11 +52,11 @@ public class Billboard {
         this.information = information;
     }
 
-    public Image getBillboardImage() {
+    public ImageIcon getBillboardImage() {
         return billboardImage;
     }
 
-    public void setBillboardImage(Image billboardImage) {
+    public void setBillboardImage(ImageIcon billboardImage) {
         this.billboardImage = billboardImage;
     }
 
@@ -84,7 +88,7 @@ public class Billboard {
 
     private String message, information;
 
-    private Image billboardImage;
+    private ImageIcon billboardImage;
 
     // ADD variable to track who owns the Billboard
 
@@ -107,7 +111,7 @@ public class Billboard {
      * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, Image image, LocalDateTime scheduledTime, int duration, int repeatInterval) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -131,7 +135,7 @@ public class Billboard {
      * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      * @param billboardDatabaseKey The key which corresponds to this Billboard in the database
      */
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, Image image, LocalDateTime scheduledTime, int duration, int repeatInterval, String billboardDatabaseKey) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval, String billboardDatabaseKey) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -149,6 +153,7 @@ public class Billboard {
      * @param billboardXML An XML String which conforms to the Billboard XML Spec.
      */
     public Billboard(String billboardXML) {
+        //TODO - read in Billboard XML
     }
 
     public Billboard(){
@@ -156,6 +161,17 @@ public class Billboard {
     }
 
 
+    public ImageIcon getImageIconFromURL(String url) throws Exception {
+        BufferedImage img = ImageIO.read(new URL(url));
+        return new ImageIcon(img);
+    }
+
+    public ImageIcon getImageIconFromBase64(String imageString) {
+
+        byte[] decodedImage = Base64.getDecoder().decode(imageString.getBytes());
+
+        return new ImageIcon(decodedImage);
+    }
 
 
 }
