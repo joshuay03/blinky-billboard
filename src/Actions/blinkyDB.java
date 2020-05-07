@@ -47,6 +47,7 @@ public class blinkyDB {
     public static void main(String[] args) throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
         Credentials creds = new Credentials("Liran", "SeaMonkey123");
-        db.dbconn.createStatement().executeQuery("insert into Users (user_name, password_hash, salt) values (" + creds.getUsername() + "," + creds.getPasswordHash() + "," + "123456");
+        String insertionQuery = "insert into Users (user_name, password_hash, salt) values (" + creds.getUsername() + "," + creds.getPasswordHash() + "," + "123456" + ")";
+        //db.dbconn.createStatement().executeQuery(insertionQuery);
     }
 }
