@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.net.URL;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 
 //TODO - Implement serializable
-public class Billboard {
+public class Billboard implements Serializable {
 
     public Color getBackgroundColour() {
         return backgroundColour;
