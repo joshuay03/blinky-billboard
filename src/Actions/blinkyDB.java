@@ -1,8 +1,10 @@
 package Actions;
 
 import Actions.DBProps;
+import Client.User;
 import SocketCommunication.Credentials;
 
+import javax.xml.transform.Result;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,17 +39,27 @@ public class blinkyDB {
     }
 
     public ResultSet LookUpUserDetails(String username) throws SQLException {
-        PreparedStatement UserLookUp = null;
-        String userLookUpString = String.format("select * from Users where Users");
+        PreparedStatement UserLookUp; // Create the prepared statement object
+        String userLookUpString = "select * from Users where user_name = ?";
+        dbconn.setAutoCommit(false);
 
+        UserLookUp = dbconn.prepareStatement(userLookUpString);
 
-        return UserLookUp.executeQuery(username);
+        UserLookUp.setString(1, username);
+
+        dbconn.setAutoCommit(true);
+        return UserLookUp.executeQuery();
     }
 
     public static void main(String[] args) throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
         Credentials creds = new Credentials("Liran", "SeaMonkey123");
-        String insertionQuery = "insert into Users (user_name, password_hash, salt) values (" + creds.getUsername() + "," + creds.getPasswordHash() + "," + "123456" + ")";
-        //db.dbconn.createStatement().executeQuery(insertionQuery);
+        /*String insertionQuery = String.format("INSERT INTO Users\n" +
+                "(user_name, user_permissions, password_hash, salt)\n" +
+                "VALUES('%s', %s, '%s', '%s');", creds.getUsername(), "NULL", creds.getPasswordHash(), "123456");
+        db.dbconn.createStatement().executeQuery(insertionQuery);*/
+        ResultSet rs = db.LookUpUserDetails("Liran");
+        rs.next();
+        System.out.println(rs.getString("password_hash"));
     }
 }
