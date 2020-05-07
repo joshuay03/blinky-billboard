@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `Scheduling` (
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
   `interval` int(11) unsigned NOT NULL COMMENT 'How often should the billboard repeat itself in minutes? (must be more than the duration )',
-  `scheduled_at` time NOT NULL DEFAULT current_timestamp() COMMENT 'When was the billboard created?',
+  `scheduled_at` time NOT NULL COMMENT 'When was the billboard created?',
   PRIMARY KEY (`schedule_id`,`billboard_id`,`viewer_id`),
   KEY `billboard_id_idx` (`billboard_id`),
   KEY `viewer_id_idx` (`viewer_id`),
