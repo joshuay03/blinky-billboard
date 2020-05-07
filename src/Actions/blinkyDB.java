@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Arrays;
 
 public class blinkyDB {
     private DBProps props;
@@ -40,26 +41,61 @@ public class blinkyDB {
 
     public ResultSet LookUpUserDetails(String username) throws SQLException {
         PreparedStatement UserLookUp; // Create the prepared statement object
-        String userLookUpString = "select * from Users where user_name = ?";
+        String userLookUpString = "select * from Users where user_name = ?"; // Define the query to run
         dbconn.setAutoCommit(false);
 
-        UserLookUp = dbconn.prepareStatement(userLookUpString);
+        UserLookUp = dbconn.prepareStatement(userLookUpString); // Compile the statement
 
-        UserLookUp.setString(1, username);
+        UserLookUp.setString(1, username); // Insert the provided username into the query
 
         dbconn.setAutoCommit(true);
-        return UserLookUp.executeQuery();
+        return UserLookUp.executeQuery(); // Run the query
+        //rs.next(); // Go to the first result (which should be the only result in this case
+    }
+
+    public void AddUser(Server.User user) throws SQLException {
+        char[] permissions = new char[4];
+        if (user.CanCreateBillboards) permissions[0] = 'B';
+        if (user.EditAllBillBoards) permissions[1] = 'E';
+        if (user.ScheduleBillboards) permissions[2] = 'S';
+        if (user.EditUsers) permissions[3] = 'U';
+
+        PreparedStatement UserInserter;
+        String userInsertionString = "INSERT INTO Users\n(user_name, user_permissions, password_hash, salt)\nVALUES(?, ?, ?, ?);";
+
+        dbconn.setAutoCommit(false);
+
+        UserInserter = dbconn.prepareStatement(userInsertionString); // Prepare the insertion statement
+        try {
+            UserInserter.setString(1, user.credentials.getUsername());
+            UserInserter.setString(2, Arrays.toString(permissions));
+            UserInserter.setBytes(3, user.credentials.getPasswordHash());
+            UserInserter.setBytes(4, user.salt);
+
+            UserInserter.executeUpdate();
+            dbconn.commit();
+        }
+        catch (SQLException e) {
+            try {
+                dbconn.rollback();
+            }
+            catch (SQLException excep)
+            {
+                System.out.println("Couldn't roll back - " + excep.toString());
+            }
+        }
+        dbconn.setAutoCommit(true);
     }
 
     public static void main(String[] args) throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
         Credentials creds = new Credentials("Liran", "SeaMonkey123");
+
         /*String insertionQuery = String.format("INSERT INTO Users\n" +
                 "(user_name, user_permissions, password_hash, salt)\n" +
-                "VALUES('%s', %s, '%s', '%s');", creds.getUsername(), "NULL", creds.getPasswordHash(), "123456");
+                "VALUES('%s', %s, '%s', '%s');", creds.getUsername(), "NULL", creds.getPasswordHash(), );
         db.dbconn.createStatement().executeQuery(insertionQuery);*/
-        ResultSet rs = db.LookUpUserDetails("Liran");
-        rs.next();
-        System.out.println(rs.getString("password_hash"));
+        //ResultSet rs = db.LookUpUserDetails("Liran");
+        //System.out.println(rs.getString("password_hash"));
     }
 }
