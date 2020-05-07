@@ -1,16 +1,14 @@
 package Actions;
 
 import Actions.DBProps;
+import SocketCommunication.Credentials;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class blinkyDB {
     private DBProps props;
@@ -38,7 +36,17 @@ public class blinkyDB {
         return dbconn.createStatement().executeQuery("select * from Billboards");
     }
 
+    public ResultSet LookUpUserDetails(String username) throws SQLException {
+        PreparedStatement UserLookUp = null;
+        String userLookUpString = String.format("select * from Users where Users");
+
+
+        return UserLookUp.executeQuery(username);
+    }
+
     public static void main(String[] args) throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
+        Credentials creds = new Credentials("Liran", "SeaMonkey123");
+        db.dbconn.createStatement().executeQuery("insert into Users (user_name, password_hash, salt) values (" + creds.getUsername() + "," + creds.getPasswordHash() + "," + "123456");
     }
 }
