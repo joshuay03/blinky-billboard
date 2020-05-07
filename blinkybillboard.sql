@@ -92,7 +92,7 @@ UNLOCK TABLES;
 CREATE TABLE IF NOT EXISTS `Users` (
   `user_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_permissions` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `password_hash` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` binary(32) NOT NULL,
   `salt` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+//TODO - Implement serializable
 public class Billboard {
 
     public Color getBackgroundColour() {
