@@ -81,7 +81,7 @@ public class blinkyDB {
             }
             catch (SQLException excep)
             {
-                System.out.println("Couldn't roll back - " + excep.toString());
+                //System.out.println("Couldn't roll back - " + excep.toString());
             }
         }
         dbconn.setAutoCommit(true);
