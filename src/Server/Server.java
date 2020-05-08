@@ -1,9 +1,11 @@
 package Server;
 
+import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 
 /**
  * A class to initiate a server for client-server connection.
@@ -13,6 +15,7 @@ import java.net.*;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
+    private List<User> users; // Currently connected users
 
     /**
      * Constructor for the server object. Calls the base class constructor.
@@ -84,6 +87,14 @@ public class Server extends SocketConnection {
         }
     }
 
+    /**
+     * Method which takes credentials and creates an internal User object and adds it to the list of connected users
+     */
+    public void formUserInstance(Credentials credentials) {
+        //User user = new User();
+
+        //users.add(user);
+    }
     /**
      * Method to close the server.
      */
