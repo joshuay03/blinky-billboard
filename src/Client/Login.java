@@ -1,6 +1,6 @@
 package Client;
 
-import Actions.DBProps;
+import Server.DBProps;
 
 import javax.swing.*;
 import java.io.IOException;

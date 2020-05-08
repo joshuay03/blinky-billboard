@@ -7,16 +7,12 @@ import java.security.NoSuchAlgorithmException;
 
 public class Credentials implements Serializable {
 
-    private String username;
+    final private String username; // Username cannot be changed
     private byte[] passwordHash;
 
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public byte[] getPasswordHash() {
@@ -37,6 +33,11 @@ public class Credentials implements Serializable {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+
+    public Credentials(String username, byte[] passwordHash){ // Create a credentials object using an already-hashed password (retrieved from the database)
+        this.username = username;
+        this.passwordHash = passwordHash;
     }
 
     public static void main (String[] args){
