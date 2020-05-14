@@ -37,7 +37,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     public static void main(String[] args) {
-        ControlPanel controlPanel = new ControlPanel("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/src/Server/properties.txt");
+        ControlPanel controlPanel = new ControlPanel("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/properties.txt");
         Scanner scanner = new Scanner(System.in);
         boolean controlPanelOpen = true;
 
