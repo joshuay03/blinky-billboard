@@ -44,10 +44,10 @@ public class blinkyDB {
      * @param columnFilter Name of column to filter by
      * @param valueFilter Value to filter by - supports *
      * @return The result of the query
-     * @throws SQLException
+     * @throws SQLException If there's an error in the query
      */
     protected ResultSet AdminLookUp(String tableName, String columnFilter, String valueFilter) throws SQLException {
-        final String sqlfilter = (valueFilter != "*") ? String.format("where %s = %s", columnFilter, valueFilter) : "";
+        final String sqlfilter = (!valueFilter.equals("*")) ? String.format("where %s = %s", columnFilter, valueFilter) : "";
         return dbconn.createStatement().executeQuery(String.format("select * from %s %s", tableName, sqlfilter));
     }
 
@@ -55,7 +55,7 @@ public class blinkyDB {
      * A method for the User constructor to read user data from the database
      * @param username Username
      * @return The details of said user
-     * @throws SQLException
+     * @throws SQLException If there are no users with the given username
      */
     protected ResultSet LookUpUserDetails(String username) throws SQLException {
         PreparedStatement UserLookUp; // Create the prepared statement object
@@ -160,9 +160,5 @@ public class blinkyDB {
             }
         }
         dbconn.setAutoCommit(true);
-    }
-
-    public static void main(String[] args) throws IOException, SQLException, NoSuchUserException {
-        blinkyDB db = new blinkyDB();
     }
 }
