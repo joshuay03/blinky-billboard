@@ -37,7 +37,11 @@ public class AuthenticationHandler {
      * @param database The database
      * @return Whether the credentials match
      */
-    public static boolean Authenticate (Credentials credentials, blinkyDB database) {
+
+    // removed database as parameter
+    public static boolean Authenticate (Credentials credentials) throws IOException, SQLException {
+
+        blinkyDB database = new blinkyDB();
 
         try {
             // Tries to get the user's details from the database
