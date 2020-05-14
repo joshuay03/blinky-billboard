@@ -21,8 +21,8 @@ public class Credentials implements Serializable {
 
     /** CONSTRUCTOR - Generates new credentials object appropriate for transmission over network
      *
-     * @param username
-     * @param password
+     * @param username The username
+     * @param password The password to be hashed
      */
     public Credentials (String username, String password){
         this.username = username;
@@ -38,36 +38,5 @@ public class Credentials implements Serializable {
     public Credentials(String username, byte[] passwordHash){ // Create a credentials object using an already-hashed password (retrieved from the database)
         this.username = username;
         this.passwordHash = passwordHash;
-    }
-
-    public static void main (String[] args){
-        Credentials credentials = new Credentials("Liran", "Seamonkeys123");
-
-        /* This writes the entire object to a file as a byte[] for read back later
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream("test");
-            ObjectOutputStream out = new ObjectOutputStream(fileOutputStream);
-
-            out.writeObject(credentials);
-
-            out.close();
-            fileOutputStream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // This reads in a Credentials object which was formerly stored in a file as a byte[]
-        try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("test"));
-
-            Credentials credentials1 = (Credentials)in.readObject();
-
-            in.close();
-
-        } catch (Exception e) {
-
-        }*/
-
     }
 }
