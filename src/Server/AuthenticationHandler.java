@@ -37,7 +37,6 @@ public class AuthenticationHandler {
      * @param database The database
      * @return Whether the credentials match
      */
-
     public static boolean Authenticate (Credentials credentials, blinkyDB database) {
         
 
