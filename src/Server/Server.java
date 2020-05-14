@@ -1,11 +1,14 @@
 package Server;
 
+import Exceptions.AuthenticationFailedException;
 import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Random;
 
 /**
  * A class to initiate a server for client-server connection.
@@ -15,7 +18,8 @@ import java.util.List;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
-    private List<User> users; // Currently connected users
+    private List<Token> tokens; // Currently valid tokens
+    public blinkyDB database;
 
     /**
      * Constructor for the server object. Calls the base class constructor.
@@ -23,6 +27,15 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
+        try {
+            this.database = new blinkyDB();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("db.props file not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed.");
+        }
     }
 
     /**
@@ -87,6 +100,21 @@ public class Server extends SocketConnection {
         }
     }
 
+    public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
+        if(AuthenticationHandler.Authenticate(credentials, database))
+        {
+            // Placeholder token generator - for now it's just gonna be random.
+            byte[] newToken = new byte[100];
+            new Random().nextBytes(newToken);
+            tokens.add(new Token(newToken));
+            return newToken;
+        }
+        else
+        {
+            throw new AuthenticationFailedException(credentials.getUsername());
+        }
+    }
+
     /**
      * Method which takes credentials and creates an internal User object and adds it to the list of connected users
      */
@@ -103,8 +131,8 @@ public class Server extends SocketConnection {
         super.close();
     }
 
-    public static void main(String args[]){
-        Server server = new Server("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/src/Server/properties.txt");
+    public static void main(String[] args){
+        Server server = new Server("db.props");
         try {
             server.start();
             boolean serverOpen = server.isServerAliveUtil();
