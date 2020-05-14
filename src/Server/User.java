@@ -114,13 +114,4 @@ public class User {
         EditUsers = editUsers;
         database.UpdateUserDetails(this);
     }
-
-    public static void main(String[] args) throws IOException, SQLException, NoSuchUserException {
-        blinkyDB blinky = new blinkyDB();
-        //User liran = new User(new Credentials("liran", "turtles"), false ,false, false, true, blinky);
-        User liran = new User("liran", blinky);
-        //liran.setCredentials("turtles", blinky);
-        //liran.setCredentials("palm", blinky);
-        System.out.println();
-    }
 }
