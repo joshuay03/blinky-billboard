@@ -5,6 +5,7 @@ import SocketCommunication.SocketCommunication;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 
 /**
@@ -29,6 +30,16 @@ public class ClientHandler extends Thread implements SocketCommunication {
         boolean closed = false;
         while (closed == false) {
             try {
+                ObjectInputStream inputObject = new ObjectInputStream(input);
+                try {
+                    // Cast the data into a request object to find out what the client wants
+                    //Request req = (Request)inputObject.readObject();
+                    // Todo: Handle the different cases of the value of the req.type enum
+                }
+                catch (Exception e)
+                {
+
+                }
                 outputData = handleInboundRequests(); // Handle the client's request and retrieve the response for that request
                 output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
             }
