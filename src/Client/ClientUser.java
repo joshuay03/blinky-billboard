@@ -1,9 +1,9 @@
 package Client;
 
-public class User {
+public class ClientUser {
     String[] permissions;
 
-    User(String[] permissions) {
+    ClientUser(String[] permissions) {
         this.permissions = permissions;
     }
 }
