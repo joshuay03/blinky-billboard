@@ -39,9 +39,8 @@ public class AuthenticationHandler {
      */
 
     // removed database as parameter
-    public static boolean Authenticate (Credentials credentials) throws IOException, SQLException {
-
-        blinkyDB database = new blinkyDB();
+    public static boolean Authenticate (Credentials credentials, blinkyDB database) throws IOException, SQLException {
+        
 
         try {
             // Tries to get the user's details from the database
