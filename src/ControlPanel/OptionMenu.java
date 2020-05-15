@@ -26,5 +26,20 @@ public class OptionMenu {
                 frame.setVisible(true);
             }
         });
+
+        scheduleButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new ScheduleBillboards(frame).scheduleBillboardsPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
     }
 }
