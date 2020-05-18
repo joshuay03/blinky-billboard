@@ -1,9 +1,8 @@
 package Tests;
 
 import Server.ClientHandler;
+import SocketCommunication.Request;
 import org.junit.jupiter.api.*;
-
-import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +32,7 @@ public class TestClientHandler {
             server = new ServerSocket(5057);
         }
         catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -52,7 +51,7 @@ public class TestClientHandler {
             clientHandler = new ClientHandler(socket, socketInput, socketOutput);
         }
         catch( Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -62,7 +61,8 @@ public class TestClientHandler {
     @Test
     public void receiveBasicInputFromClient() throws IOException {
         clientOutput.writeUTF("hello");
-        String msg = clientHandler.handleInboundRequests();
+        Request req = new Request();
+        String msg = clientHandler.handleInboundRequest(req);
         assertEquals("hello", msg);
     }
 
@@ -72,6 +72,6 @@ public class TestClientHandler {
     @AfterAll @Test
     public void closeConnection() {
         boolean closed = clientHandler.closeConnection();
-        assertEquals(true, closed);
+        assertTrue(closed);
     }
 }
