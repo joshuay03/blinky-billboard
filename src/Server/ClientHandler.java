@@ -95,13 +95,26 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
 
-
                 break;
             case GET_BILLBOARD_INFO:
+                // this is triggered inside the BillboardList()); GUI
+                // The control panel send the server the Billboard Name and valid session
+                // token e.g session = req.getSession();
+
                 break;
             case CREATE_BILLBOARD:
+                // triggered inside CreateBillboards() GUI
+                // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
+                // get list of billboards session user has created if billboardName in list make edit if not return error
+                // something like String billboardName = req.getData().get(billboardName);
+                // if billboardName does not exist respond with create new billboard
+                // if billboardName does exist and is not currently scheduled respond by replacing contents of billboard with new contents
+
+
                 break;
             case EDIT_BILLBOARD:
+                // this request will only happen if User has 'Edit all Billboards' permission
+                //
                 break;
             case DELETE_BILLBOARD:
                 break;
