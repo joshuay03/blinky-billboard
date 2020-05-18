@@ -28,24 +28,25 @@ public class Request implements Serializable {
         this.session = session;
     }
 
+    // I initially began to create each response in the response object but
     // this needs to be done in client handler because you need to pass around the objects and process them through the streams
 //
 //        switch(requestType) {
-//            case RequestType.LOGIN_REQ:
+//            case RequestType.LOGIN:
 //                //the username and password will come from login class
 //                credentials = new Credentials(args[1],args[2]);
 //                Response.serverResponse(credentials,server);
 //                break;
 //
-//            case RequestType.LIST_BILL_REQ:
+//            case RequestType.LIST_BILLBOARD:
 //                //this will get the list of billboards from the server
 //                Response.serverResponse();
 //
 //                break;
-//            case RequestType.GET_BILL_INFO_REQ:
+//            case RequestType.GET_BILLBOARD_INFO:
 //               Response.serverResponse();
 //                break;
-//            case RequestType.CREATE_BILL_REQ
+//            case RequestType.CREATE_BILLBOARD
 //                ;
 //                Response.serverResponse();
 //        }
