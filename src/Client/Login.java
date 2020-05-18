@@ -1,12 +1,16 @@
 package Client;
 
-import Server.*;
-import SocketCommunication.Credentials;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
+import SocketCommunication.Session;
+
+import static SocketCommunication.ServerRequest.*;
 
 import javax.swing.*;
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
+
 
 public class Login extends JFrame {
 
@@ -15,7 +19,7 @@ public class Login extends JFrame {
     JPasswordField passField = new JPasswordField(15);
     JButton loginButton = new JButton("Login");
 
-    Login() {
+    public Login() {
         super("Login");
         setSize(300, 200);
         setLocation(500, 280);
@@ -44,37 +48,48 @@ public class Login extends JFrame {
             String username = userField.getText();
             char[] password = passField.getPassword();
 
-          Credentials credentials ;
 
+            //get kogin dat
+            HashMap<String, String> loginDetails = new HashMap<>();
+            loginDetails.put("username", username);
+            loginDetails.put("password", Arrays.toString(password));
+
+            //create request
+            Request loginRequest = new Request(LOGIN, loginDetails, null);
+
+            // Send request to server e.g. output.writeObject(loginRequest)
+
+            // use global input stream, this is just to show how it works
+            ObjectInputStream inputObject = new ObjectInputStream(null);
+            Response response = null;
 
             try {
-
-
-                if (username!= null && password != null) {
-
-                    //only create credential object when values are not null
-
-                    credentials = new Credentials(username,password.toString());
-
-                    if (AuthenticationHandler.Authenticate(credentials)) {
-                        //in this case enter when at least one result comes it means user is valid
-                        OptionMenu optionMenuPanel = new OptionMenu(Authenticate.user);
-                        optionMenuPanel.setVisible(true);
-                        dispose();
-                    } else {
-                        //in this case enter when  result size is zero  it means user is invalid
-                        JOptionPane.showMessageDialog(this, "Wrong Password / Username");
-                        userField.setText("");
-                        passField.setText("");
-                        userField.requestFocus();
-                    }
-                }
-
-            } catch (IOException | SQLException err ) {
-                JOptionPane.showMessageDialog(this, err.getMessage());
+                response = ((Response) inputObject.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "Cannot connect to server");
+                userField.setText("");
+                passField.setText("");
+                userField.requestFocus();
+                return false;
             }
 
+            // check status of response
+            boolean status = response.isStatus();
 
+            if (!status) {
+                String errorMsg = (String) response.getData();
+                JOptionPane.showMessageDialog(this, errorMsg);
+                userField.setText("");
+                passField.setText("");
+                userField.requestFocus();
+                return false;
+                // return some error response if status is false
+            }
+
+            // if status == true, get session object Session session = response.getData()
+            Session session = (Session) response.getData();
+
+            // Save session object and move onto next screen
         });
     }
 }

@@ -1,7 +1,13 @@
 package Server;
 
+import Exceptions.AuthenticationFailedException;
+import Exceptions.NoSuchUserException;
 import SocketCommunication.SocketCommunication;
 import SocketCommunication.Request;
+import SocketCommunication.Session;
+import SocketCommunication.Response;
+import SocketCommunication.Credentials;
+
 
 import java.io.*;
 import java.net.Socket;
@@ -24,7 +30,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
     @Override
     public void run() {
-        String outputData;
+        Response<?> outputData;
         boolean closed = false;
         while (!closed) {
             try {
@@ -55,12 +61,80 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * @return A response Todo: Replace the string with a response object
      * @throws IOException Won't be thrown once the function gets rewritten to handle objects
      */
-    public String handleInboundRequest(Request req) throws IOException {
-        String inputData = input.readUTF();
-        System.out.println(this.client + " request: " + inputData); // Print client request to server
-        if (inputData.equalsIgnoreCase("exit"))
-            closeConnection();
-        return inputData; // Will query the database with the input and return the response into "output" variable
+    public Response handleInboundRequest(Request req) throws IOException {
+        Session session;
+
+        // Example handle login
+        switch(req.getRequestType()) {
+            case VIEWER_CURRENTLY_SCHEDULED:
+                break;
+            case LOGIN:
+                // EXAMPLE how to use the request given from the client
+                String username = req.getData().get("username");
+                String password = req.getData().get("password");
+
+                if (username == null || password == null) {
+                    // failure status and error message
+                    return new Response(false, "Missing username or password");
+
+                }
+
+                Credentials credentials = new Credentials(username, password);
+                try {
+                    // User the real server for the parameter not null
+                    session = new Session(credentials, null);
+                } catch (AuthenticationFailedException | NoSuchUserException e) {
+                    return new Response( false, "Cannot create session.");
+                }
+
+                return new Response(true, session);
+
+            case LIST_BILLBOARD:
+                session = req.getSession();
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // logic to return list of billboards e.g. new Response(true, BillboardList());
+
+
+                break;
+            case GET_BILL_INFO_REQ:
+                break;
+            case CREATE_BILL_REQ:
+                break;
+            case EDIT_BILL_REQ:
+                break;
+            case DELETE_BILL_REQ:
+                break;
+            case VIEW_SCHEDULED_BILL_REQ:
+                break;
+            case scheduleBillboardReq:
+                break;
+            case removeScheduledReq:
+                break;
+            case listUserReq:
+                break;
+            case createUserReq:
+                break;
+            case getUserPermReq:
+                break;
+            case setUserPermReq:
+                break;
+            case setUserPasswordReq:
+                break;
+            case deleteUserReq:
+                break;
+            case logoutReq:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + req.getRequestType());
+        }
+
+
+//        String inputData = input.readUTF();
+//        System.out.println(this.client + " request: " + inputData); // Print client request to server
+//        if (inputData.equalsIgnoreCase("exit"))
+//            closeConnection();
+//        return inputData; // Will query the database with the input and return the response into "output" variable
     }
 
     public boolean closeConnection() {
