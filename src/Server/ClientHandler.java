@@ -1,10 +1,9 @@
 package Server;
 
 import SocketCommunication.SocketCommunication;
+import SocketCommunication.Request;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -27,10 +26,21 @@ public class ClientHandler extends Thread implements SocketCommunication {
     public void run() {
         String outputData;
         boolean closed = false;
-        while (closed == false) {
+        while (!closed) {
             try {
-                outputData = handleInboundRequests(); // Handle the client's request and retrieve the response for that request
-                output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
+                ObjectInputStream inputObject = new ObjectInputStream(input);
+                ObjectOutputStream outputWriter = new ObjectOutputStream(output);
+                try {
+                    // Cast the data into a request object to find out what the client wants
+                    Request req = (Request)inputObject.readObject();
+                    outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
+                    outputWriter.writeObject("Request: " + outputData + " yielded the response: " + outputData); // Replaced below statement with a generic object writer
+                    //output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
             catch (IOException e) {
                 closed = closeConnection();
@@ -39,7 +49,13 @@ public class ClientHandler extends Thread implements SocketCommunication {
         }
     }
 
-    public String handleInboundRequests() throws IOException {
+    /**
+     * A function which takes requests and returns a response object, to be sent back Todo: Rewrite the function to do something other than returning a string
+     * @param req The request to handle
+     * @return A response Todo: Replace the string with a response object
+     * @throws IOException Won't be thrown once the function gets rewritten to handle objects
+     */
+    public String handleInboundRequest(Request req) throws IOException {
         String inputData = input.readUTF();
         System.out.println(this.client + " request: " + inputData); // Print client request to server
         if (inputData.equalsIgnoreCase("exit"))
@@ -57,7 +73,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
             closed = true;
         }
         catch(IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
         return closed;
     }

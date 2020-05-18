@@ -16,6 +16,11 @@ public class blinkyDB {
     private DBProps props;
     private Connection dbconn;
 
+    /**
+     * Database object constructor
+     * @throws IOException If db.props isn't found
+     * @throws SQLException If there's a problem connecting to the database
+     */
     public blinkyDB() throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
         props = new DBProps(); // Read db.props
         // Ensure the schema exists
@@ -33,7 +38,6 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
-    // Todo: Make a method which takes a client session object and populates a "db connection" field within it
     protected ResultSet getBillboards(User user) throws SQLException { // First database method - needs permission management
         return dbconn.createStatement().executeQuery("select * from Billboards");
     }
