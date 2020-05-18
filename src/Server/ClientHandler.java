@@ -97,33 +97,33 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
 
                 break;
-            case GET_BILL_INFO_REQ:
+            case GET_BILLBOARD_INFO:
                 break;
-            case CREATE_BILL_REQ:
+            case CREATE_BILLBOARD:
                 break;
-            case EDIT_BILL_REQ:
+            case EDIT_BILLBOARD:
                 break;
-            case DELETE_BILL_REQ:
+            case DELETE_BILLBOARD:
                 break;
-            case VIEW_SCHEDULED_BILL_REQ:
+            case VIEW_SCHEDULED_BILLBOARD:
                 break;
-            case scheduleBillboardReq:
+            case SCHEDULE_BILLBOARD:
                 break;
-            case removeScheduledReq:
+            case REMOVE_SCHEDULED:
                 break;
-            case listUserReq:
+            case LIST_USERS:
                 break;
-            case createUserReq:
+            case CREATE_USER:
                 break;
-            case getUserPermReq:
+            case GET_USER_PERMISSION:
                 break;
-            case setUserPermReq:
+            case SET_USER_PERMISSION:
                 break;
-            case setUserPasswordReq:
+            case SET_USER_PASSWORD:
                 break;
-            case deleteUserReq:
+            case DELETE_USER:
                 break;
-            case logoutReq:
+            case LOGOUT:
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + req.getRequestType());
