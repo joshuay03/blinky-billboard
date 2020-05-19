@@ -20,13 +20,7 @@ public class Session implements Serializable {
 
     public Session(Credentials credentials, Server server) throws AuthenticationFailedException, NoSuchUserException {
         User serverUser = new User(credentials.getUsername(), server.database);
-        try {
-            this.token = Token.Generate(credentials.getUsername());
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
+        this.token = Token.Generate(credentials.getUsername());
         this.username = serverUser.getCredentials().getUsername();
         this.canCreateBillboards = serverUser.CanCreateBillboards;
         this.editAllBillboards = serverUser.EditAllBillBoards;

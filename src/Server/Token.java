@@ -1,18 +1,27 @@
 package Server;
 
+import Exceptions.InvalidTokenException;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class Token implements Serializable {
     String username;
     Timestamp expiryDate;
+
+    private Token(String username, Timestamp expiry){
+        this.expiryDate = expiry;
+        this.username = username;
+    }
 
     Token(String username){
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
@@ -20,38 +29,41 @@ public class Token implements Serializable {
         this.username = username;
     }
 
-    private Token(String username, Timestamp expiry){
-        this.expiryDate = expiry;
-        this.username = username;
-    }
-
     private static SecretKey getKey(String filePath){
         // Read the secretKey from a file and create an AES key based on it
-        String encodedKey = null;
+        String encodedKey;
         try {
             encodedKey = Files.readString(Paths.get(filePath));
         } catch (IOException e) { // If the tokenEncryptionKey file wasn't found
             e.printStackTrace();
             throw new UncheckedIOException(e);
         }
-        byte[] decodedKey = encodedKey.getBytes();
+        byte[] decodedKey = null;
+        try {
+            decodedKey = MessageDigest.getInstance("SHA-256").digest(encodedKey.getBytes());
+        } catch (NoSuchAlgorithmException ignored) {}
+        assert decodedKey != null;
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
-
 
     /**
      * Takes a username and generates a token for it
      * @param username The username to generate a token for
      * @return The token
-     * @throws BadPaddingException To be handled
-     * @throws IllegalBlockSizeException To be handled
      */
-    public static byte[] Generate(String username) throws BadPaddingException, IllegalBlockSizeException {
+    public static byte[] Generate(String username) {
+        // Pad the username up to the maximum length, to ensure the username's length cannot be determined based on the token's length
+        int MaxUserNameLength = 100;
+        // Pad the username up to the maximum length with newlines (since they can't be in the username)
+        String paddedUsername = Optional.of(MaxUserNameLength - username.length())
+                .filter(i -> i > 0)
+                .map(i-> String.format("%" + i + "s", "").replace(" ", String.valueOf('\n')) + username)
+                .orElse(username);
         // Generate a new token object
-        Token unencrypted = new Token(username);
+        Token unencrypted = new Token(paddedUsername);
         // Turn it to a byte[] for encryption
         ByteArrayOutputStream serialiser = new ByteArrayOutputStream();
-        ObjectOutputStream oos = null;
+        ObjectOutputStream oos;
         try {
             oos = new ObjectOutputStream(serialiser);
             oos.writeObject(unencrypted);
@@ -62,51 +74,58 @@ public class Token implements Serializable {
         Cipher c = null;
         try {
             c = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        } catch (NoSuchAlgorithmException ignored) {} catch (NoSuchPaddingException ignored) {}
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException ignored) {}
         try {
+            assert c != null;
             c.init(Cipher.ENCRYPT_MODE, key);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
+        byte[] encryptedOutput = null;
         // Return the encrypted token object
-        return c.doFinal(unencryptedSerialised);
+        try {
+            encryptedOutput = c.doFinal(unencryptedSerialised);
+        } catch (IllegalBlockSizeException | BadPaddingException ignored) {}  // These exceptions should never actually occur
+        return encryptedOutput;
     }
 
     /**
-     * Takes a token and returns a readable object if it's valid - throws an exception if the token is invalid
-     * @param encryptedToken The token to read
-     * @return A readable token object
-     * @throws NoSuchPaddingException To be handled
-     * @throws NoSuchAlgorithmException To be handled
+     * Takes a token and returns a readable object, provided that the token is valid
+     * @param encryptedToken The token to validate and read the details of
+     * @return The token's details
+     * @throws InvalidTokenException If the provided token is invalid
      */
-    public static Token readToken(byte[] encryptedToken) throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+    public static Token readToken(byte[] encryptedToken) throws InvalidTokenException {
+        Cipher cipher = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException ignored) {}  // Should never be thrown
         SecretKey key = getKey("tokenEncryptionKey");
         try {
+            assert cipher != null;
             cipher.init(Cipher.DECRYPT_MODE, key);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         }
         byte[] decryptedToken = null;
-        decryptedToken = cipher.doFinal(encryptedToken);
+        try {
+            decryptedToken = cipher.doFinal(encryptedToken);
+        } catch (IllegalBlockSizeException | BadPaddingException ignored) {}  // Should never be thrown
         ObjectInputStream ois = null;
         try {
+            assert decryptedToken != null;
             ByteArrayInputStream is = new ByteArrayInputStream(decryptedToken);
             ois = new ObjectInputStream(is);
         } catch (IOException ignored) {}
         Token token = null;
         try {
+            assert ois != null;
             token = (Token)ois.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException ignored) {} catch(NullPointerException e){
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException ignored) {} catch(NullPointerException e){
+            // If the token is invalid, then reading the object from the decrypted token will fail.
+            throw new InvalidTokenException(encryptedToken);
         }
-        return token;
-    }
-
-    public static void main(String[] args) throws BadPaddingException, IllegalBlockSizeException {
-        byte[] test = Generate("Liran");
-        System.out.println(test.toString());
+        assert token != null;
+        return new Token(token.username.replaceAll(String.valueOf('\n'), ""), token.expiryDate);
     }
 }
