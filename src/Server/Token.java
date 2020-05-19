@@ -34,14 +34,17 @@ public class Token implements Serializable {
         String encodedKey;
         try {
             encodedKey = Files.readString(Paths.get(filePath));
-        } catch (IOException e) { // If the tokenEncryptionKey file wasn't found
+        } catch (IOException e) { // If the tokenSecretKey file wasn't found
             e.printStackTrace();
             throw new UncheckedIOException(e);
         }
         byte[] decodedKey = null;
         try {
+            // Hash the secretKey to ensure that it has an acceptable length
             decodedKey = MessageDigest.getInstance("SHA-256").digest(encodedKey.getBytes());
-        } catch (NoSuchAlgorithmException ignored) {}
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         assert decodedKey != null;
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
@@ -68,13 +71,17 @@ public class Token implements Serializable {
             oos = new ObjectOutputStream(serialiser);
             oos.writeObject(unencrypted);
             oos.flush();
-        } catch (IOException ignored){}
+        } catch (IOException e){
+            e.printStackTrace();
+        }
         byte[] unencryptedSerialised = serialiser.toByteArray();
-        SecretKey key = getKey("tokenEncryptionKey");
+        SecretKey key = getKey("tokenSecretKey");
         Cipher c = null;
         try {
             c = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException ignored) {}
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
         try {
             assert c != null;
             c.init(Cipher.ENCRYPT_MODE, key);
@@ -85,7 +92,9 @@ public class Token implements Serializable {
         // Return the encrypted token object
         try {
             encryptedOutput = c.doFinal(unencryptedSerialised);
-        } catch (IllegalBlockSizeException | BadPaddingException ignored) {}  // These exceptions should never actually occur
+        } catch (IllegalBlockSizeException | BadPaddingException e) { // These exceptions should never actually occur
+            e.printStackTrace();
+        }
         return encryptedOutput;
     }
 
@@ -99,8 +108,10 @@ public class Token implements Serializable {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException ignored) {}  // Should never be thrown
-        SecretKey key = getKey("tokenEncryptionKey");
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
+        }  // Should never be thrown
+        SecretKey key = getKey("tokenSecretKey");
         try {
             assert cipher != null;
             cipher.init(Cipher.DECRYPT_MODE, key);
@@ -110,18 +121,24 @@ public class Token implements Serializable {
         byte[] decryptedToken = null;
         try {
             decryptedToken = cipher.doFinal(encryptedToken);
-        } catch (IllegalBlockSizeException | BadPaddingException ignored) {}  // Should never be thrown
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }  // Should never be thrown
         ObjectInputStream ois = null;
         try {
             assert decryptedToken != null;
             ByteArrayInputStream is = new ByteArrayInputStream(decryptedToken);
             ois = new ObjectInputStream(is);
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Token token = null;
         try {
             assert ois != null;
             token = (Token)ois.readObject();
-        } catch (IOException | ClassNotFoundException ignored) {} catch(NullPointerException e){
+        } catch (IOException | ClassNotFoundException e) { // These exceptions should never be thrown
+            e.printStackTrace();
+        } catch(NullPointerException e){
             // If the token is invalid, then reading the object from the decrypted token will fail.
             throw new InvalidTokenException(encryptedToken);
         }
