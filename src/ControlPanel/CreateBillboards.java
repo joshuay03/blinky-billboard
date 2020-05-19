@@ -210,7 +210,4 @@ public class CreateBillboards {
             }
         });
     }
-
-    public void createUIComponents() {
-    }
 }
