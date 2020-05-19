@@ -1,16 +1,16 @@
 package Server;
 
 import Exceptions.AuthenticationFailedException;
+import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
-import SocketCommunication.SocketCommunication;
-import SocketCommunication.Request;
-import SocketCommunication.Session;
-import SocketCommunication.Response;
-import SocketCommunication.Credentials;
-
-
+import SocketCommunication.*;
+import Server.Token;
 import java.io.*;
 import java.net.Socket;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+import static SocketCommunication.ServerRequest.LOGIN;
 
 /**
  * A class to handle each client individually on an assigned thread.
@@ -21,6 +21,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
+    private Session session;
 
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output) {
         this.client = client;
@@ -59,18 +60,31 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * A function which takes requests and returns a response object, to be sent back Todo: Rewrite the function to do something other than returning a string
      * @param req The request to handle
      * @return A response Todo: Replace the string with a response object
-     * @throws IOException Won't be thrown once the function gets rewritten to handle objects
      */
-    public Response handleInboundRequest(Request req) throws IOException {
-        Session session;
-
+    public Response handleInboundRequest(Request req) {
+        Token sessionAuthentication = null;
+        if(req.getRequestType() != LOGIN) // Verify the token before continuing, except for LOGIN requests
+        {
+            try {
+                sessionAuthentication = Token.readToken(session.token);
+                // Get current timestamp
+                Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+                // Check if the token is expired
+                if (now.after(sessionAuthentication.expiryDate))
+                {
+                    return new Response(false,"Token has expired.");
+                }
+            } catch (InvalidTokenException e) {
+                return new Response(false, "Token verification failed.");
+            }
+        }
         // Example handle login
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
                 break;
             case LOGIN:
                 // EXAMPLE how to use the request given from the client
-                String username = req.getData().get("username");
+                String username = req.getData().get("username"); // The username should only be read from the request in the case of login requests
                 String password = req.getData().get("password");
 
                 if (username == null || password == null) {
@@ -92,7 +106,8 @@ public class ClientHandler extends Thread implements SocketCommunication {
             case LIST_BILLBOARD:
                 session = req.getSession();
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+                assert sessionAuthentication != null;
+                String exampleOfHowToCheckUsername = sessionAuthentication.username; // Example of how to read the username in non-login requests
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
 
                 break;
