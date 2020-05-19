@@ -10,6 +10,8 @@ import java.io.Serializable;
 
 public class Session implements Serializable {
     public byte[] token;
+    // While derivable from the token, this variable exists so that the client knows the username it's connected as.
+    // The server will ignore this and always derive the username from the session token
     public String username;
     public boolean canCreateBillboards;
     public boolean editAllBillboards;
