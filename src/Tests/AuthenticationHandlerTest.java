@@ -20,14 +20,7 @@ class AuthenticationHandlerTest {
     @BeforeAll
     static void initialiseDBAndSetUser() throws IOException, SQLException {
         database = new blinkyDB();
-        try {
-            new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
-        } catch (SQLException e) {
-            try {
-                new User("Liran", database).setCredentials("SeaMonkey123", database);
-            } catch (NoSuchUserException ignored) {
-            }
-        }
+        new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
     }
 
     @Test
