@@ -1,33 +1,19 @@
 package ControlPanel;
 
 import javax.swing.*;
-import javax.swing.colorchooser.ColorSelectionModel;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
+import javax.swing.colorchooser.DefaultColorSelectionModel;
 
 public class ColourChooser extends JColorChooser {
     public ColourChooser() {
-        super(new ColorSelectionModel() {
-            @Override
-            public Color getSelectedColor() {
-                return null;
+        super(new DefaultColorSelectionModel());
+
+        AbstractColorChooserPanel[] panels = super.getChooserPanels();
+        for (AbstractColorChooserPanel accp : panels) {
+            if (accp.getDisplayName().equals("Swatches")) {
+                super.setChooserPanels(new AbstractColorChooserPanel[] {accp});
             }
-
-            @Override
-            public void setSelectedColor(Color color) {
-
-            }
-
-            @Override
-            public void addChangeListener(ChangeListener listener) {
-
-            }
-
-            @Override
-            public void removeChangeListener(ChangeListener listener) {
-
-            }
-        });
+        }
 
         super.setPreviewPanel(new JPanel());
     }
