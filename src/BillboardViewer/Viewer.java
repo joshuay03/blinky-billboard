@@ -43,7 +43,7 @@ public class Viewer extends JFrame {
     Viewer (String arg0){
         super(arg0);
 
-        this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
@@ -54,11 +54,16 @@ public class Viewer extends JFrame {
         this.addKeyListener(new MyKeyboardHandler());
         this.addMouseListener(new MyMouseHandler());
 
-        displayedBillboard = new RenderedBillboard(DummyBillboards.messagePictureAndInformationBillboard(), Toolkit.getDefaultToolkit().getScreenSize());
-        this.getContentPane().add(displayedBillboard);
+        Dimension halfSize = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2, (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
 
-        repaint();
+        this.setSize(halfSize);
         this.setVisible(true);
+
+
+        displayedBillboard = new RenderedBillboard(DummyBillboards.informationOnlyBillboard(), halfSize);
+        this.add(displayedBillboard);
+
+        System.out.println();
 
     }
 
@@ -75,7 +80,6 @@ public class Viewer extends JFrame {
     }
 
     public static void main(String[] args) {
-        JFrame.setDefaultLookAndFeelDecorated(false);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override

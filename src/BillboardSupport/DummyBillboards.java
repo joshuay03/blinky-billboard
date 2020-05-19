@@ -16,12 +16,12 @@ public class DummyBillboards {
     public static Billboard messageOnlyBillboard() {
         Billboard b = new Billboard();
 
-        b.setMessage("Message Only!");
+        b.setMessage("Basic message-only Billboard");
 
         return b;
     }
 
-    public static Billboard imageOnlyBillboard() {
+    public static Billboard pictureOnlyBillboard() {
         Billboard b = new Billboard();
 
         b.setBillboardImage(b.getImageIconFromBase64(dummyImage));

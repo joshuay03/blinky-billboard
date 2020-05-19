@@ -88,6 +88,8 @@ public class Billboard implements Serializable {
 
     private Color backgroundColour, messageColour, informationColour;
 
+    private static Color DEFAULT_COLOUR = Color.WHITE;
+
     private String message, information;
 
     private ImageIcon billboardImage;
