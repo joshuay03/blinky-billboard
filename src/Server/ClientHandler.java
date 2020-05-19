@@ -97,36 +97,57 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case GET_BILLBOARD_INFO:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name and valid session
                 // token e.g session = req.getSession();
 
                 //server responds with billboards contents
 
+
                 break;
             case CREATE_BILLBOARD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // triggered inside CreateBillboards() GUI
+                // user with "Create Billboards" permission
+
                 // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
                 // something like String billboardName = req.getData().get(billboardName);
 
+                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
+
+                // if billboard does exist
                 // get list of billboards session user has created
                 // if billboardName in list make edit if not return error
 
                 // if billboardName does not exist create new billboard
+
                 // if billboardName exist and is currently scheduled edit can not be made return error
                 // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
 
                 break;
             case EDIT_BILLBOARD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // this request will only happen if User has 'Edit all Billboards' permission
-                // Client sends server billboard name, contents (billboard ID, creator) and valid session token
+                // Client sends server billboardName, contents (billboard ID, creator) and valid session token
+
+                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
+
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
                 break;
             case DELETE_BILLBOARD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // Client sends server billboard name and valid session token
-                // Do something to find or check the perrmissions of session if not already found
+
+                // if billboardName does not exist return error
+
+                // Do something to find or check the permissions of session if not already found
 
                 // if session.permissions = 'Create Billboards' get list of billboards session user has created
                 // if billboard is created by session user and not currently scheduled allow delete else return error
@@ -135,22 +156,30 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case VIEW_SCHEDULED_BILLBOARD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // this request will only happen is user has 'Schedule Billboards' permission
-                // I think it should be triggered inside the ScheduleBillboards() GUI
+                // should be triggered inside the ScheduleBillboards() GUI
 
                 // client will send server a valid session
-                // if session token is valid server will respond with list of billboards the have been scheduled
+
+                // if session token is valid server will respond with list of billboards that have been scheduled
                 // including billboardName, creator, time scheduled, and duration
 
                 break;
             case SCHEDULE_BILLBOARD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // triggered inside the ScheduleBillboards() GUI
 
                 //Client will send server billboardName, timeScheduled, duration, and valid session
                 // (there also might be more information e.g for handling recurrence)
 
-                // Server will then respond by adding new billboard to schedule
+                // if billboard name is not found return error
+
+                // Else server will add new billboard to schedule
+
                 // if there is a billboard previously scheduled for the time of the newly scheduled billboard
                 // new billboard will take precedence over previously scheduled billboard but will not delete previously scheduled
 
@@ -161,16 +190,21 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case REMOVE_SCHEDULED:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // triggered inside the ScheduleBillboards() GUI
 
-                //Client will send the valid session token of the user along with billboardName and scheduledTime
-                // of billboard that is to be deleted
+                //Client will send the valid session token, billboardName and scheduledTime of billboard that is to be deleted
 
-                // Server will respond by removing the billboard from the schedule and sending back an acknowledgement of success
+                // if billboardName does not exist or is not scheduled for sheduledTime return error
+
+                // if info is correct Server will remove the billboard from the schedule and send back an acknowledgement of success
 
                 break;
             case LIST_USERS:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
 
@@ -179,17 +213,77 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case CREATE_USER:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // request only happens if user has 'Edit Users' permission
+                // triggered inside EditUsers() GUI
+
+                // Client will send server username, list of permissions, hashedPassword, and valid session token
+
+                // if username already exist send error
+
+                // else Server will create user and send back acknowledgement of success
 
                 break;
             case GET_USER_PERMISSION:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // Client will send server a username and valid session token
+
+                // if session user is requesting their own details return details, no permissions required
+
+                // if session user is requesting details of another user, check permissions = 'Edit Users' == true then return details
+
+                // else return false send error
+
                 break;
             case SET_USER_PERMISSION:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // request only happens if user has 'Edit Users' permission
+                // triggered inside EditUsers() GUI
+
+                // Client will send server username(user whose permissions are to be changed),
+                // list of permissions, and valid session token
+
+                // if username does not exist return error
+
+                // else if session user is requesting to remove their own "Edit User" permission return error
+
+                // else Server change that users permissions and send back acknowledgement of success
+
                 break;
             case SET_USER_PASSWORD:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // Client will send server a username and hashedPassword
+
+                // if session user is trying to change own password Server will change password and send back acknowledgement of success
+
+                // else if session user is trying to change password of another user check permission = 'Edit User' == true then allow change
+                //and send back acknowledgement of success
+
+                // else return false send error
                 break;
             case DELETE_USER:
+                // check if session is valid e.g. expired, if not return failure and trigger relogin
+
+                // request only happens if user has 'Edit Users' permission
+                // triggered inside EditUsers() GUI
+
+                // Client will send username of user to be deleted and valid session token
+
+                // if username != to username of session user (no user can delete themselves)
+                // Server will delete the user and send back acknowledgement of success
+
+                // if username deleted = creator of a billboard, billboard will no longer have owner registered in DB
+                // CRA says for team to decide what will happen in this circumstance
+
                 break;
             case LOGOUT:
+                // Client will send server valid session token
+
+                // server will expire session token and send back and acknowledgement
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + req.getRequestType());
