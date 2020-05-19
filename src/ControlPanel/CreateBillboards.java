@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
     protected JPanel titlePanel;
-    private JButton importButton;
-    private JButton exportButton;
+    protected JButton importButton;
+    protected JButton exportButton;
     protected JLabel createBillboardsLabel;
     protected JPanel optionPanel;
     protected JPanel createPanel;
@@ -33,7 +33,7 @@ public class CreateBillboards {
     protected JLabel informationLabel;
     protected JTextArea informationTextArea;
     protected JButton informationColourButton;
-    protected JLabel backgroundLabel;
+    protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
 
     protected Color backgroundColour;
@@ -43,8 +43,7 @@ public class CreateBillboards {
     protected Color informationColor;
     protected String pictureText;
 
-    protected JPanel colourPanel;
-    protected ColourChooser colourChooser;
+    protected ColourChooser colourChooser = new ColourChooser();
 
     public CreateBillboards(JFrame frame) {
         importButton.addActionListener(new ActionListener() {
@@ -131,6 +130,23 @@ public class CreateBillboards {
             }
         });
 
+        pictureFormattedTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                pictureText = pictureFormattedTextField.getText();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                pictureText = pictureFormattedTextField.getText();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                pictureText = pictureFormattedTextField.getText();
+            }
+        });
+
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -158,25 +174,23 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    messageColor = colourChooser.getColor();
+                    informationColor = colourChooser.getColor();
                 }
             }
         });
 
-        pictureFormattedTextField.getDocument().addDocumentListener(new DocumentListener() {
+        backgroundColourButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
-            public void insertUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
+            public void actionPerformed(ActionEvent e) {
+                int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                if (res == 0) {
+                    backgroundColour = colourChooser.getColor();
+                }
             }
         });
 
@@ -188,7 +202,7 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Billboard billboard = new Billboard(Color.WHITE, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureText), LocalDateTime.now(), 30, 5);
+                Billboard billboard = new Billboard(backgroundColour, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureText), LocalDateTime.now(), 30, 5);
                 frame.setContentPane(new RenderedBillboard(billboard, new Dimension(900, 500)));
                 frame.pack();
                 frame.setLocationRelativeTo(null);
@@ -198,6 +212,5 @@ public class CreateBillboards {
     }
 
     public void createUIComponents() {
-        colourChooser = new ColourChooser();
     }
 }
