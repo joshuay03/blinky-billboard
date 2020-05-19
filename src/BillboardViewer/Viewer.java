@@ -6,33 +6,11 @@ import BillboardSupport.DummyBillboards;
 import Client.ClientConnector;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.logging.Handler;
 
 import javax.swing.*;
 
-class MyMouseHandler extends MouseAdapter {
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1){
-            System.exit(1);
-        }
-    }
-
-}
-
-class MyKeyboardHandler extends KeyAdapter {
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-            System.exit(1);
-        }
-    }
-}
+import BillboardViewer.*;
 
 public class Viewer extends JFrame {
 
@@ -43,27 +21,18 @@ public class Viewer extends JFrame {
     Viewer (String arg0){
         super(arg0);
 
-
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
         this.setUndecorated(true);
 
-        this.setBackground(Color.BLACK);
+        Dimension screenSize = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
-        this.addKeyListener(new MyKeyboardHandler());
-        this.addMouseListener(new MyMouseHandler());
-
-        Dimension halfSize = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2, (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
-
-        this.setSize(halfSize);
+        this.setSize(screenSize);
         this.setVisible(true);
 
-
-        displayedBillboard = new RenderedBillboard(DummyBillboards.informationOnlyBillboard(), halfSize);
+        displayedBillboard = new RenderedBillboard(DummyBillboards.messagePictureAndInformationBillboard(), screenSize);
         this.add(displayedBillboard);
-
-        System.out.println();
 
     }
 
