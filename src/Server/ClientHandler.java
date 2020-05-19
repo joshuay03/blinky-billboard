@@ -4,7 +4,7 @@ import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
-import Server.Token;
+
 import java.io.*;
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -66,7 +66,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         if(req.getRequestType() != LOGIN) // Verify the token before continuing, except for LOGIN requests
         {
             try {
-                sessionAuthentication = Token.readToken(session.token);
+                sessionAuthentication = Token.validate(session.token);
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired

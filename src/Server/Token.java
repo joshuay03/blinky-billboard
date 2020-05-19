@@ -104,7 +104,7 @@ public class Token implements Serializable {
      * @return The token's details
      * @throws InvalidTokenException If the provided token is invalid
      */
-    public static Token readToken(byte[] encryptedToken) throws InvalidTokenException {
+    public static Token validate(byte[] encryptedToken) throws InvalidTokenException {
         Cipher cipher = null;
         try {
             cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
