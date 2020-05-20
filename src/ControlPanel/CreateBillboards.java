@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
-    protected JPanel titlePanel;
     protected JButton importButton;
     protected JButton exportButton;
     protected JLabel createBillboardsLabel;
