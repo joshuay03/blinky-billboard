@@ -35,6 +35,7 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
+    private JButton backButton;
 
     protected Color backgroundColour;
     protected String messageText;
@@ -46,6 +47,21 @@ public class CreateBillboards {
     protected ColourChooser colourChooser = new ColourChooser();
 
     public CreateBillboards(JFrame frame) {
+        backButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
+
         importButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
