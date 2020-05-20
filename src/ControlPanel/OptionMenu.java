@@ -41,5 +41,19 @@ public class OptionMenu {
                 frame.setVisible(true);
             }
         });
+        editButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new EditUsers(frame).editUsersPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
     }
 }
