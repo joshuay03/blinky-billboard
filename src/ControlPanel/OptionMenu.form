@@ -2,90 +2,135 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.OptionMenu">
   <grid id="27dc6" binding="optionMenuPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="500" height="634"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <component id="70b2c" class="javax.swing.JButton" binding="createButton">
+      <grid id="cd4ad" binding="optionsPanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="1.0" weighty="1.0"/>
         </constraints>
-        <properties>
-          <text value="Create Billboards"/>
-        </properties>
-      </component>
-      <component id="ac2ad" class="javax.swing.JButton" binding="listButton">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <text value="List Billboards"/>
-        </properties>
-      </component>
-      <component id="957c0" class="javax.swing.JButton" binding="scheduleButton">
-        <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <text value="Schedule Billboards"/>
-        </properties>
-      </component>
-      <component id="4e88f" class="javax.swing.JButton" binding="editButton">
-        <constraints>
-          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <text value="Edit Users"/>
-        </properties>
-      </component>
-      <grid id="6a931" binding="titlePanel" layout-manager="CardLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <preferredSize width="156" height="30"/>
-        </properties>
+        <properties/>
         <border type="none"/>
         <children>
-          <component id="1c680" class="javax.swing.JLabel" binding="optionMenuLabel">
+          <grid id="75b36" layout-manager="CardLayout" hgap="0" vgap="0">
             <constraints>
-              <card name="Card1"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
-            <properties>
-              <font size="25"/>
-              <preferredSize width="156" height="30"/>
-              <text value="Option Menu"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="70b2c" class="javax.swing.JButton" binding="createButton">
+                <constraints>
+                  <card name="Card1"/>
+                </constraints>
+                <properties>
+                  <text value="Create Billboards"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="544f3" layout-manager="CardLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="ac2ad" class="javax.swing.JButton" binding="listButton">
+                <constraints>
+                  <card name="Card1"/>
+                </constraints>
+                <properties>
+                  <text value="List Billboards"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="489b7" layout-manager="CardLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="957c0" class="javax.swing.JButton" binding="scheduleButton">
+                <constraints>
+                  <card name="Card1"/>
+                </constraints>
+                <properties>
+                  <text value="Schedule Billboards"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="41bc9" layout-manager="CardLayout" hgap="0" vgap="0">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="4e88f" class="javax.swing.JButton" binding="editButton">
+                <constraints>
+                  <card name="Card1"/>
+                </constraints>
+                <properties>
+                  <text value="Edit Users"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
         </children>
       </grid>
-      <grid id="be8c8" layout-manager="CardLayout" hgap="0" vgap="0">
+      <grid id="ec5ee" binding="titlePanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
-        <properties>
-          <preferredSize width="0" height="100"/>
-        </properties>
+        <properties/>
         <border type="none"/>
-        <children/>
-      </grid>
-      <grid id="7b7ad" layout-manager="CardLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties>
-          <preferredSize width="0" height="150"/>
-        </properties>
-        <border type="none"/>
-        <children/>
+        <children>
+          <splitpane id="e026d">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <dividerLocation value="50"/>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="9dd53" class="javax.swing.JButton" binding="backButton" default-binding="true">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="ca959" class="javax.swing.JLabel">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <font size="30"/>
+                  <horizontalAlignment value="0"/>
+                  <text value="Option Menu       "/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+        </children>
       </grid>
     </children>
   </grid>

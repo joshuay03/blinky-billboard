@@ -14,14 +14,30 @@ public class OptionMenu {
     protected JButton listButton;
     protected JButton scheduleButton;
     protected JButton editButton;
-    private JLabel optionMenuLabel;
-    private JPanel titlePanel;
+    protected JButton backButton;
+    protected JPanel titlePanel;
+    protected JPanel optionsPanel;
 
     /**
      *
      * @param frame
      */
     public OptionMenu(JFrame frame) {
+        backButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new Login(frame).loginPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
+
         createButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.

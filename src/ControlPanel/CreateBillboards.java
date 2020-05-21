@@ -39,6 +39,7 @@ public class CreateBillboards {
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
     private JButton backButton;
+    private JPanel titlePanel;
 
     protected Color backgroundColour;
     protected String messageText;
