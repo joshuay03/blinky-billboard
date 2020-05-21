@@ -1,6 +1,7 @@
 package Server;
 
 import Exceptions.NoSuchUserException;
+import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 
 import java.io.IOException;
@@ -58,10 +59,14 @@ public class User {
      * @param ScheduleBillboards permission
      * @param EditUsers permission
      * @param database The database
-     * @throws SQLException If the creation fails, such as if the user already exists
+     * @throws UserAlreadyExistsException If the creation fails - if the user already exists
      */
-    public User(Credentials credentials, boolean CreateBillboards, boolean EditAllBillBoards, boolean ScheduleBillboards, boolean EditUsers, blinkyDB database) throws SQLException {
-        database.RegisterUserInDatabase(credentials, CreateBillboards, EditAllBillBoards, ScheduleBillboards, EditUsers);
+    public User(Credentials credentials, boolean CreateBillboards, boolean EditAllBillBoards, boolean ScheduleBillboards, boolean EditUsers, blinkyDB database) throws UserAlreadyExistsException {
+        try {
+            database.RegisterUserInDatabase(credentials, CreateBillboards, EditAllBillBoards, ScheduleBillboards, EditUsers);
+        } catch (SQLException e) {
+            throw new UserAlreadyExistsException(credentials.getUsername());
+        }
         try {
             User user = new User(credentials.getUsername(), database);
             this.EditUsers = user.EditUsers;
@@ -71,6 +76,7 @@ public class User {
             this.credentials = user.credentials;
             this.salt = user.salt;
         } catch (NoSuchUserException ignored) {} // There must be a user since it was just created
+
     }
 
     /**

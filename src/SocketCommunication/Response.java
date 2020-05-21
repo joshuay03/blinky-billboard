@@ -1,4 +1,7 @@
 package SocketCommunication;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 
@@ -19,5 +22,16 @@ public class Response implements Serializable {
     public Response(boolean status, Object data) {
         this.data = data;
         this.status = status;
+    }
+
+    public byte[] serialise(){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream os = new ObjectOutputStream(bos);
+            os.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bos.toByteArray();
     }
 }

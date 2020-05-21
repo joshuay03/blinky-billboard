@@ -1,4 +1,4 @@
-package Client;
+package Tests;
 
 import SocketCommunication.SocketCommunication;
 import SocketCommunication.SocketConnection;
@@ -34,7 +34,7 @@ public class ControlPanelTest extends SocketConnection implements SocketCommunic
             output.writeUTF(msg);
         }
         catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -44,11 +44,11 @@ public class ControlPanelTest extends SocketConnection implements SocketCommunic
             System.out.println(input.readUTF());
         }
         catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
-    public static void main(String args[]){
+    public static void main(String[] args){
         ControlPanelTest controlPanelTest = new ControlPanelTest("C:\\Users\\Nick\\Desktop\\BlinkyBillboard\\src\\Server\\properties.txt");
         Scanner scanner = new Scanner(System.in);
 
@@ -70,7 +70,7 @@ public class ControlPanelTest extends SocketConnection implements SocketCommunic
             }
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

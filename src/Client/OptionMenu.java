@@ -1,7 +1,7 @@
 package Client;
 
 import SocketCommunication.Request;
-import SocketCommunication.RequestType;
+import SocketCommunication.ServerRequest;
 import SocketCommunication.Session;
 
 import javax.swing.*;
@@ -56,7 +56,7 @@ public class OptionMenu extends JFrame {
     public void actionListBillboards(Session session) {
         listAllBillboardsButton.addActionListener(ae -> {
             System.out.println("Testing list billboards button");
-            Request.serverRequest(RequestType.LIST_BILL_REQ,session);
+            Request(requestType.LIST_BILLBOARD,session);
         });
     }
 

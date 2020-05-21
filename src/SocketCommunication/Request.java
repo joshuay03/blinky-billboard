@@ -1,11 +1,14 @@
 package SocketCommunication;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
 
 public class Request implements Serializable {
-    private ServerRequest requestType;
+    public ServerRequest requestType;
     private Session session; //can be null
     private HashMap<String, String> data; // can be null
 
@@ -28,28 +31,18 @@ public class Request implements Serializable {
         this.session = session;
     }
 
-    // I initially began to create each response in the response object but
-    // this needs to be done in client handler because you need to pass around the objects and process them through the streams
-//
-//        switch(requestType) {
-//            case RequestType.LOGIN:
-//                //the username and password will come from login class
-//                credentials = new Credentials(args[1],args[2]);
-//                Response.serverResponse(credentials,server);
-//                break;
-//
-//            case RequestType.LIST_BILLBOARD:
-//                //this will get the list of billboards from the server
-//                Response.serverResponse();
-//
-//                break;
-//            case RequestType.GET_BILLBOARD_INFO:
-//               Response.serverResponse();
-//                break;
-//            case RequestType.CREATE_BILLBOARD
-//                ;
-//                Response.serverResponse();
-//        }
-//    }
+
+    public byte[] serialise(){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream os = new ObjectOutputStream(bos);
+            os.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bos.toByteArray();
+    }
+
+
 }
 

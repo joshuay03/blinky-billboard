@@ -1,6 +1,7 @@
 package Tests;
 
 import Exceptions.NoSuchUserException;
+import Exceptions.UserAlreadyExistsException;
 import Server.AuthenticationHandler;
 import Server.User;
 import Server.blinkyDB;
@@ -18,16 +19,9 @@ class AuthenticationHandlerTest {
     private static blinkyDB database;
 
     @BeforeAll
-    static void initialiseDBAndSetUser() throws IOException, SQLException {
+    static void initialiseDBAndSetUser() throws IOException, UserAlreadyExistsException, SQLException {
         database = new blinkyDB();
-        try {
-            new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
-        } catch (SQLException e) {
-            try {
-                new User("Liran", database).setCredentials("SeaMonkey123", database);
-            } catch (NoSuchUserException ignored) {
-            }
-        }
+        new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
     }
 
     @Test

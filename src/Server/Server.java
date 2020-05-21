@@ -18,7 +18,9 @@ import java.util.Random;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
-    private List<Token> tokens; // Currently valid tokens
+    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
+    // because we don't want it to persist server restarts
+    //private List<Token> tokens;
     public blinkyDB database;
 
     /**
@@ -100,29 +102,27 @@ public class Server extends SocketConnection {
         }
     }
 
+    /** Function will be replaced by simply decrypting a given token
+     * Attempts to create a new valid token - an important part of the login process
+     * @param credentials The credentials to validate
+     * @return The new token that was already added to the list of valid tokens
+     * @throws AuthenticationFailedException If the credentials aren't valid
+
     public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
         if(AuthenticationHandler.Authenticate(credentials, database))
         {
             // Placeholder token generator - for now it's just gonna be random.
             byte[] newToken = new byte[100];
             new Random().nextBytes(newToken);
-            tokens.add(new Token(newToken));
+            tokens.add(new Token(newToken, credentials.getUsername()));
             return newToken;
         }
         else
         {
             throw new AuthenticationFailedException(credentials.getUsername());
         }
-    }
+    }*/
 
-    /**
-     * Method which takes credentials and creates an internal User object and adds it to the list of connected users
-     */
-    public void formUserInstance(Credentials credentials) {
-        //User user = new User();
-
-        //users.add(user);
-    }
     /**
      * Method to close the server.
      */
