@@ -2,16 +2,44 @@ package ControlPanel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+/**
+ * A class to represent a "Schedule Billboards" page which is bound to ScheduleBillboards.form
+ * @author Joshua Young
+ */
 public class ScheduleBillboards {
     protected JPanel scheduleBillboardsPanel;
-    protected JPanel optionPanel;
     protected JPanel schedulePanel;
     protected JTable scheduleTable;
+    private JPanel titlePanel;
+    private JButton backButton;
 
+    /**
+     *
+     * @param frame
+     */
     public ScheduleBillboards(JFrame frame) {
+        backButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
     }
 
+    /**
+     *
+     */
     private void createUIComponents() {
         String[] columns = new String[] {"Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
         Object[][] data = new Object[][] {

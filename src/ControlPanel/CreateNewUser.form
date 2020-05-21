@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.CreateNewUser">
+  <grid id="27dc6" binding="createNewUserPanel" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="500" height="415"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="3eb93" binding="credentialsPanel" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="1.0" weighty="1.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <splitpane id="3b5f7">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+              <preferredSize width="300" height="30"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="dc2eb" class="javax.swing.JLabel" binding="user_idLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="user_id:"/>
+                </properties>
+              </component>
+              <component id="55dcc" class="javax.swing.JTextField" binding="user_idTextField">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <preferredSize width="200" height="30"/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+          <splitpane id="1d51">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="807af" class="javax.swing.JLabel" binding="usernameLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="username:"/>
+                </properties>
+              </component>
+              <component id="9911e" class="javax.swing.JTextField" binding="usernameTextField">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+          <splitpane id="1783e">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="6ac31" class="javax.swing.JLabel" binding="passwordLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="password:"/>
+                </properties>
+              </component>
+              <component id="62757" class="javax.swing.JPasswordField" binding="passwordField">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+          <splitpane id="6d5e9">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="d2025" class="javax.swing.JLabel" binding="confirmPasswordLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="confirm password:"/>
+                </properties>
+              </component>
+              <component id="4b5c1" class="javax.swing.JPasswordField" binding="confirmPasswordField">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+          <component id="e796e" class="javax.swing.JLabel" binding="permissionsLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Permissions:"/>
+            </properties>
+          </component>
+          <component id="990f3" class="javax.swing.JCheckBox" binding="createBillboardsCheckBox" default-binding="true">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <horizontalAlignment value="10"/>
+              <horizontalTextPosition value="11"/>
+              <text value="Create Billboards"/>
+            </properties>
+          </component>
+          <component id="1784c" class="javax.swing.JCheckBox" binding="editAllBillboardsCheckBox" default-binding="true">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Edit All Billboards"/>
+            </properties>
+          </component>
+          <component id="8f619" class="javax.swing.JCheckBox" binding="scheduleBillboardsCheckBox" default-binding="true">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Schedule Billboards"/>
+            </properties>
+          </component>
+          <component id="a18ed" class="javax.swing.JCheckBox" binding="editUsersCheckBox" default-binding="true">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Edit Users"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="54df" binding="titlePanel" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <splitpane id="b4a2d">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <dividerLocation value="50"/>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="aa87d" class="javax.swing.JButton" binding="backButton" default-binding="true">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Back"/>
+                </properties>
+              </component>
+              <component id="fef3f" class="javax.swing.JLabel" binding="createNewUserLabel">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <font size="30"/>
+                  <horizontalAlignment value="0"/>
+                  <preferredSize width="267" height="36"/>
+                  <text value="Create New User       "/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

@@ -17,6 +17,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.LocalDateTime;
 
+/**
+ * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
+ * @author Joshua Young
+ */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
     protected JButton importButton;
@@ -45,6 +49,10 @@ public class CreateBillboards {
 
     protected ColourChooser colourChooser = new ColourChooser();
 
+    /**
+     *
+     * @param frame
+     */
     public CreateBillboards(JFrame frame) {
         backButton.addActionListener(new ActionListener() {
             /**

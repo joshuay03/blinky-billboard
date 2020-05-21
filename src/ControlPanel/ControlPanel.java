@@ -10,12 +10,21 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * A class which represents a control panel which connects to the server
+ * @author Joshua Young
+ */
 public class ControlPanel extends SocketConnection implements SocketCommunication, Runnable {
-    private Socket socket;
-    private DataInputStream input;
-    private DataOutputStream output;
-    private JFrame frame;
+    protected Socket socket;
+    protected DataInputStream input;
+    protected DataOutputStream output;
+    protected JFrame frame;
 
+    /**
+     * Constructs a control panel which uses the information in the properties file to establish a connection with the
+     * server
+     * @param propFile the properties file which contains the IP and Port of the server
+     */
     public ControlPanel(String propFile) {
         super(propFile);
         frame = new JFrame("Control Panel");
@@ -23,6 +32,10 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
     }
 
+    /**
+     * Initialises a socket connection
+     * @throws IOException
+     */
     public void start() throws IOException {
         super.start();
 
@@ -36,8 +49,13 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
         }
     }
 
+    /**
+     * Creates a new control control panel instance
+     * @param args
+     */
     public static void main(String[] args) {
-        ControlPanel controlPanel = new ControlPanel("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/properties.txt");
+        ControlPanel controlPanel = new ControlPanel
+                ("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/properties.txt");
         Scanner scanner = new Scanner(System.in);
         boolean controlPanelOpen = true;
 
@@ -65,15 +83,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     /**
-     * When an object implementing interface {@code Runnable} is used
-     * to create a thread, starting the thread causes the object's
-     * {@code run} method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method {@code run} is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
+     * Places the login panel in the control panel's frame in a separate thread
      */
     @Override
     public void run() {
@@ -84,9 +94,9 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     /**
-     * A method to communicate with another socket and send a message.
+     * Communicates with and sends a message to the server
      *
-     * @param msg a string containing the output being sent to another socket.
+     * @param msg a string containing the output being sent to the server
      */
     @Override
     public void sendOutput(String msg) {
@@ -99,8 +109,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     }
 
     /**
-     * // A method to communicate with another socket and retrieve a message.
-     *
+     * Communicates with and receives a message from the server
      */
     @Override
     public void retrieveInput() {

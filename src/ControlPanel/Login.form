@@ -1,48 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.Login">
-  <grid id="27dc6" binding="loginPanel" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="0" left="0" bottom="0" right="0"/>
+  <grid id="27dc6" binding="loginPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="500" height="459"/>
     </constraints>
-    <properties/>
+    <properties>
+      <preferredSize width="250" height="126"/>
+    </properties>
     <border type="none"/>
     <children>
-      <component id="4b6c1" class="javax.swing.JTextField" binding="usernameField">
+      <grid id="227c" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="a9ab1" class="javax.swing.JPasswordField" binding="passwordField">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="fe47d" class="javax.swing.JButton" binding="loginButton">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <horizontalTextPosition value="11"/>
-          <text value="Login"/>
+          <preferredSize width="250" height="120"/>
         </properties>
-      </component>
-      <vspacer id="7809">
+        <border type="none"/>
+        <children/>
+      </grid>
+      <grid id="7c62d" binding="usernameFieldPanel" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
-      </vspacer>
-      <vspacer id="bbba">
+        <properties>
+          <focusable value="true"/>
+          <minimumSize width="0" height="0"/>
+          <requestFocusEnabled value="true"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="4b6c1" class="javax.swing.JTextField" binding="usernameField">
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties>
+              <columns value="0"/>
+              <focusable value="true"/>
+              <font/>
+              <name value=""/>
+              <preferredSize width="250" height="30"/>
+              <text value="Username"/>
+              <toolTipText value=""/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="9d6c0" binding="passwordFieldPanel" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
-      </vspacer>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="a9ab1" class="javax.swing.JPasswordField" binding="passwordField">
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties>
+              <minimumSize width="0" height="0"/>
+              <preferredSize width="250" height="30"/>
+              <text value="Password"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="51f92" binding="loginButtonPanel" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="fe47d" class="javax.swing.JButton" binding="loginButton">
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties>
+              <horizontalTextPosition value="11"/>
+              <minimumSize width="0" height="0"/>
+              <opaque value="false"/>
+              <preferredSize width="250" height="30"/>
+              <text value="Login"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="995c" binding="titlePanel" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="a17e6" class="javax.swing.JLabel" binding="loginLabel">
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties>
+              <alignmentY value="0.5"/>
+              <autoscrolls value="false"/>
+              <font size="25"/>
+              <horizontalAlignment value="0"/>
+              <horizontalTextPosition value="11"/>
+              <preferredSize width="250" height="30"/>
+              <text value="Login"/>
+              <verticalAlignment value="0"/>
+              <verticalTextPosition value="0"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="9715d" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <preferredSize width="250" height="210"/>
+        </properties>
+        <border type="none"/>
+        <children/>
+      </grid>
     </children>
   </grid>
 </form>

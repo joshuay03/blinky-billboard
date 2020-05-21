@@ -4,13 +4,23 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * A class to represent an "Option Menu" page which is bound to OptionMenu.form
+ * @author Joshua Young
+ */
 public class OptionMenu {
     protected JPanel optionMenuPanel;
     protected JButton createButton;
     protected JButton listButton;
     protected JButton scheduleButton;
     protected JButton editButton;
+    private JLabel optionMenuLabel;
+    private JPanel titlePanel;
 
+    /**
+     *
+     * @param frame
+     */
     public OptionMenu(JFrame frame) {
         createButton.addActionListener(new ActionListener() {
             /**
@@ -41,6 +51,7 @@ public class OptionMenu {
                 frame.setVisible(true);
             }
         });
+
         editButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
