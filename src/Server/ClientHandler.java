@@ -31,7 +31,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
     @Override
     public void run() {
-        Response<?> outputData;
+        Response outputData;
         boolean closed = false;
         while (!closed) {
             try {
