@@ -1,8 +1,18 @@
 package ControlPanel;
 
+import SocketCommunication.Request;
+import SocketCommunication.Response;
+import SocketCommunication.Session;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static SocketCommunication.ServerRequest.LOGIN;
 //import java.nio.charset.StandardCharsets;
 //import java.security.MessageDigest;
 //import java.security.NoSuchAlgorithmException;
@@ -21,6 +31,7 @@ public class Login {
     protected JPanel passwordFieldPanel;
     protected JPanel loginButtonPanel;
     protected JPanel titlePanel;
+    private JPanel panel;
 
     /**
      * Authenticates the user and opens an "Option Menu" page on successful login
@@ -47,7 +58,57 @@ public class Login {
                 }
             }
         });
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                char[] password = passwordField.getPassword();
+
+                //get login data
+                HashMap<String, String> loginDetails = new HashMap<>();
+                loginDetails.put("username", username);
+                loginDetails.put("password", Arrays.toString(password));
+
+                //create request
+                Request loginRequest = new Request(LOGIN, loginDetails, null);
+
+                // Send request to server e.g. output.writeObject(loginRequest)
+
+                // use global input stream, this is just to show how it works
+                ObjectInputStream inputObject = new ObjectInputStream(null);
+                Response response = null;
+
+                try {
+                    response = ((Response) inputObject.readObject());
+                } catch (IOException | ClassNotFoundException e) {
+                    JOptionPane.showMessageDialog(this, "Cannot connect to server");
+                    usernameField.setText("");
+                    passwordField.setText("");
+                    usernameField.requestFocus();
+                    return false;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(this, errorMsg);
+                    usernameField.setText("");
+                    passwordField.setText("");
+                    usernameField.requestFocus();
+                    return false;
+                    // return some error response if status is false
+                }
+
+                // if status == true, get session object Session session = response.getData()
+                Session session = (Session) response.getData();
+
+                // Save session object and move onto next screen
+            }
+        });
     }
+
 
 //    public static String generateHash(char[] input) throws NoSuchAlgorithmException {
 //        MessageDigest digest = MessageDigest.getInstance("SHA-256");

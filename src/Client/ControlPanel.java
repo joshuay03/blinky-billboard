@@ -6,7 +6,7 @@ public class ControlPanel {
 //        DBCreator create = new DBCreator();
 //        create.CreateDB();
         ClientUser user = new ClientUser(new String[]{"Create Billboards", "List Billboards", "Schedule Billboards", "Edit Users"});
-        Login loginPanel = new Login();
+       
 
     }
 }
