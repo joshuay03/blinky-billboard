@@ -81,7 +81,8 @@ public class Login {
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-                    return false;
+//                    return false;
+
                 }
 
                 // check status of response
@@ -93,12 +94,14 @@ public class Login {
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-                    return false;
+//                    return false;
                     // return some error response if status is false
                 }
 
                 // if status == true, get session object Session session = response.getData()
-                Session session = (Session) response.getData();
+                if(status == true) {
+                    Session session = (Session) response.getData();
+                }
 
                 // Save session object and move onto next screen
 
