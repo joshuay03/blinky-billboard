@@ -33,6 +33,7 @@ public class Login {
     protected JPanel titlePanel;
     private JPanel panel;
 
+
     /**
      * Authenticates the user and opens an "Option Menu" page on successful login
      * @param frame the main frame in which the next page is to be placed
@@ -56,11 +57,6 @@ public class Login {
                 catch(Exception ex) {
                     System.out.println(ex);
                 }
-            }
-        });
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 char[] password = passwordField.getPassword();
 
@@ -105,8 +101,11 @@ public class Login {
                 Session session = (Session) response.getData();
 
                 // Save session object and move onto next screen
+
             }
         });
+
+
     }
 
 
