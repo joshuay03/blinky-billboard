@@ -13,8 +13,8 @@ public class ScheduleBillboards {
     protected JPanel scheduleBillboardsPanel;
     protected JPanel schedulePanel;
     protected JTable scheduleTable;
-    private JPanel titlePanel;
-    private JButton backButton;
+    protected JPanel titlePanel;
+    protected JButton backButton;
 
     /**
      *
