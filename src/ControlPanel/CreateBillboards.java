@@ -38,8 +38,8 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
-    private JButton backButton;
-    private JPanel titlePanel;
+    protected JButton backButton;
+    protected JPanel titlePanel;
 
     protected Color backgroundColour;
     protected String messageText;
