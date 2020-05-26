@@ -57,12 +57,12 @@ public class OptionMenu extends JFrame {
         setVisible(true);
     }
 
-    public void actionListBillboards(Session session) {
+    public void actionListBillboards(ClientConnector connector) {
         listAllBillboardsButton.addActionListener(ae -> {
             System.out.println("Testing list billboards button");
             Response res = null;
             try {
-                res = new Request(LIST_BILLBOARD, null, session).Send();
+                res = new Request(LIST_BILLBOARD, null, connector.session).Send(connector);
             } catch (IOException e) {
                 e.printStackTrace();
             }
