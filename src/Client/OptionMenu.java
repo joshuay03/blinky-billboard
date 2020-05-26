@@ -1,10 +1,14 @@
 package Client;
 
 import SocketCommunication.Request;
-import SocketCommunication.ServerRequest;
+import static SocketCommunication.ServerRequest.*;
+
+import SocketCommunication.Response;
 import SocketCommunication.Session;
 
 import javax.swing.*;
+
+import java.io.IOException;
 
 public class OptionMenu extends JFrame {
 
@@ -56,7 +60,12 @@ public class OptionMenu extends JFrame {
     public void actionListBillboards(Session session) {
         listAllBillboardsButton.addActionListener(ae -> {
             System.out.println("Testing list billboards button");
-            Request(requestType.LIST_BILLBOARD,session);
+            Response res = null;
+            try {
+                res = new Request(LIST_BILLBOARD, null, session).Send();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 

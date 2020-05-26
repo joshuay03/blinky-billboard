@@ -1,19 +1,16 @@
 package Tests;
 
-import Client.ClientCommunication;
+import Client.ClientConnector;
 
 import org.junit.jupiter.api.*;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClientConnection {
-    ClientCommunication clientConnection;
+    ClientConnector clientConnection;
     ServerSocket server;
     Socket socket;
     String propFile = "t";

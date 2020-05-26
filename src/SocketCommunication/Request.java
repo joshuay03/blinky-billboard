@@ -1,5 +1,7 @@
 package SocketCommunication;
 
+import Client.ClientConnector;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -29,6 +31,42 @@ public class Request implements Serializable {
         this.requestType = requestType;
         this.data = data;
         this.session = session;
+    }
+
+    /**
+     * Returns a request with a session attached - the attachment should happen at the connector level
+     * @param session The session to attach
+     * @return A new request with an attached session
+     */
+    public Request withSession(Session session){
+        Request newReq = null;
+        try {
+            newReq = (Request)this.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        newReq.session = session;
+        return newReq;
+    }
+
+    /**
+     * Sends the request to the server - creates a new connection. Only for migration.
+     * @return The response from the server
+     * @throws IOException If the connection fails
+     */
+    public Response Send() throws IOException {
+        ClientConnector connector = new ClientConnector("properties.txt");
+        return connector.sendRequest(this);
+    }
+
+    /**
+     * Sends the request to the server
+     * @param connector The connection to the server to send the request through
+     * @return The response from the server
+     * @throws IOException If the connection fails
+     */
+    public Response Send(ClientConnector connector) throws IOException {
+        return connector.sendRequest(this);
     }
 
 

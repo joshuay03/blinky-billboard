@@ -1,5 +1,6 @@
 package ControlPanel;
 
+import Client.ClientConnector;
 import SocketCommunication.*;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ import java.util.Scanner;
  * @author Joshua Young
  */
 public class ControlPanel extends SocketConnection implements SocketCommunication, Runnable {
+    protected Client.ClientConnector connector;
     protected Socket socket;
     protected DataInputStream input;
     protected DataOutputStream output;
@@ -87,6 +89,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
      */
     @Override
     public void run() {
+        connector = new ClientConnector("properties.txt");
         frame.setContentPane(new Login(frame).loginPanel);
         frame.pack();
         frame.setLocationRelativeTo(null);

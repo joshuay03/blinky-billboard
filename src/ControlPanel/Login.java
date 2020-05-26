@@ -1,8 +1,10 @@
 package ControlPanel;
 
+import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 import SocketCommunication.Session;
+import SocketCommunication.SocketConnection;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -68,15 +70,14 @@ public class Login {
                 //create request
                 Request loginRequest = new Request(LOGIN, loginDetails, null);
 
-                // Send request to server e.g. output.writeObject(loginRequest)
-
-                // use global input stream, this is just to show how it works
-                ObjectInputStream inputObject = new ObjectInputStream(null);
+                // Send request to server
                 Response response = null;
+                // use global input stream, this is just to show how it works
 
                 try {
-                    response = ((Response) inputObject.readObject());
-                } catch (IOException | ClassNotFoundException e) {
+                    // Todo: Put an existing connection object into the send function
+                    response = loginRequest.Send();
+                } catch (IOException excep) {
                     JOptionPane.showMessageDialog(this, "Cannot connect to server");
                     usernameField.setText("");
                     passwordField.setText("");

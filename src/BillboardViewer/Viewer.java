@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
-import javax.tools.Tool;
 
 class MyMouseHandler extends MouseAdapter {
 

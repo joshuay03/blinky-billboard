@@ -38,8 +38,27 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
-    protected ResultSet getBillboards(User user) throws SQLException { // First database method - needs permission management
-        return dbconn.createStatement().executeQuery("select * from Billboards");
+    protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
+        PreparedStatement getBillboards;
+        final String billboardLookUpString = (searchQuery != null && searchType != null) ?
+                "select * from Billboards where ? like ?" : "select * from Billboards";
+        dbconn.setAutoCommit(false);
+        getBillboards = dbconn.prepareStatement(billboardLookUpString);
+        if (searchQuery != null && searchType != null)
+        {
+            getBillboards.setString(1, searchType);
+            getBillboards.setString(2, searchQuery);
+        }
+        dbconn.setAutoCommit(true);
+        return getBillboards.executeQuery();
+    }
+
+    protected ResultSet getBillboards(String searchQuery) throws SQLException{
+        return this.getBillboards(searchQuery, "creator");
+    }
+
+    protected ResultSet getBillboards() throws SQLException {
+        return this.getBillboards(null, null);
     }
 
     /**
