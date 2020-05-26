@@ -1,9 +1,14 @@
 package Server;
 
+import Exceptions.AuthenticationFailedException;
+import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Random;
 
 /**
  * A class to initiate a server for client-server connection.
@@ -13,6 +18,10 @@ import java.net.*;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
+    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
+    // because we don't want it to persist server restarts
+    //private List<Token> tokens;
+    public blinkyDB database;
 
     /**
      * Constructor for the server object. Calls the base class constructor.
@@ -20,6 +29,15 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
+        try {
+            this.database = new blinkyDB();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("db.props file not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed.");
+        }
     }
 
     /**
@@ -29,7 +47,6 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            super.start();
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
@@ -54,7 +71,6 @@ public class Server extends SocketConnection {
         }
         return isAlive;
     }
-
 
     /**
      * A method to handle incoming socket requests and allocate a new thread indipendently
@@ -86,6 +102,27 @@ public class Server extends SocketConnection {
         }
     }
 
+    /** Function will be replaced by simply decrypting a given token
+     * Attempts to create a new valid token - an important part of the login process
+     * @param credentials The credentials to validate
+     * @return The new token that was already added to the list of valid tokens
+     * @throws AuthenticationFailedException If the credentials aren't valid
+
+    public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
+        if(AuthenticationHandler.Authenticate(credentials, database))
+        {
+            // Placeholder token generator - for now it's just gonna be random.
+            byte[] newToken = new byte[100];
+            new Random().nextBytes(newToken);
+            tokens.add(new Token(newToken, credentials.getUsername()));
+            return newToken;
+        }
+        else
+        {
+            throw new AuthenticationFailedException(credentials.getUsername());
+        }
+    }*/
+
     /**
      * Method to close the server.
      */
@@ -94,22 +131,26 @@ public class Server extends SocketConnection {
         super.close();
     }
 
-    public static void main(String args[]){
-        Server server = new Server("t");
-        boolean serverOpen = true;
+    public static void main(String[] args){
+        Server server = new Server("db.props");
         try {
             server.start();
-            while (true) {
+            boolean serverOpen = server.isServerAliveUtil();
+            System.out.println("Server Alive: " + serverOpen);
+            System.out.println("Currently operating on port: " + server.getPort());
+
+                while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }
-                else
+                else {
                     server.close();
+                    serverOpen = false;
+                }
             }
         }
         catch (Exception e) {
             System.out.println(e);
         }
-
     }
 }

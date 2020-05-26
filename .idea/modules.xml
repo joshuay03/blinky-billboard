@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BlinkyBillboard.iml" filepath="$PROJECT_DIR$/BlinkyBillboard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/BlinkyBillboard.iml" filepath="$PROJECT_DIR$/.idea/BlinkyBillboard.iml" />
     </modules>
   </component>
 </project>

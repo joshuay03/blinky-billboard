@@ -3,6 +3,7 @@ package BillboardViewer;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import BillboardSupport.DummyBillboards;
+import Client.ClientConnector;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -33,6 +34,7 @@ public class Viewer extends JFrame implements ActionListener   {
     private static Dimension screenSize;
     private RenderedBillboard displayedBillboard;
     private Billboard currentBillboard;
+    public ClientConnector connector;
 
     public static javax.swing.Timer refreshTimer;
 

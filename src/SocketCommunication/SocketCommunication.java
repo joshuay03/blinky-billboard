@@ -16,5 +16,5 @@ public interface SocketCommunication {
      * // A method to communicate with another socket and retrieve a message.
      * @return a string containing the response from another socket.
      */
-    public String retrieveInput();
+    public void retrieveInput();
 }
