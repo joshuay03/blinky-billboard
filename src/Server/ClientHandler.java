@@ -26,14 +26,14 @@ public class ClientHandler extends Thread implements SocketCommunication {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
-    private Server server;
+    private blinkyDB database;
     private Session session;
 
-    public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, Server server) {
+    public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;
         this.input = input;
         this.output = output;
-        this.server = server;
+        this.database = database;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         else
         {
             try {
-                user = new User(sessionAuthentication.username, server.database);
+                user = new User(sessionAuthentication.username, database);
             } catch (NoSuchUserException e) {
                 return new Response(false, "The user this token was assigned to is not registered.");
             }
@@ -111,7 +111,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 Credentials credentials = new Credentials(username, password);
                 try {
                     // User the real server for the parameter not null
-                    session = new Session(credentials, server);
+                    session = new Session(credentials, database);
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
                     return new Response( false, "Cannot create session.");
                 }
@@ -124,7 +124,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 Response res = null; // null needs to be replaced with the server.
                 ResultSet rs = null;
                 try {
-                    rs = server.database.getBillboards();
+                    rs = database.getBillboards();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

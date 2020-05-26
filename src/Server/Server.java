@@ -21,7 +21,7 @@ public class Server extends SocketConnection {
     // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
     // because we don't want it to persist server restarts
     //private List<Token> tokens;
-    public blinkyDB database;
+    private blinkyDB database;
 
     /**
      * Constructor for the server object. Calls the base class constructor.
@@ -92,7 +92,7 @@ public class Server extends SocketConnection {
 
             System.out.println("Assigning new thread for this client");
             // create a new thread object
-            Thread thread = new ClientHandler(client, input, output);
+            Thread thread = new ClientHandler(client, input, output, database);
 
             // Start the thread
             thread.start();
