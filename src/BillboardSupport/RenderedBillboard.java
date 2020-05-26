@@ -19,35 +19,6 @@ public class RenderedBillboard extends JPanel {
     private JLabel imageContainer;
     private JTextPane messageContainer, informationContainer;
 
-    /*
-    private ImageIcon getScaledImage (ImageIcon src, float targetProportion){
-        // Determine larger screen dimension
-        float targetLargerDimension;
-
-        if (Toolkit.getDefaultToolkit().getScreenSize().width > Toolkit.getDefaultToolkit().getScreenSize().height){
-            // Vertical orientation screen
-            targetLargerDimension = Toolkit.getDefaultToolkit().getScreenSize().width * targetProportion;
-        } else {
-            // Vertical orientation screen OR square screen (lol
-            targetLargerDimension = Toolkit.getDefaultToolkit().getScreenSize().height * targetProportion;
-        }
-
-        // Determine whether x or y size of image is larger, or whether square
-        float scalingFactor; // Target size is half of the largest screen dimension
-        if(src.getIconWidth() > src.getIconHeight()){ // Wide image
-
-            scalingFactor = (float) targetLargerDimension / (float)src.getIconWidth();
-
-        } else { // Square image OR narrow image, use height as larger dimension
-
-            scalingFactor = (float)targetLargerDimension / (float)src.getIconHeight();
-        }
-
-        Image srcImg = src.getImage();
-        Image newImg = srcImg.getScaledInstance((int)(src.getIconWidth() * scalingFactor), (int)(src.getIconHeight() * scalingFactor), Image.SCALE_SMOOTH);
-        return new ImageIcon(newImg);
-    }*/
-
     private ImageIcon getScaledImage (ImageIcon src, int maxWidth, int maxHeight){
 
         // Determine which side to bound the scaling on
