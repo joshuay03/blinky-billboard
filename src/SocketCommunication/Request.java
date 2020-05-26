@@ -50,16 +50,6 @@ public class Request implements Serializable {
     }
 
     /**
-     * Sends the request to the server - creates a new connection. Only for migration.
-     * @return The response from the server
-     * @throws IOException If the connection fails
-     */
-    public Response Send() throws IOException {
-        ClientConnector connector = new ClientConnector("properties.txt");
-        return connector.sendRequest(this);
-    }
-
-    /**
      * Sends the request to the server
      * @param connector The connection to the server to send the request through
      * @return The response from the server

@@ -3,6 +3,7 @@ package BillboardViewer;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import BillboardSupport.DummyBillboards;
+import Client.ClientConnector;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -37,6 +38,7 @@ public class Viewer extends JFrame {
 
     private RenderedBillboard displayedBillboard;
     private Billboard currentBillboard;
+    public ClientConnector connector;
 
     Viewer (String arg0){
         super(arg0);

@@ -26,12 +26,14 @@ public class ClientHandler extends Thread implements SocketCommunication {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
+    private Server server;
     private Session session;
 
-    public ClientHandler(Socket client, DataInputStream input, DataOutputStream output) {
+    public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, Server server) {
         this.client = client;
         this.input = input;
         this.output = output;
+        this.server = server;
     }
 
     @Override
@@ -87,7 +89,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         else
         {
             try {
-                user = new User(sessionAuthentication.username, null);
+                user = new User(sessionAuthentication.username, server.database);
             } catch (NoSuchUserException e) {
                 return new Response(false, "The user this token was assigned to is not registered.");
             }
@@ -109,7 +111,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 Credentials credentials = new Credentials(username, password);
                 try {
                     // User the real server for the parameter not null
-                    session = new Session(credentials, null);
+                    session = new Session(credentials, server);
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
                     return new Response( false, "Cannot create session.");
                 }
@@ -119,21 +121,26 @@ public class ClientHandler extends Thread implements SocketCommunication {
             case LIST_BILLBOARD:
                 session = req.getSession();
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
-                Response res = null.database.getBillboards(); // null needs to be replaced with the server.
+                Response res = null; // null needs to be replaced with the server.
+                ResultSet rs = null;
+                try {
+                    rs = server.database.getBillboards();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
                 List<Billboard> billboardList = null;
-                ResultSet rs = (ResultSet)res.getData();
                 try{
                     while (rs.next()){
                         // For each returned billboard from the database
                         billboardList.add(new Billboard());
                     }
                 } catch (SQLException e){
-                    e.printStackTrace();
+                    return new Response(false, "There was an SQL error");
                 }
                 // The billboard list now has all of the returned billboards
+                return new Response(true, billboardList); // break;
 
-                break;
             case GET_BILLBOARD_INFO:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
                 // this is triggered inside the BillboardList()); GUI
