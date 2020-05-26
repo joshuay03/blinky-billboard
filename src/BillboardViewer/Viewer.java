@@ -6,22 +6,17 @@ import BillboardSupport.DummyBillboards;
 import Client.ClientConnector;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 import javax.swing.*;
 
 class MyMouseHandler extends MouseAdapter {
-
     @Override
     public void mouseClicked(MouseEvent e) {
         if(e.getButton() == MouseEvent.BUTTON1){
             System.exit(1);
         }
     }
-
 }
 
 class MyKeyboardHandler extends KeyAdapter {
@@ -34,56 +29,78 @@ class MyKeyboardHandler extends KeyAdapter {
     }
 }
 
-public class Viewer extends JFrame {
+public class Viewer extends JFrame implements ActionListener   {
 
+    private static Dimension screenSize;
     private RenderedBillboard displayedBillboard;
     private Billboard currentBillboard;
     public ClientConnector connector;
 
+    public static javax.swing.Timer refreshTimer;
+
     Viewer (String arg0){
         super(arg0);
 
-        this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
         this.setUndecorated(true);
 
-        this.setBackground(Color.BLACK);
+        Dimension screenSize = new Dimension(   (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+                                                (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
-        this.addKeyListener(new MyKeyboardHandler());
-        this.addMouseListener(new MyMouseHandler());
-
-        displayedBillboard = new RenderedBillboard(DummyBillboards.messagePictureAndInformationBillboard(), Toolkit.getDefaultToolkit().getScreenSize());
-        this.getContentPane().add(displayedBillboard);
-
-        repaint();
+        this.setSize(screenSize);
         this.setVisible(true);
 
     }
 
-    private void refreshHandler(){
-        //TODO - Make billboard refresh every 15 sec
-        while(true){
-
-            try{
-                Thread.sleep(15 * 100);
-            } catch (Exception e){
-                System.out.println("Something went wrong: " + e.getMessage());
-            }
-        }
-    }
-
     public static void main(String[] args) {
-        JFrame.setDefaultLookAndFeelDecorated(false);
+
+        screenSize = new Dimension(   (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+                (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Viewer("Test");
+                Viewer viewer = new Viewer("Test");
 
+                //Register the glass pane for key and mouse events
+                Component component = viewer.getGlassPane();
+                component.addKeyListener(new MyKeyboardHandler());
+                component.addMouseListener(new MyMouseHandler());
+
+
+                // Sort out the refresh timer
+                refreshTimer = new Timer(15*1000, viewer); // 15 * 1000ms = 15 seconds
+                refreshTimer.setInitialDelay(0); // Start as quick as possible
+                refreshTimer.start(); //Start rendering ASAP
             }
         });
     }
 
+    static int counter;
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Timer handling
+        if(e.getSource() == refreshTimer){
+
+            // TODO - implement network retrieval of billboard
+            currentBillboard = DummyBillboards.messagePictureAndInformationBillboard();
+            currentBillboard.setMessage("Have ticked over " + counter + " times");
+            counter++;
+
+            // Clear the deck to avoid memory blowout over time
+            if(displayedBillboard != null) this.getContentPane().remove(displayedBillboard);
+
+            // Insert the new Billboard
+            displayedBillboard = new RenderedBillboard(currentBillboard, screenSize);
+            this.add(displayedBillboard);
+
+            // Return focus to the glasspane for event handling
+            this.getGlassPane().setFocusable(true);
+            this.getGlassPane().requestFocus();
+            this.getGlassPane().setVisible(true);
+
+        }
+    }
 }

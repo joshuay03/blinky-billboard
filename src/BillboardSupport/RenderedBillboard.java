@@ -1,63 +1,32 @@
 package BillboardSupport;
 
-import BillboardViewer.Viewer;
-import org.junit.platform.commons.util.BlacklistedExceptions;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
-import javax.tools.Tool;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.Console;
-import java.net.URL;
 
 public class RenderedBillboard extends JPanel {
 
     private static final String defaultBillboardFont = "Trebuchet";
+    private static final double PADDING_PERCENTAGE = 0.90;
+    private static final double FONT_SIZE_INCREASE_RATE = 2;
 
-    private static JLabel imageContainer = new JLabel();
-    private static JTextPane messageContainer = new JTextPane(), informationContainer = new JTextPane();
+    static Canvas headlessCanvas = new Canvas();
 
-    /*
-    private ImageIcon getScaledImage (ImageIcon src, float targetProportion){
-        // Determine larger screen dimension
-        float targetLargerDimension;
-
-        if (Toolkit.getDefaultToolkit().getScreenSize().width > Toolkit.getDefaultToolkit().getScreenSize().height){
-            // Vertical orientation screen
-            targetLargerDimension = Toolkit.getDefaultToolkit().getScreenSize().width * targetProportion;
-        } else {
-            // Vertical orientation screen OR square screen (lol
-            targetLargerDimension = Toolkit.getDefaultToolkit().getScreenSize().height * targetProportion;
-        }
-
-        // Determine whether x or y size of image is larger, or whether square
-        float scalingFactor; // Target size is half of the largest screen dimension
-        if(src.getIconWidth() > src.getIconHeight()){ // Wide image
-
-            scalingFactor = (float) targetLargerDimension / (float)src.getIconWidth();
-
-        } else { // Square image OR narrow image, use height as larger dimension
-
-            scalingFactor = (float)targetLargerDimension / (float)src.getIconHeight();
-        }
-
-        Image srcImg = src.getImage();
-        Image newImg = srcImg.getScaledInstance((int)(src.getIconWidth() * scalingFactor), (int)(src.getIconHeight() * scalingFactor), Image.SCALE_SMOOTH);
-        return new ImageIcon(newImg);
-    }*/
+    private JLabel imageContainer;
+    private JTextPane messageContainer, informationContainer;
 
     private ImageIcon getScaledImage (ImageIcon src, int maxWidth, int maxHeight){
 
         // Determine which side to bound the scaling on
         float scalingFactor = 0.0f;
         if(maxHeight <= maxWidth){
-             scalingFactor = maxHeight / src.getIconHeight(); // Height dependent scaling - must calc tallest we can make the image
+             scalingFactor = (float)maxHeight / src.getIconHeight(); // Height dependent scaling - must calc tallest we can make the image
         } else if(maxWidth < maxHeight) {
-            scalingFactor = maxWidth / src.getIconWidth(); // Width depending scaling - can't go larger than a particular width
+            scalingFactor = (float)maxWidth / src.getIconWidth(); // Width depending scaling - can't go larger than a particular width
         }
 
         Image srcImg = src.getImage();
@@ -65,33 +34,55 @@ public class RenderedBillboard extends JPanel {
         return new ImageIcon(newImg);
     }
 
-    public RenderedBillboard(Billboard board, Dimension d) {
+    /**
+     *
+     * @param board The billboard that you would like to render
+     * @param renderDimensions The dimensions of the area you want to render the billboard in
+     */
+    public RenderedBillboard(Billboard board, Dimension renderDimensions) {
         super();
-        this.setBackground(Color.WHITE);
-        this.setSize(d);
-        this.setLayout(new GridBagLayout());
+        this.setSize(renderDimensions);
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
-        //-----------------------------------
-        // Initial Grid set up
+        //Initialise member objects
+        this.messageContainer = new JTextPane();
+        this.informationContainer = new JTextPane();
+        this.imageContainer= new JLabel();
+
+        // ----------------------------
+        // HANDLE COMMON FORMATTING
+        // ----------------------------
+       // Formatting and colour handling for the message container
+        SimpleAttributeSet messageAttributes = new SimpleAttributeSet();
+        StyleConstants.setAlignment(messageAttributes, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setSpaceAbove(messageAttributes, 0);
+        StyleConstants.setForeground(messageAttributes, board.getMessageColour());
+        messageContainer.setParagraphAttributes(messageAttributes, false);
+        messageContainer.setOpaque(false);
+
+        // Formatting and colour handling for the information container
+        SimpleAttributeSet informationAttributes = new SimpleAttributeSet();
+        StyleConstants.setAlignment(informationAttributes, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setSpaceAbove(informationAttributes, 0);
+        StyleConstants.setForeground(informationAttributes, board.getMessageColour());
+
+        informationContainer.setParagraphAttributes(informationAttributes, false);
+        informationContainer.setOpaque(false);
+
+        // Formatting for the image container
+        imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        imageContainer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Paint the plain default background colour
+        this.setBackground(board.getBackgroundColour());
+
         // ----------------------------------
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.CENTER;
-
-        //Handle text centering etc...
-        SimpleAttributeSet center = new SimpleAttributeSet();
-        StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-        messageContainer.setParagraphAttributes(center, false);
-        informationContainer.setParagraphAttributes(center, false);
-
-        // ----------------------------------
-        // GET CONTENT
+        // GET CONTENT FROM THE BILLBOARD OBJECT
         // ----------------------------------
         messageContainer.setText(board.getMessage());
         informationContainer.setText(board.getInformation());
 
+        // Prevent the objects from being able to take focus
         messageContainer.setFocusable(false);
         informationContainer.setFocusable(false);
         imageContainer.setFocusable(false);
@@ -102,132 +93,156 @@ public class RenderedBillboard extends JPanel {
         // ONLY message present...
         if (board.getBillboardImage() == null && board.getInformation() == null && board.getMessage() != null) {
 
+            int     widthLimit = (int) (renderDimensions.getWidth()),
+                    heightLimit = (int) (renderDimensions.getHeight());
+
             // Message should be displayed as large as possible while still (1) fully on screen, and (2) with no line breaks
+            Font boardFont = getScaledFontForArea(widthLimit, heightLimit, board.getMessage(), false);
 
-            constraints.gridx = 0;
-            constraints.gridy = 1;
+            messageContainer.setFont(boardFont);
+            messageContainer.setMaximumSize(new Dimension(widthLimit, heightLimit));
 
-            messageContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, d.width / board.getMessage().length()));
-            System.out.println(messageContainer.getHeight());
-            this.add(messageContainer, constraints);
+            addComponent(Box.createGlue());
+            addComponent(messageContainer);
+            addComponent(Box.createGlue());
         }
 
         // ONLY picture present
         if (board.getBillboardImage() != null && board.getInformation() == null && board.getMessage() == null) {
 
-            constraints.gridx = 0;
-            constraints.gridy = 1;
+            int     widthLimit = (int) (renderDimensions.getWidth() * 0.5),
+                    heightLimit = (int) (renderDimensions.getHeight() * 0.5 );
 
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(),
-                                                (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 1/2),
-                                                (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 1/2)));
-            this.add(imageContainer, constraints);
+            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), widthLimit, heightLimit));
+            imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+
+            addComponent(Box.createGlue());
+            addComponent(imageContainer);
+            addComponent(Box.createGlue());
 
         }
 
         // ONLY information present
         if (board.getBillboardImage() == null && board.getInformation() != null && board.getMessage() == null) {
-            // Text should be displayed in centre, and filling only 75% screen width, 50% screen height
 
-            constraints.gridx = 0;
-            constraints.gridy = 0;
+            // Text should be displayed filling only 75% screen width, 50% screen height
+            int     textWidthLimit = (int) (renderDimensions.getWidth() * 0.75), // Only use 75% of the height
+                    textHeightLimit = (int) (renderDimensions.getHeight() * 0.50); // Only use 50% of height
 
-            int     xSize = (int)((Toolkit.getDefaultToolkit().getScreenSize().getWidth() * (0.75))), // Only use 75% of the height
-                    ySize = (int)((Toolkit.getDefaultToolkit().getScreenSize().getHeight() * (0.50))); // Only use 50% of height
+            Font boardFont = getScaledFontForArea(textWidthLimit, textHeightLimit, board.getInformation(), true);
 
-            // Start with a modest size and then increase the font size until preferredsize exceeds either dimension
-            informationContainer.setMaximumSize(new Dimension(xSize, ySize));
-            informationContainer.setMinimumSize(new Dimension(xSize, ySize));
+            informationContainer.setFont(boardFont);
+            informationContainer.setMaximumSize(new Dimension(textWidthLimit, textHeightLimit));
 
-           //TODO - Dynamic calculation of font size to fill max area
-            informationContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 80));
 
-            constraints.anchor = GridBagConstraints.CENTER;
+            addComponent(Box.createGlue());
+            addComponent(informationContainer);
+            addComponent(Box.createGlue());
 
-            this.add(informationContainer, constraints);
         }
 
         // Message AND picture present
         if (board.getBillboardImage() != null && board.getInformation() == null && board.getMessage() != null) {
 
-
             // Message on top 1/3 of screen, filling width
-            constraints.gridy = 0;
-            messageContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 60)); //TODO - Dynamic font size calculation
-            constraints.anchor = GridBagConstraints.CENTER;
-            this.add(messageContainer, constraints);
+            int     messageWidthLimit = (int) (renderDimensions.getWidth()),
+                    messageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
+
+            //FIXME - displays fine, but still manages to wrap on occasion
+            messageContainer.setFont(getScaledFontForArea(messageWidthLimit, messageHeightLimit, board.getMessage(), false));
+            messageContainer.setMaximumSize(new Dimension(messageWidthLimit, messageHeightLimit));
 
             // Picture filling bottom 2/3
             imageContainer.setIcon(getScaledImage(board.getBillboardImage(),
-                    (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()),
-                    (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 1/3)));
-            constraints.gridy = 1;
-            constraints.gridheight = 2;
-            this.add(imageContainer, constraints);
+                    (int) (renderDimensions.getWidth()),
+                    (int) (renderDimensions.getHeight() / 3.0)));
 
+            addComponent(Box.createGlue());
+            addComponent(messageContainer);
+            addComponent(Box.createGlue());
+            addComponent(imageContainer);
+            addComponent(Box.createGlue());
 
         }
 
         // Message AND information present
         if (board.getBillboardImage() == null && board.getInformation() != null && board.getMessage() != null) {
-            messageContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 60));
-            messageContainer.setMinimumSize(new Dimension((int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth())
-                                                        , (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2)));
-            constraints.gridy = 0;
-            constraints.gridx = 0;
-            // TODO - Message not correctly centering within view
 
-            this.add(messageContainer, constraints);
+            // 50% of height for each of the message and information - use the same values
+            int     widthLimit = (int) (renderDimensions.getWidth()),
+                    heightLimit = (int) (renderDimensions.getHeight() * 0.5);
 
-            informationContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 40));
-            informationContainer.setMinimumSize(new Dimension((int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth())
-                    , (int)(Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2)));
-            constraints.gridy = 1;
-            constraints.gridx = 0;
+            messageContainer.setFont(getScaledFontForArea(widthLimit, heightLimit, board.getMessage(), false));
+            messageContainer.setMaximumSize(new Dimension(widthLimit, heightLimit));
 
-            this.add(informationContainer, constraints);
+
+            informationContainer.setFont(getScaledFontForArea(widthLimit, heightLimit, board.getInformation(), true));
+            informationContainer.setMaximumSize(new Dimension(widthLimit, heightLimit));
+
+            addComponent(Box.createGlue());
+            addComponent(messageContainer);
+            addComponent(Box.createGlue());
+            addComponent(informationContainer);
+            addComponent(Box.createGlue());
+
         }
 
         // Picture AND information present
         if (board.getBillboardImage() != null && board.getInformation() != null && board.getMessage() == null) {
 
             // Picture in top 2/3 of screen, centered
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(),
-                                                (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()),
-                                                (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 1/3)));
-            constraints.gridy = 0;
-            constraints.gridheight = 2;
-            this.add(imageContainer, constraints);
+            int imageWidthLimit = (int) (renderDimensions.getWidth()),
+                    imageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
+
+            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), imageWidthLimit, imageHeightLimit));
+
+            imageContainer.setMaximumSize(new Dimension(imageWidthLimit, imageHeightLimit));
 
             // Information in bottom 1/3 of screen, centered, no more than 75% of screen width
-            constraints.gridy = 2;
-            informationContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 60)); //TODO - Dynamic font size calculation
-            informationContainer.setMaximumSize(new Dimension(  (int)(Toolkit.getDefaultToolkit().getScreenSize().width *.75),
-                                                                (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2)));
-            constraints.anchor = GridBagConstraints.CENTER;
-            this.add(informationContainer, constraints);
+
+            int     informationWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
+                    informationHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
+
+            informationContainer.setFont(getScaledFontForArea(informationWidthLimit, informationHeightLimit, board.getInformation(), true)); //TODO - Dynamic font size calculation
+            informationContainer.setMaximumSize(new Dimension(informationWidthLimit, informationHeightLimit));
+
+            addComponent(Box.createGlue());
+            addComponent(imageContainer);
+            addComponent(Box.createGlue());
+            addComponent(informationContainer);
+            addComponent(Box.createGlue());
+
         }
 
         // Picture AND image AND information present
         if (board.getBillboardImage() != null && board.getInformation() != null && board.getMessage() != null) {
 
-            // Message in top 1/3 of screen, centered, no more than 75% of screen width
-            constraints.gridy = 0;
-            messageContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 30)); //TODO - Dynamic font size calculation
-            this.add(messageContainer, constraints);
+            // Both message and information must be in 1/3 of screen, centered, no more than 75% of screen width
+            // So use the same values
+            int     textWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
+                    textHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
-            // TODO - FIXME - Image rendering on LHS for some reason...
+            messageContainer.setFont(getScaledFontForArea(textWidthLimit, textHeightLimit, board.getMessage(), false));
+            messageContainer.setMaximumSize(new Dimension(textWidthLimit, textHeightLimit));
+
             // Picture in middle 1/3 of screen, centered
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(),
-                    (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()),
-                    (int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 1/3)));
-            constraints.gridy = 1;
-            this.add(imageContainer, constraints);
+            int     imageWidthLimit = (int) (renderDimensions.getWidth()),
+                    imageHeightLimit = (int) (renderDimensions.getHeight()/3.0);
 
-            // Information in bottom 1/3 of screen, centered, no more than 75% of screen width
-            constraints.gridy = 2;
-            informationContainer.setFont(new Font(defaultBillboardFont, Font.BOLD, 15)); //TODO - Dynamic font size calculation
-            this.add(informationContainer, constraints);
+            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), imageWidthLimit, imageHeightLimit));
+            imageContainer.setMaximumSize(new Dimension(imageWidthLimit,imageHeightLimit));
+            //Information in bottom 1/3 of screen, centered, no more than 75% of screen width
+
+            informationContainer.setFont(getScaledFontForArea(textWidthLimit, textHeightLimit, board.getInformation(), true));
+            informationContainer.setMaximumSize(new Dimension(textWidthLimit, textHeightLimit));
+
+            addComponent(Box.createGlue());
+            addComponent(messageContainer);
+            addComponent(Box.createGlue());
+            addComponent(imageContainer);
+            addComponent(Box.createGlue());
+            addComponent(informationContainer);
+            addComponent(Box.createGlue());
         }
 
         // Un-renderable billboard - no data
@@ -235,8 +250,55 @@ public class RenderedBillboard extends JPanel {
             // TODO - Code to handle dud billboards appropriately
             //throw new Exception("board billboard does not contain any data to render. Please check it was properly instantitated");
         }
-
     }
 
+    Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap){
+        Font boardFont = new Font(defaultBillboardFont, Font.BOLD, 10);
+
+        int renderedStringWidth, renderedStringHeight;
+
+            while (true) {
+                boardFont = boardFont.deriveFont((float) (boardFont.getSize() + FONT_SIZE_INCREASE_RATE));
+
+                FontMetrics fontMetrics = headlessCanvas.getFontMetrics(boardFont);
+
+                // Calculate the number of rows required to render the text in a given width (text width / width of screen)
+                int requiredRowsToRender = (int) Math.ceil((float)fontMetrics.stringWidth(stringToRender) / (float)widthLimit);
+
+                //Determine width and height of the string
+                renderedStringHeight = (fontMetrics.getHeight() + fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent()) * requiredRowsToRender;
+                renderedStringWidth = fontMetrics.stringWidth(stringToRender);
+
+                //Wrapped scaling
+                if(allowWrap) {
+                    // If the information, wrapped, is the right height for the screen, we should be done
+                    if (renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
+
+                    // If we've gone too wide for the screen...
+                    if (renderedStringWidth / requiredRowsToRender >= widthLimit) {
+                        // Check whether another line would cause us to blow out of our boundaries
+                        if((requiredRowsToRender + 1) * fontMetrics.getHeight() <= heightLimit) {
+                            // .... If not, add another row
+                            requiredRowsToRender++;
+                        }
+                        // ... If it is, that's the limit
+                        else {
+                            break;
+                        }
+                    }
+                }
+
+                // Unwrapped scaling - one line only
+                else {
+                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE) break;
+                }
+            }
+
+        return boardFont;
+    }
+
+    void addComponent(Component c){
+        this.add(c);
+    }
 }
 
