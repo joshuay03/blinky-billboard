@@ -67,16 +67,6 @@ public class ControlPanel extends ClientConnector implements Runnable {
 
             while (controlPanelOpen) {
                 String outputData = scanner.nextLine();
-
-                if (outputData.equalsIgnoreCase("exit")) {
-                    controlPanel.sendOutput(outputData);
-                    controlPanel.close();
-                    controlPanelOpen = false;
-                }
-                else {
-                    controlPanel.sendOutput(outputData);
-                    controlPanel.retrieveInput();
-                }
             }
         }
         catch (Exception e) {
