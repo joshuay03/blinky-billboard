@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class Request implements Serializable, Cloneable {
     public ServerRequest requestType;
     private Session session; //can be null
-    private HashMap<String, String> data; // can be null
+    private Object data; // can be null
 
     public ServerRequest getRequestType() {
         return requestType;
@@ -22,12 +22,12 @@ public class Request implements Serializable, Cloneable {
         return session;
     }
 
-    public HashMap<String, String> getData() {
+    public Object getData() {
         return data;
     }
 
     //make hash map more generic or leave it as HashMap, Hash map works for login might need to make it more dynamic e.g Object later
-    public Request(ServerRequest requestType, HashMap<String, String> data, Session session) {
+    public Request(ServerRequest requestType, Object data, Session session) {
         this.requestType = requestType;
         this.data = data;
         this.session = session;
