@@ -18,9 +18,6 @@ import java.util.Random;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
-    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
-    // because we don't want it to persist server restarts
-    //private List<Token> tokens;
     private blinkyDB database;
 
     /**
@@ -29,15 +26,6 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
-        try {
-            this.database = new blinkyDB();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("db.props file not found.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Connection to database failed.");
-        }
     }
 
     /**
@@ -47,10 +35,34 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
+            if (connectToDB(0) == false) { close(); }
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
         }
+    }
+
+    private boolean connectToDB(int numTries) {
+        int tries = numTries;
+        try { this.database = new blinkyDB(); }
+        catch(SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed. Attempting connection again in 10 seconds.");
+            if (tries < 2) {
+                try { Thread.sleep(10000); } catch (InterruptedException t) {};
+                tries++;
+                connectToDB(tries);
+            }
+            else {
+                System.out.println("The connection has been attempted multiple times. Closing the server.");
+                return false;
+            }
+        }
+        catch(IOException e) {
+            System.out.println("db.props file not found. Closing server.");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -73,55 +85,28 @@ public class Server extends SocketConnection {
     }
 
     /**
-     * A method to handle incoming socket requests and allocate a new thread indipendently
+     * A method to handle incoming socket requests and allocate a new thread independently
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
-     * @throws IOException
      */
-    public void createClientThread() {
-        try {
-            // socket object to receive incoming client requests
-            client = server.accept();
+    public void createClientThread() throws Exception{
+        // socket object to receive incoming client requests
+        client = server.accept();
 
-            System.out.println("A new client is connected : " + client);
+        System.out.println("A new client is connected : " + client);
 
-            // obtaining input and output streams
-            DataInputStream input = new DataInputStream(client.getInputStream());
-            DataOutputStream output = new DataOutputStream(client.getOutputStream());
+        // obtaining input and output streams
+        DataInputStream input = new DataInputStream(client.getInputStream());
+        DataOutputStream output = new DataOutputStream(client.getOutputStream());
 
-            System.out.println("Assigning new thread for this client");
-            // create a new thread object
-            Thread thread = new ClientHandler(client, input, output, database);
+        System.out.println("Assigning new thread for this client");
+        // create a new thread object
+        Thread thread = new ClientHandler(client, input, output, database);
 
-            // Start the thread
-            thread.start();
-        }
-        catch(Exception e) {
-            System.out.println(e);
-        }
+        // Start the thread
+        thread.start();
     }
-
-    /** Function will be replaced by simply decrypting a given token
-     * Attempts to create a new valid token - an important part of the login process
-     * @param credentials The credentials to validate
-     * @return The new token that was already added to the list of valid tokens
-     * @throws AuthenticationFailedException If the credentials aren't valid
-
-    public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
-        if(AuthenticationHandler.Authenticate(credentials, database))
-        {
-            // Placeholder token generator - for now it's just gonna be random.
-            byte[] newToken = new byte[100];
-            new Random().nextBytes(newToken);
-            tokens.add(new Token(newToken, credentials.getUsername()));
-            return newToken;
-        }
-        else
-        {
-            throw new AuthenticationFailedException(credentials.getUsername());
-        }
-    }*/
 
     /**
      * Method to close the server.
@@ -132,25 +117,25 @@ public class Server extends SocketConnection {
     }
 
     public static void main(String[] args){
-        Server server = new Server("db.props");
+        Server server = new Server("properties.txt");
         try {
             server.start();
+            // Create a root user
+            new User(new Credentials("Root", "root"), true, true, true, true, server.database);
+
             boolean serverOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + serverOpen);
-            System.out.println("Currently operating on port: " + server.getPort());
+            if (serverOpen)
+                System.out.println("Currently operating on port: " + server.getPort());
 
-                while (true) {
-                if (serverOpen) {
-                    server.createClientThread();
-                }
-                else {
-                    server.close();
-                    serverOpen = false;
-                }
+            //noinspection InfiniteLoopStatement - Server is supposed to run in an infinite loop
+            while (serverOpen) {
+                serverOpen = server.isServerAliveUtil();
+                server.createClientThread();
             }
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }
