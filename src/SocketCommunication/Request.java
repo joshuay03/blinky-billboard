@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 
-public class Request implements Serializable {
+public class Request implements Serializable, Cloneable {
     public ServerRequest requestType;
     private Session session; //can be null
     private HashMap<String, String> data; // can be null
@@ -45,6 +45,7 @@ public class Request implements Serializable {
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
+        assert newReq != null;
         newReq.session = session;
         return newReq;
     }
