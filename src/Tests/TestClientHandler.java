@@ -1,9 +1,11 @@
 package Tests;
 
+import Client.ClientConnector;
+import Exceptions.AuthenticationFailedException;
+import Exceptions.NoSuchUserException;
 import Server.ClientHandler;
 import Server.blinkyDB;
-import SocketCommunication.Request;
-import SocketCommunication.ServerRequest;
+import SocketCommunication.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,6 +15,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClientHandler {
@@ -24,6 +28,7 @@ public class TestClientHandler {
     Socket socket, client;
     ServerSocket server;
     ClientHandler clientHandler;
+    ClientConnector connector;
     blinkyDB db;
 
     /*
@@ -33,11 +38,17 @@ public class TestClientHandler {
     public void initServer() {
         try {
             server = new ServerSocket(5057);
+            server.accept();
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        db = new blinkyDB();
+        try {
+            db = new blinkyDB();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     /*
@@ -49,10 +60,11 @@ public class TestClientHandler {
             client = new Socket("localhost", 5057);
             clientInput = new DataInputStream(client.getInputStream());
             clientOutput = new DataOutputStream(client.getOutputStream());
-            socket = server.accept();
+            connector = new ClientConnector("properties.txt");
             socketInput = new DataInputStream(socket.getInputStream());
             socketOutput = new DataOutputStream(socket.getOutputStream());
-            clientHandler = new ClientHandler(socket, socketInput, socketOutput, db));
+            clientHandler = new ClientHandler(socket, socketInput, socketOutput, db);
+            connector.start();
         }
         catch( Exception e) {
             e.printStackTrace();
@@ -63,9 +75,15 @@ public class TestClientHandler {
         Test that the client handler can handle a a simple request.
      */
     @Test
-    public void receiveBasicInputFromClient() throws IOException {
-        Request req = new Request(ServerRequest.LOGOUT, );
-        assertEquals("hello", "hello");
+    public void receiveBasicInputFromClient() throws IOException, AuthenticationFailedException, NoSuchUserException {
+        Request req = new Request(ServerRequest.LOGIN, null, new Session(new Credentials("Root", "root"), db));
+        Response res = req.Send(connector);
+        assertTrue(res.isStatus());
+    }
+
+    @AfterEach
+    public void finishTest() throws IOException {
+        connector.close();
     }
 
     /*
@@ -73,6 +91,11 @@ public class TestClientHandler {
      */
     @AfterAll @Test
     public void closeConnection() {
+        try {
+            server.close();
+        } catch (IOException e) {
+            fail();
+        }
         boolean closed = clientHandler.closeConnection();
         assertTrue(closed);
     }
