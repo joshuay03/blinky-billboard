@@ -6,8 +6,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.net.URL;
-import java.sql.Time;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
@@ -78,11 +76,11 @@ public class Billboard implements Serializable {
         this.repeatInterval = repeatInterval;
     }
 
-    public String getBillboardDatabaseKey() {
+    public int getBillboardDatabaseKey() {
         return billboardDatabaseKey;
     }
 
-    public void setBillboardDatabaseKey(String billboardDatabaseKey) {
+    public void setBillboardDatabaseKey(int billboardDatabaseKey) {
         this.billboardDatabaseKey = billboardDatabaseKey;
     }
 
@@ -99,7 +97,7 @@ public class Billboard implements Serializable {
     private LocalDateTime scheduledTime;
     private int duration, repeatInterval; // in seconds - controlled at user level
 
-    private String billboardDatabaseKey;
+    private int billboardDatabaseKey;
 
 
 
@@ -139,7 +137,7 @@ public class Billboard implements Serializable {
      * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      * @param billboardDatabaseKey The key which corresponds to this Billboard in the database
      */
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval, String billboardDatabaseKey) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval, int billboardDatabaseKey) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -156,6 +154,7 @@ public class Billboard implements Serializable {
      *
      * @param billboardXML An XML String which conforms to the Billboard XML Spec.
      */
+
     public Billboard(String billboardXML) {
         //TODO - read in Billboard XML
     }

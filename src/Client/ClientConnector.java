@@ -40,16 +40,16 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
         super.start();
         port = Integer.toString(getPort());
         // If the address is not an IP, get the IP from the address
-        InetAddress ip = null;
+        InetAddress ip;
         boolean isIP = true;
         byte[] IPAddress = null;
-        if (getIP().split(".").length == 4)
+        if (getIP().split("\\.").length == 4)
         {
             // Suspected IPv4 address
             try{
                 // Convert the string into a byte array
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                Arrays.stream(getIP().split(".")).forEach((String part) -> bos.write(Integer.valueOf(part).byteValue()));
+                Arrays.stream(getIP().split("\\.")).forEach((String part) -> bos.write(Integer.valueOf(part).byteValue()));
                 IPAddress = bos.toByteArray();
             } catch (NumberFormatException e) {
                 isIP = false;
@@ -69,7 +69,10 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
                 isIP = false;
             }
         }
-        if (isIP) ip = InetAddress.getByAddress(IPAddress);
+        if (isIP) {
+            assert IPAddress != null;
+            ip = InetAddress.getByAddress(IPAddress);
+        }
         else ip = InetAddress.getByName("localhost");
         // establish the connection with server port - this must be updated through the properties file
         socket = new Socket(ip, getPort());
@@ -92,6 +95,7 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
      */
     public Response sendRequest(Request req) throws IOException {
         // Write the request to the server
+        assert output != null;
         output.write(req.withSession(session).serialise());
         Response res = null;
         // Read the response from the server

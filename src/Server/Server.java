@@ -18,9 +18,6 @@ import java.util.Random;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
-    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
-    // because we don't want it to persist server restarts
-    //private List<Token> tokens;
     private blinkyDB database;
 
     /**
@@ -73,11 +70,10 @@ public class Server extends SocketConnection {
     }
 
     /**
-     * A method to handle incoming socket requests and allocate a new thread indipendently
+     * A method to handle incoming socket requests and allocate a new thread independently
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
-     * @throws IOException
      */
     public void createClientThread() {
         try {
@@ -98,30 +94,9 @@ public class Server extends SocketConnection {
             thread.start();
         }
         catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
-
-    /** Function will be replaced by simply decrypting a given token
-     * Attempts to create a new valid token - an important part of the login process
-     * @param credentials The credentials to validate
-     * @return The new token that was already added to the list of valid tokens
-     * @throws AuthenticationFailedException If the credentials aren't valid
-
-    public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
-        if(AuthenticationHandler.Authenticate(credentials, database))
-        {
-            // Placeholder token generator - for now it's just gonna be random.
-            byte[] newToken = new byte[100];
-            new Random().nextBytes(newToken);
-            tokens.add(new Token(newToken, credentials.getUsername()));
-            return newToken;
-        }
-        else
-        {
-            throw new AuthenticationFailedException(credentials.getUsername());
-        }
-    }*/
 
     /**
      * Method to close the server.
@@ -134,12 +109,15 @@ public class Server extends SocketConnection {
     public static void main(String[] args){
         Server server = new Server("properties.txt");
         try {
+            // Create a root user
+            new User(new Credentials("Root", "root"), true, true, true, true, server.database);
             server.start();
             boolean serverOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
 
-                while (true) {
+            //noinspection InfiniteLoopStatement - Server is supposed to run in an infinite loop
+            while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }
@@ -150,7 +128,7 @@ public class Server extends SocketConnection {
             }
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

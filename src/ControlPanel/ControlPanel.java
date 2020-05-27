@@ -15,7 +15,7 @@ import java.util.Scanner;
  * A class which represents a control panel which connects to the server
  * @author Joshua Young
  */
-public class ControlPanel extends ClientConnector implements SocketCommunication, Runnable {
+public class ControlPanel extends ClientConnector implements Runnable {
     protected ClientConnector connector;
     protected Socket socket;
     protected DataInputStream input;
@@ -36,7 +36,7 @@ public class ControlPanel extends ClientConnector implements SocketCommunication
 
     /**
      * Initialises a socket connection
-     * @throws IOException
+     * @throws IOException If the socket cannot start
      */
     public void start() throws IOException {
         super.start();
@@ -53,7 +53,7 @@ public class ControlPanel extends ClientConnector implements SocketCommunication
 
     /**
      * Creates a new control control panel instance
-     * @param args
+     * @param args unused
      */
     public static void main(String[] args) {
         ControlPanel controlPanel = new ControlPanel
@@ -80,7 +80,7 @@ public class ControlPanel extends ClientConnector implements SocketCommunication
             }
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -94,33 +94,5 @@ public class ControlPanel extends ClientConnector implements SocketCommunication
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-    /**
-     * Communicates with and sends a message to the server
-     *
-     * @param msg a string containing the output being sent to the server
-     */
-    @Override
-    public void sendOutput(String msg) {
-        try{
-            output.writeUTF(msg);
-        }
-        catch(Exception e) {
-            System.out.println(e);
-        }
-    }
-
-    /**
-     * Communicates with and receives a message from the server
-     */
-    @Override
-    public void retrieveInput() {
-        try {
-            System.out.println(input.readUTF());
-        }
-        catch(Exception e) {
-            System.out.println(e);
-        }
     }
 }

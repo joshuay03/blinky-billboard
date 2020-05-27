@@ -6,17 +6,17 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 import static SocketCommunication.ServerRequest.*;
@@ -130,7 +130,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     e.printStackTrace();
                 }
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
-                List<Billboard> billboardList = Arrays.asList(new Billboard[]());
+                ArrayList<Billboard> billboardList = new ArrayList<>();
                 try{
                     assert rs != null;
                     while (rs.next()){
@@ -146,28 +146,30 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
             case GET_BILLBOARD_INFO:
             {
-                String billboardName = null;
-                try{billboardName = (String)req.getData();}
-                // Invalid request handler - copy paste this wherever invalid requests could be received
-                catch (Exception e) {
-                    return InvalidRequestError.apply(req);
-                }
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name
-                ResultSet billboardResults = null;
+                ArrayList<Billboard> billboards = new ArrayList<>();
                 try {
-                    billboardResults = database.getBillboards(billboardName);
-                    billboardResults.first();
+                    ResultSet billboardsResult = database.getBillboards(((String[])req.getData())[0],((String[])req.getData())[1]);
+                    while (billboardsResult.next()){
+                        billboards.add(new Billboard(
+                                Color.decode(billboardsResult.getString("backgroundColour")),
+                                Color.decode(billboardsResult.getString("messageColour")),
+                                Color.decode(billboardsResult.getString("informationColour")),
+                                billboardsResult.getString("message"),
+                                billboardsResult.getString("information"),
+                                new ImageIcon(billboardsResult.getBytes("billboardImage")),
+                                null, // Todo: Get scheduled time from database
+                                billboardsResult.getInt("duration"),
+                                0, // Todo: Get repeat interval from database
+                                billboardsResult.getInt("billboard_id")
+                                ));
+                    }
                 } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
                 }
-                try {
-                    // Todo: call the billboard constructor properly
-                    return new Response(true, new Billboard(billboardResults.getString(1)));
-                } catch (SQLException e) {
-                    return new Response(false, "There was an SQL error");
-                }
-                //server responds with billboards contents
+                return new Response(true, billboards);
+                //server responds with billboards list
             }
             case CREATE_BILLBOARD:
                 // triggered inside CreateBillboards() GUI
@@ -341,13 +343,13 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case LOGOUT:
-                // Client will send server valid session token
-
-                // server will expire session token and send back and acknowledgement
-                break;
-            default:
-                return new Response(false, String.format("Request of type %s is invalid", req.getRequestType().toString()));
+            {
+             sessionAuthentication = null; // Reset the session's authentication
+             return new Response(true, "Logout successful.");
+            }
         }
+        // If the request type doesn't match any of the types the server is made to handle
+        return new Response(false, String.format("%s is not a valid request type.", req.getRequestType().toString()));
     }
 
     public boolean closeConnection() {
