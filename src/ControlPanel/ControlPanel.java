@@ -57,7 +57,7 @@ public class ControlPanel extends ClientConnector implements SocketCommunication
      */
     public static void main(String[] args) {
         ControlPanel controlPanel = new ControlPanel
-                (System.getProperty("user.dir") + "/properties.txt");
+                ("properties.txt");
         Scanner scanner = new Scanner(System.in);
         boolean controlPanelOpen = true;
 
