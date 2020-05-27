@@ -31,7 +31,6 @@ public class Login {
     protected JPanel passwordFieldPanel;
     protected JPanel loginButtonPanel;
     protected JPanel titlePanel;
-    private JPanel panel;
 
 
     /**

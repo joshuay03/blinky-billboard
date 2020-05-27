@@ -132,7 +132,7 @@ public class Server extends SocketConnection {
     }
 
     public static void main(String[] args){
-        Server server = new Server(System.getProperty("user.dir") + "/properties.txt");
+        Server server = new Server("properties.txt");
         try {
             server.start();
             boolean serverOpen = server.isServerAliveUtil();
