@@ -32,23 +32,27 @@ public class SocketConnection {
      * @throws IOException
      */
     private void retrievePort() throws IOException {
-        File file = new File(propFile);
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String[] arr;
-        String line;
-        while((line = br.readLine()) != null) {
-            if (line.startsWith("port:")) {
-                arr = line.split("port:", 0);
-                port = arr[1].trim();
+        try {
+            File file = new File(propFile);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String[] arr;
+            String line;
+            while((line = br.readLine()) != null) {
+                if (line.startsWith("port:")) {
+                    arr = line.split("port:", 0);
+                    port = arr[1].trim();
+                }
+                else if (line.startsWith("IP:")) {
+                    arr = line.split("IP:", 0);
+                    IP = arr[1].trim();
+                }
             }
-            else if (line.startsWith("IP:")) {
-                arr = line.split("IP:", 0);
-                IP = arr[1].trim();
+            if (port == null) {
+                System.out.println("Was not able to obtain the port number from the given properties file.");
             }
         }
-
-        if (port == null) {
-            System.out.println("Was not able to obtain the port number from the given properties file.");
+        catch (FileNotFoundException e) {
+            System.out.println("The properties file you have entered does not exist.");
         }
     }
 
