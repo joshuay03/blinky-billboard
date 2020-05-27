@@ -74,15 +74,14 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * @return A response
      */
     public Response handleInboundRequest(Request req) {
-        Token sessionAuthentication = null;
-        User user = null;
+        User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
         if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
-                sessionAuthentication = Token.validate(req.getSession().token);
+                Token sessionAuthentication = Token.validate(req.getSession().token);
                 try {
-                    user = new User(sessionAuthentication.username, database);
+                    authenticatedUser = new User(sessionAuthentication.username, database);
                 } catch (NoSuchUserException e) {
                     return new Response(false, "The user this token was assigned to is not registered.");
                 }
@@ -243,8 +242,8 @@ public class ClientHandler extends Thread implements SocketCommunication {
             case LIST_USERS:
             {
                 // request only happens if user has 'Edit Users' permission
-                assert user != null;
-                if (user.EditUsers){
+                assert authenticatedUser != null;
+                if (authenticatedUser.EditUsers){
                     // triggered inside EditUsers() GUI
                     try {
                         List<String> usernames = new ArrayList<>();
