@@ -1,6 +1,5 @@
 package Tests;
 
-import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
 import Server.AuthenticationHandler;
 import Server.User;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;

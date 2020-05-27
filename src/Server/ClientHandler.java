@@ -31,7 +31,6 @@ public class ClientHandler extends Thread implements SocketCommunication {
     private DataOutputStream output;
     private Socket client;
     private blinkyDB database;
-    private Session session;
 
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;
@@ -53,7 +52,9 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     Request req = (Request)inputObject.readObject();
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
                     outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
-                    //output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
+                }
+                catch (IllegalStateException e){
+                    outputWriter.writeObject(new Response(false, e.getMessage())); // Send a response to the client, informing it that an invalid request has been sent
                 }
                 catch (Exception e)
                 {
@@ -68,9 +69,9 @@ public class ClientHandler extends Thread implements SocketCommunication {
     }
 
     /**
-     * A function which takes requests and returns a response object, to be sent back Todo: Rewrite the function to do something other than returning a string
+     * A function which takes a request and returns a response object, to be sent back
      * @param req The request to handle
-     * @return A response Todo: Replace the string with a response object
+     * @return A response
      */
     public Response handleInboundRequest(Request req) {
         Token sessionAuthentication = null;
@@ -79,7 +80,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
-                sessionAuthentication = Token.validate(session.token);
+                sessionAuthentication = Token.validate(req.getSession().token);
                 try {
                     user = new User(sessionAuthentication.username, database);
                 } catch (NoSuchUserException e) {
@@ -111,15 +112,13 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 }catch (Exception e)
                 {return new Response(false, "Missing username or password");}
                 try {
-                    // User the real server for the parameter not null
-                    session = new Session(credentials, database);
+                    return new Response(true, new Session(credentials, database));
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
                     return new Response( false, "Cannot create session.");
                 }
-                return new Response(true, session);
             }
             case LIST_BILLBOARD:
-                session = req.getSession();
+            {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
@@ -134,8 +133,8 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     return new Response(false, "There was an SQL error");
                 }
                 // The billboard list now has all of the returned billboards
-                return new Response(true, billboardList); // break;
-
+                return new Response(true, billboardList);
+            }
             case GET_BILLBOARD_INFO:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
                 // this is triggered inside the BillboardList()); GUI
@@ -242,15 +241,30 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case LIST_USERS:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+            {
                 // request only happens if user has 'Edit Users' permission
-                // triggered inside EditUsers() GUI
+                assert user != null;
+                if (user.EditUsers){
+                    // triggered inside EditUsers() GUI
+                    try {
+                        List<String> usernames = new ArrayList<>();
+                        ResultSet rs = database.LookUpAllUserDetails();
+                        while (rs.next())
+                        {
+                            usernames.add(rs.getString("user_name"));
+                        }
+                        return new Response(true, usernames);
+                        // Server responds with list of usernames (CRA then says "and any other information your teams feels appropriate")
+                    } catch (SQLException e) {
+                        return new Response(false, "Lookup failed.");
+                    }
 
-                // Client sends server valid session token
-                // Server responds with list of usernames (CRA then says "and any other information your teams feels appropriate")
-
-                break;
+                }
+                else
+                {
+                    return new Response(false, "Permission denied.");
+                }
+            }
             case CREATE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
@@ -333,7 +347,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 //            closeConnection();
 //        return inputData; // Will query the database with the input and return the response into "output" variable
         // If the request is invalid:
-        throw new IllegalStateException("Unexpected value: " + req.getRequestType());
+        throw new IllegalStateException("Invalid request type: " + req.getRequestType());
     }
 
     public boolean closeConnection() {

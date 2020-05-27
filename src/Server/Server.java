@@ -77,7 +77,6 @@ public class Server extends SocketConnection {
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
-     * @throws IOException
      */
     public void createClientThread() {
         try {
@@ -98,30 +97,9 @@ public class Server extends SocketConnection {
             thread.start();
         }
         catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
-
-    /** Function will be replaced by simply decrypting a given token
-     * Attempts to create a new valid token - an important part of the login process
-     * @param credentials The credentials to validate
-     * @return The new token that was already added to the list of valid tokens
-     * @throws AuthenticationFailedException If the credentials aren't valid
-
-    public byte[] addToken(Credentials credentials) throws AuthenticationFailedException {
-        if(AuthenticationHandler.Authenticate(credentials, database))
-        {
-            // Placeholder token generator - for now it's just gonna be random.
-            byte[] newToken = new byte[100];
-            new Random().nextBytes(newToken);
-            tokens.add(new Token(newToken, credentials.getUsername()));
-            return newToken;
-        }
-        else
-        {
-            throw new AuthenticationFailedException(credentials.getUsername());
-        }
-    }*/
 
     /**
      * Method to close the server.
@@ -139,7 +117,8 @@ public class Server extends SocketConnection {
             System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
 
-                while (true) {
+            //noinspection InfiniteLoopStatement
+            while (true) {
                 if (serverOpen) {
                     server.createClientThread();
                 }
@@ -150,7 +129,7 @@ public class Server extends SocketConnection {
             }
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

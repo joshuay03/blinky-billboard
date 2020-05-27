@@ -92,7 +92,17 @@ public class blinkyDB {
 
         dbconn.setAutoCommit(true);
         return UserLookUp.executeQuery(); // Run the query
-        //rs.next(); // Go to the first result (which should be the only result in this case
+    }
+
+    protected ResultSet LookUpAllUserDetails() throws SQLException {
+        PreparedStatement UserLookUp; // Create the prepared statement object
+        String userLookUpString = "select * from Users"; // Define the query to run
+        dbconn.setAutoCommit(false);
+
+        UserLookUp = dbconn.prepareStatement(userLookUpString); // Compile the statement
+
+        dbconn.setAutoCommit(true);
+        return UserLookUp.executeQuery(); // Run the query
     }
 
     /**
