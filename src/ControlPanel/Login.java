@@ -1,10 +1,7 @@
 package ControlPanel;
 
 import Client.ClientConnector;
-import SocketCommunication.Request;
-import SocketCommunication.Response;
-import SocketCommunication.Session;
-import SocketCommunication.SocketConnection;
+import SocketCommunication.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -57,33 +54,29 @@ public class Login {
                     frame.setVisible(true);
                 }
                 catch(Exception ex) {
-                    System.out.println(ex);
+                    ex.printStackTrace();
                 }
                 String username = usernameField.getText();
                 char[] password = passwordField.getPassword();
 
                 //get login data
-                HashMap<String, String> loginDetails = new HashMap<>();
-                loginDetails.put("username", username);
-                loginDetails.put("password", Arrays.toString(password));
+                Credentials loginDetails = new Credentials(username, Arrays.toString(password));
 
                 //create request
                 Request loginRequest = new Request(LOGIN, loginDetails, null);
 
                 // Send request to server
-                Response response = null;
+                Response response;
                 // use global input stream, this is just to show how it works
 
                 try {
-                    // Todo: Put an existing connection object into the send function
                     response = loginRequest.Send(connector);
                 } catch (IOException excep) {
                     JOptionPane.showMessageDialog(null, "Cannot connect to server");
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-//                    return false;
-
+                    return;
                 }
 
                 // check status of response
@@ -95,42 +88,17 @@ public class Login {
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-//                    return false;
                     // return some error response if status is false
                 }
 
                 // if status == true, get session object Session session = response.getData()
-                if(status == true) {
+                if(status) {
+                    // Save session object and move onto next screen
                     Session session = (Session) response.getData();
                 }
-
-                // Save session object and move onto next screen
-
             }
         });
 
 
     }
-
-
-//    public static String generateHash(char[] input) throws NoSuchAlgorithmException {
-//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//        byte[] hashedBytes = digest.digest(
-//                new String(input).getBytes(StandardCharsets.UTF_8));
-//        String hex = bytesToHex(hashedBytes);
-//
-//        return hex;
-//    }
-
-//    private static String bytesToHex(byte[] hash) {
-//        StringBuffer hexString = new StringBuffer();
-//
-//        for (int i = 0; i < hash.length; i++) {
-//            String hex = Integer.toHexString(0xff & hash[i]);
-//            if(hex.length() == 1) hexString.append('0');
-//            hexString.append(hex);
-//        }
-//
-//        return hexString.toString();
-//    }
 }

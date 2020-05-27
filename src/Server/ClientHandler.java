@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static SocketCommunication.ServerRequest.LOGIN;
@@ -73,10 +75,16 @@ public class ClientHandler extends Thread implements SocketCommunication {
     public Response handleInboundRequest(Request req) {
         Token sessionAuthentication = null;
         User user = null;
-        if(req.getRequestType() != LOGIN && req.getRequestType() != VIEWER_CURRENTLY_SCHEDULED) // Verify the token before continuing, except for LOGIN requests
+        List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
+        if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
                 sessionAuthentication = Token.validate(session.token);
+                try {
+                    user = new User(sessionAuthentication.username, database);
+                } catch (NoSuchUserException e) {
+                    return new Response(false, "The user this token was assigned to is not registered.");
+                }
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
@@ -88,30 +96,20 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 return new Response(false, "Token verification failed.");
             }
         }
-
-        if(req.getRequestType() != VIEWER_CURRENTLY_SCHEDULED)
-        {
-            try {
-                user = new User(sessionAuthentication.username, database);
-            } catch (NoSuchUserException e) {
-                return new Response(false, "The user this token was assigned to is not registered.");
-            }
-        }
         // Example handle login
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
+            {
                 return new Response(true, DummyBillboards.messageAndInformationBillboard());
+            }
             case LOGIN:
+            {
                 // EXAMPLE how to use the request given from the client
-                String username = req.getData().get("username"); // The username should only be read from the request in the case of login requests
-                String password = req.getData().get("password");
-
-                if (username == null || password == null) {
-                    // failure status and error message
-                    return new Response(false, "Missing username or password");
-                }
-
-                Credentials credentials = new Credentials(username, password);
+                Credentials credentials;
+                try{
+                    credentials = (Credentials)req.getData();
+                }catch (Exception e)
+                {return new Response(false, "Missing username or password");}
                 try {
                     // User the real server for the parameter not null
                     session = new Session(credentials, database);
@@ -120,20 +118,15 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 }
 
                 return new Response(true, session);
-
+            }
             case LIST_BILLBOARD:
                 session = req.getSession();
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 Response res = null; // null needs to be replaced with the server.
-                ResultSet rs = null;
-                try {
-                    rs = database.getBillboards();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
-                List<Billboard> billboardList = null;
+                List<Billboard> billboardList = new ArrayList<>();
                 try{
+                    ResultSet rs = database.getBillboards();
                     while (rs.next()){
                         // For each returned billboard from the database
                         billboardList.add(new Billboard());
