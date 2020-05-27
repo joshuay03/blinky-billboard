@@ -116,7 +116,6 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
                     return new Response( false, "Cannot create session.");
                 }
-
                 return new Response(true, session);
             }
             case LIST_BILLBOARD:

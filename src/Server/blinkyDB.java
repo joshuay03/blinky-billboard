@@ -131,15 +131,8 @@ public class blinkyDB {
             dbconn.commit();
         }
         catch (SQLException e) {
-            try { // If the insertion failed
-                dbconn.rollback();
-                throw e;
-            }
-            catch (SQLException excep)
-            { // If the rollback failed
-                System.out.println("Couldn't roll back transaction - " + excep.toString());
-                throw excep;
-            }
+            dbconn.rollback(); // Try to rollback
+            throw e;
         }
         dbconn.setAutoCommit(true);
     }
