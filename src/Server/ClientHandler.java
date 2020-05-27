@@ -52,8 +52,7 @@ public class ClientHandler extends Thread {
                     // Cast the data into a request object to find out what the client wants
                     Request req = (Request)inputObject.readObject();
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
-                    outputWriter.writeObject("Request: " + outputData + " yielded the response: " + outputData); // Replaced below statement with a generic object writer
-                    //output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
+                    outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
                 }
                 catch (Exception e)
                 {
