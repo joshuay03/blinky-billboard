@@ -38,6 +38,7 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
+
     protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
@@ -91,7 +92,17 @@ public class blinkyDB {
 
         dbconn.setAutoCommit(true);
         return UserLookUp.executeQuery(); // Run the query
-        //rs.next(); // Go to the first result (which should be the only result in this case
+    }
+
+    protected ResultSet LookUpAllUserDetails() throws SQLException {
+        PreparedStatement UserLookUp; // Create the prepared statement object
+        String userLookUpString = "select * from Users"; // Define the query to run
+        dbconn.setAutoCommit(false);
+
+        UserLookUp = dbconn.prepareStatement(userLookUpString); // Compile the statement
+
+        dbconn.setAutoCommit(true);
+        return UserLookUp.executeQuery(); // Run the query
     }
 
     /**
@@ -130,15 +141,8 @@ public class blinkyDB {
             dbconn.commit();
         }
         catch (SQLException e) {
-            try { // If the insertion failed
-                dbconn.rollback();
-                throw e;
-            }
-            catch (SQLException excep)
-            { // If the rollback failed
-                System.out.println("Couldn't roll back transaction - " + excep.toString());
-                throw excep;
-            }
+            dbconn.rollback(); // Try to rollback
+            throw e;
         }
         dbconn.setAutoCommit(true);
     }

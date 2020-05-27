@@ -38,8 +38,6 @@ public class AuthenticationHandler {
      * @return Whether the credentials match
      */
     public static boolean Authenticate (Credentials credentials, blinkyDB database) {
-        
-
         try {
             // Tries to get the user's details from the database
             User user = new User(credentials.getUsername(), database);

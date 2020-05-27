@@ -1,6 +1,5 @@
 package Tests;
 
-import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
 import Server.AuthenticationHandler;
 import Server.User;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,9 +17,11 @@ class AuthenticationHandlerTest {
     private static blinkyDB database;
 
     @BeforeAll
-    static void initialiseDBAndSetUser() throws IOException, UserAlreadyExistsException, SQLException {
+    static void initialiseDBAndSetUser() throws IOException, SQLException {
         database = new blinkyDB();
-        new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
+        try {
+            new User(new Credentials("Liran", "SeaMonkey123"), false, false, false, false, database);
+        } catch (UserAlreadyExistsException ignored) {}
     }
 
     @Test

@@ -18,6 +18,9 @@ import java.util.Random;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
+    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
+    // because we don't want it to persist server restarts
+    //private List<Token> tokens;
     private blinkyDB database;
 
     /**
@@ -26,6 +29,15 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
+        try {
+            this.database = new blinkyDB();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("db.props file not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed.");
+        }
     }
 
     /**
@@ -35,15 +47,6 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            this.database = new blinkyDB();
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            System.out.println("db.props file not found.");
-        }
-        catch(SQLException e) {
-            e.printStackTrace();
-            System.out.println("Connection to database failed.");
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
@@ -70,7 +73,7 @@ public class Server extends SocketConnection {
     }
 
     /**
-     * A method to handle incoming socket requests and allocate a new thread independently
+     * A method to handle incoming socket requests and allocate a new thread indipendently
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
@@ -107,16 +110,14 @@ public class Server extends SocketConnection {
     }
 
     public static void main(String[] args){
-        Server server = new Server("properties.txt");
+        Server server = new Server(System.getProperty("user.dir") + "/properties.txt");
         try {
-            // Create a root user
-            new User(new Credentials("Root", "root"), true, true, true, true, server.database);
             server.start();
             boolean serverOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
 
-            //noinspection InfiniteLoopStatement - Server is supposed to run in an infinite loop
+            //noinspection InfiniteLoopStatement
             while (true) {
                 if (serverOpen) {
                     server.createClientThread();

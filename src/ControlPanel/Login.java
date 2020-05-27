@@ -4,7 +4,6 @@ import Client.ClientConnector;
 import SocketCommunication.*;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -31,6 +30,7 @@ public class Login {
     protected JPanel passwordFieldPanel;
     protected JPanel loginButtonPanel;
     protected JPanel titlePanel;
+    private JPanel panel;
 
 
     /**
@@ -47,18 +47,27 @@ public class Login {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try{
+                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
+                catch(Exception ex) {
+                    ex.printStackTrace();
+                }
                 String username = usernameField.getText();
-                char[] password = passwordField.getPassword();
+                String password = new String(passwordField.getPassword());
 
                 //get login data
-                Credentials loginDetails = new Credentials(username, Arrays.toString(password));
+                Credentials loginDetails = new Credentials(username, password);
 
                 //create request
                 Request loginRequest = new Request(LOGIN, loginDetails, null);
 
                 // Send request to server
-                Response response = null;
+                Response response;
+                // use global input stream, this is just to show how it works
 
                 try {
                     response = loginRequest.Send(connector);
@@ -67,12 +76,10 @@ public class Login {
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-//                    return false;
-
+                    return;
                 }
 
                 // check status of response
-                assert response != null;
                 boolean status = response.isStatus();
 
                 if (!status) {
@@ -81,51 +88,17 @@ public class Login {
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
-//                    return false;
                     // return some error response if status is false
-                } else {
-                    // if status == true, get session object Session session = response.getData()
-                    Session session = (Session) response.getData();
-
-                    // Save session object and move onto next screen
-
-                    try{
-                        frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
-                        frame.pack();
-                        frame.setLocationRelativeTo(null);
-                        frame.setVisible(true);
-                    }
-                    catch(Exception ex) {
-                        ex.printStackTrace();
-                    }
                 }
 
-
+                // if status == true, get session object Session session = response.getData()
+                if(status) {
+                    // Save session object and move onto next screen
+                    Session session = (Session) response.getData();
+                }
             }
         });
 
 
     }
-
-
-//    public static String generateHash(char[] input) throws NoSuchAlgorithmException {
-//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//        byte[] hashedBytes = digest.digest(
-//                new String(input).getBytes(StandardCharsets.UTF_8));
-//        String hex = bytesToHex(hashedBytes);
-//
-//        return hex;
-//    }
-
-//    private static String bytesToHex(byte[] hash) {
-//        StringBuffer hexString = new StringBuffer();
-//
-//        for (int i = 0; i < hash.length; i++) {
-//            String hex = Integer.toHexString(0xff & hash[i]);
-//            if(hex.length() == 1) hexString.append('0');
-//            hexString.append(hex);
-//        }
-//
-//        return hexString.toString();
-//    }
 }
