@@ -300,5 +300,7 @@ public class RenderedBillboard extends JPanel {
     void addComponent(Component c){
         this.add(c);
     }
+
+
 }
 

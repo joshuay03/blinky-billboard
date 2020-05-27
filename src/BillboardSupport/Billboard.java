@@ -163,6 +163,13 @@ public class Billboard implements Serializable {
 
     }
 
+    public static Billboard errorBillboard(){
+        Billboard errorBillboard = new Billboard();
+        errorBillboard.setMessage("Error: Could not connect to server");
+
+        return errorBillboard;
+    }
+
 
     public ImageIcon getImageIconFromURL(String url) throws Exception {
         BufferedImage img = ImageIO.read(new URL(url));

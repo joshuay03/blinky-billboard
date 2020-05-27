@@ -102,7 +102,7 @@ public class Viewer extends JFrame implements ActionListener   {
                 connector.close();
                 currentBillboard = (Billboard) response.getData();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                currentBillboard = Billboard.errorBillboard();
             }
 
             // Clear the deck to avoid memory blowout over time
