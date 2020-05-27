@@ -42,6 +42,11 @@ public class Server extends SocketConnection {
         }
     }
 
+    /**
+     * Method which tries instantiating a database connection.
+     * @param numTries
+     * @return
+     */
     private boolean connectToDB(int numTries) {
         int tries = numTries;
         try { this.database = new blinkyDB(); }
