@@ -47,15 +47,7 @@ public class Login {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                try{
-                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
-                }
-                catch(Exception ex) {
-                    ex.printStackTrace();
-                }
+
                 String username = usernameField.getText();
                 char[] password = passwordField.getPassword();
 
@@ -91,14 +83,23 @@ public class Login {
                     usernameField.requestFocus();
 //                    return false;
                     // return some error response if status is false
-                }
-
-                // if status == true, get session object Session session = response.getData()
-                if(status) {
+                } else {
+                    // if status == true, get session object Session session = response.getData()
                     Session session = (Session) response.getData();
+
+                    // Save session object and move onto next screen
+
+                    try{
+                        frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                        frame.pack();
+                        frame.setLocationRelativeTo(null);
+                        frame.setVisible(true);
+                    }
+                    catch(Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
 
-                // Save session object and move onto next screen
 
             }
         });
