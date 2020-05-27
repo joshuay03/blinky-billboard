@@ -1,5 +1,7 @@
 package ControlPanel;
 
+import Client.ClientConnector;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
@@ -20,7 +22,7 @@ public class ScheduleBillboards {
      *
      * @param frame
      */
-    public ScheduleBillboards(JFrame frame) {
+    public ScheduleBillboards(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -29,7 +31,7 @@ public class ScheduleBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);

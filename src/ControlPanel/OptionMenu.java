@@ -1,5 +1,7 @@
 package ControlPanel;
 
+import Client.ClientConnector;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,7 +24,7 @@ public class OptionMenu {
      *
      * @param frame
      */
-    public OptionMenu(JFrame frame) {
+    public OptionMenu(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -31,7 +33,7 @@ public class OptionMenu {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new Login(frame).loginPanel);
+                frame.setContentPane(new Login(frame, connector).loginPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -46,7 +48,7 @@ public class OptionMenu {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new CreateBillboards(frame).createBillboardsPanel);
+                frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -61,7 +63,7 @@ public class OptionMenu {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new ScheduleBillboards(frame).scheduleBillboardsPanel);
+                frame.setContentPane(new ScheduleBillboards(frame, connector).scheduleBillboardsPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -76,7 +78,7 @@ public class OptionMenu {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new EditUsers(frame).editUsersPanel);
+                frame.setContentPane(new EditUsers(frame, connector).editUsersPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
