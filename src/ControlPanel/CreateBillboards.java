@@ -2,6 +2,7 @@ package ControlPanel;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
+import Client.ClientConnector;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -54,7 +55,7 @@ public class CreateBillboards {
      *
      * @param frame
      */
-    public CreateBillboards(JFrame frame) {
+    public CreateBillboards(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -63,7 +64,7 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);

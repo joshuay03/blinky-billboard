@@ -15,8 +15,8 @@ import java.util.Scanner;
  * A class which represents a control panel which connects to the server
  * @author Joshua Young
  */
-public class ControlPanel extends SocketConnection implements SocketCommunication, Runnable {
-    protected Client.ClientConnector connector;
+public class ControlPanel extends ClientConnector implements SocketCommunication, Runnable {
+    protected ClientConnector connector;
     protected Socket socket;
     protected DataInputStream input;
     protected DataOutputStream output;
@@ -57,7 +57,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
      */
     public static void main(String[] args) {
         ControlPanel controlPanel = new ControlPanel
-                ("/Users/joshuayoung/IdeaProjects/BlinkyBillboard/properties.txt");
+                (System.getProperty("user.dir") + "/properties.txt");
         Scanner scanner = new Scanner(System.in);
         boolean controlPanelOpen = true;
 
@@ -90,7 +90,7 @@ public class ControlPanel extends SocketConnection implements SocketCommunicatio
     @Override
     public void run() {
         connector = new ClientConnector("properties.txt");
-        frame.setContentPane(new Login(frame).loginPanel);
+        frame.setContentPane(new Login(frame, this).loginPanel);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

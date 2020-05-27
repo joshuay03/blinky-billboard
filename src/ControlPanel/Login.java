@@ -40,7 +40,7 @@ public class Login {
      * Authenticates the user and opens an "Option Menu" page on successful login
      * @param frame the main frame in which the next page is to be placed
      */
-    public Login(JFrame frame) {
+    public Login(JFrame frame, ClientConnector connector) {
         loginButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the "Login" button is clicked. Sends the entered username to the server to verify its
@@ -51,7 +51,7 @@ public class Login {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
-                    frame.setContentPane(new OptionMenu(frame).optionMenuPanel);
+                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
@@ -76,9 +76,9 @@ public class Login {
 
                 try {
                     // Todo: Put an existing connection object into the send function
-                    response = loginRequest.Send();
+                    response = loginRequest.Send(connector);
                 } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(this, "Cannot connect to server");
+                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
@@ -91,7 +91,7 @@ public class Login {
 
                 if (!status) {
                     String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(this, errorMsg);
+                    JOptionPane.showMessageDialog(null, errorMsg);
                     usernameField.setText("");
                     passwordField.setText("");
                     usernameField.requestFocus();
