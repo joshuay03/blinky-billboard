@@ -60,7 +60,7 @@ public class TestServer {
     /*
         Check that multiple clients can connect to the server.
      */
-    @Test void createClientHandleMultipleConnections() throws IOException {
+    @Test void createClientHandleMultipleConnections() throws Exception {
         Socket socket;
         int count = 0;
         int expected = 2;
