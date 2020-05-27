@@ -1,6 +1,7 @@
 package Server;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static SocketCommunication.ServerRequest.LOGIN;
+import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 /**
  * A class to handle each client individually on an assigned thread.
@@ -48,7 +50,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     // Cast the data into a request object to find out what the client wants
                     Request req = (Request)inputObject.readObject();
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
-                    outputWriter.writeObject("Request: " + outputData + " yielded the response: " + outputData); // Replaced below statement with a generic object writer
+                    outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
                     //output.writeUTF("Request: " + outputData + " yielded the response: " + outputData); // Write a message to the client.
                 }
                 catch (Exception e)
@@ -71,7 +73,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
     public Response handleInboundRequest(Request req) {
         Token sessionAuthentication = null;
         User user = null;
-        if(req.getRequestType() != LOGIN) // Verify the token before continuing, except for LOGIN requests
+        if(req.getRequestType() != LOGIN && req.getRequestType() != VIEWER_CURRENTLY_SCHEDULED) // Verify the token before continuing, except for LOGIN requests
         {
             try {
                 sessionAuthentication = Token.validate(session.token);
@@ -86,7 +88,8 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 return new Response(false, "Token verification failed.");
             }
         }
-        else
+
+        if(req.getRequestType() != VIEWER_CURRENTLY_SCHEDULED)
         {
             try {
                 user = new User(sessionAuthentication.username, database);
@@ -97,7 +100,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         // Example handle login
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
-                break;
+                return new Response(true, DummyBillboards.messageAndInformationBillboard());
             case LOGIN:
                 // EXAMPLE how to use the request given from the client
                 String username = req.getData().get("username"); // The username should only be read from the request in the case of login requests

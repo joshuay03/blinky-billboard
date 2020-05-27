@@ -39,14 +39,8 @@ public class Request implements Serializable {
      * @return A new request with an attached session
      */
     public Request withSession(Session session){
-        Request newReq = null;
-        try {
-            newReq = (Request)this.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        newReq.session = session;
-        return newReq;
+        this.session = session;
+        return this;
     }
 
     /**

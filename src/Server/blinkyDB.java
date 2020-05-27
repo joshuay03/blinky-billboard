@@ -38,6 +38,7 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
+
     protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?

@@ -97,7 +97,8 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
         // Read the response from the server
         try {
             ObjectInputStream ois = new ObjectInputStream(input);
-            res = (Response) ois.readObject();
+            res = (Response)ois.readObject();
+            System.out.println("Response: " + res);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

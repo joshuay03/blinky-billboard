@@ -1,4 +1,4 @@
-url=localhost
+url=localhost:3308
 username=root
 password=password
 schema=blinkyBillboard
