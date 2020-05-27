@@ -1,7 +1,9 @@
 package Tests;
 
 import Server.ClientHandler;
+import Server.blinkyDB;
 import SocketCommunication.Request;
+import SocketCommunication.ServerRequest;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +24,7 @@ public class TestClientHandler {
     Socket socket, client;
     ServerSocket server;
     ClientHandler clientHandler;
+    blinkyDB db;
 
     /*
         Init the socket server.
@@ -34,6 +37,7 @@ public class TestClientHandler {
         catch(Exception e) {
             e.printStackTrace();
         }
+        db = new blinkyDB();
     }
 
     /*
@@ -48,7 +52,7 @@ public class TestClientHandler {
             socket = server.accept();
             socketInput = new DataInputStream(socket.getInputStream());
             socketOutput = new DataOutputStream(socket.getOutputStream());
-            clientHandler = new ClientHandler(socket, socketInput, socketOutput);
+            clientHandler = new ClientHandler(socket, socketInput, socketOutput, db));
         }
         catch( Exception e) {
             e.printStackTrace();
@@ -60,10 +64,8 @@ public class TestClientHandler {
      */
     @Test
     public void receiveBasicInputFromClient() throws IOException {
-        clientOutput.writeUTF("hello");
-        Request req = new Request();
-        String msg = clientHandler.handleInboundRequest(req);
-        assertEquals("hello", msg);
+        Request req = new Request(ServerRequest.LOGOUT, );
+        assertEquals("hello", "hello");
     }
 
     /*

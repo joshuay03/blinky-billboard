@@ -1,12 +1,10 @@
 package ControlPanel;
 
 import Client.ClientConnector;
-import SocketCommunication.Request;
-import SocketCommunication.Response;
-import SocketCommunication.Session;
-import SocketCommunication.SocketConnection;
+import SocketCommunication.*;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -57,25 +55,21 @@ public class Login {
                     frame.setVisible(true);
                 }
                 catch(Exception ex) {
-                    System.out.println(ex);
+                    ex.printStackTrace();
                 }
                 String username = usernameField.getText();
                 char[] password = passwordField.getPassword();
 
                 //get login data
-                HashMap<String, String> loginDetails = new HashMap<>();
-                loginDetails.put("username", username);
-                loginDetails.put("password", Arrays.toString(password));
+                Credentials loginDetails = new Credentials(username, Arrays.toString(password));
 
                 //create request
                 Request loginRequest = new Request(LOGIN, loginDetails, null);
 
                 // Send request to server
                 Response response = null;
-                // use global input stream, this is just to show how it works
 
                 try {
-                    // Todo: Put an existing connection object into the send function
                     response = loginRequest.Send(connector);
                 } catch (IOException excep) {
                     JOptionPane.showMessageDialog(null, "Cannot connect to server");
@@ -87,6 +81,7 @@ public class Login {
                 }
 
                 // check status of response
+                assert response != null;
                 boolean status = response.isStatus();
 
                 if (!status) {
@@ -100,7 +95,7 @@ public class Login {
                 }
 
                 // if status == true, get session object Session session = response.getData()
-                if(status == true) {
+                if(status) {
                     Session session = (Session) response.getData();
                 }
 

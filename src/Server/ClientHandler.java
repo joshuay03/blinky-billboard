@@ -9,13 +9,17 @@ import SocketCommunication.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
-import static SocketCommunication.ServerRequest.LOGIN;
+import static SocketCommunication.ServerRequest.*;
 
 /**
  * A class to handle each client individually on an assigned thread.
@@ -69,9 +73,13 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * @return A response Todo: Replace the string with a response object
      */
     public Response handleInboundRequest(Request req) {
+        // Invalid Request Error generator
+        Function<Request, Response> InvalidRequestError = (Request requ) -> new Response(false, String.format("Invalid %s request", requ.getRequestType().toString()));
         Token sessionAuthentication = null;
-        User user = null;
-        if(req.getRequestType() != LOGIN) // Verify the token before continuing, except for LOGIN requests
+        User requester = null; // Details about the authenticated user making the request, such as its permissions
+        // Request types specified here will not require authentication to use - intended for LOGIN requests and requests made by a viewer.
+        List<ServerRequest> authlessReqs = Arrays.asList(LOGIN, VIEW_SCHEDULED_BILLBOARD);
+        if(!authlessReqs.contains(req.getRequestType())) // Verify the token before continuing, except for authless requests
         {
             try {
                 sessionAuthentication = Token.validate(session.token);
@@ -85,30 +93,23 @@ public class ClientHandler extends Thread implements SocketCommunication {
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
             }
-        }
-        else
-        {
             try {
-                user = new User(sessionAuthentication.username, database);
+                requester = new User(sessionAuthentication.username, database);
             } catch (NoSuchUserException e) {
                 return new Response(false, "The user this token was assigned to is not registered.");
             }
         }
-        // Example handle login
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
                 break;
             case LOGIN:
+            {
                 // EXAMPLE how to use the request given from the client
-                String username = req.getData().get("username"); // The username should only be read from the request in the case of login requests
-                String password = req.getData().get("password");
-
-                if (username == null || password == null) {
-                    // failure status and error message
+                Credentials credentials;
+                try {credentials = (Credentials) req.getData();} // Try reading credentials from the request since presumably that's what they are
+                catch (Exception e){
                     return new Response(false, "Missing username or password");
                 }
-
-                Credentials credentials = new Credentials(username, password);
                 try {
                     // User the real server for the parameter not null
                     session = new Session(credentials, database);
@@ -117,11 +118,11 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 }
 
                 return new Response(true, session);
-
+            }
             case LIST_BILLBOARD:
+            {
                 session = req.getSession();
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-                Response res = null; // null needs to be replaced with the server.
+                Response res = null;
                 ResultSet rs = null;
                 try {
                     rs = database.getBillboards();
@@ -129,8 +130,9 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     e.printStackTrace();
                 }
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
-                List<Billboard> billboardList = null;
+                List<Billboard> billboardList = Arrays.asList(new Billboard[]());
                 try{
+                    assert rs != null;
                     while (rs.next()){
                         // For each returned billboard from the database
                         billboardList.add(new Billboard());
@@ -140,30 +142,44 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 }
                 // The billboard list now has all of the returned billboards
                 return new Response(true, billboardList); // break;
+            }
 
             case GET_BILLBOARD_INFO:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
+            {
+                String billboardName = null;
+                try{billboardName = (String)req.getData();}
+                // Invalid request handler - copy paste this wherever invalid requests could be received
+                catch (Exception e) {
+                    return InvalidRequestError.apply(req);
+                }
                 // this is triggered inside the BillboardList()); GUI
-                // The control panel send the server the Billboard Name and valid session
-                // token e.g session = req.getSession();
-
+                // The control panel send the server the Billboard Name
+                ResultSet billboardResults = null;
+                try {
+                    billboardResults = database.getBillboards(billboardName);
+                    billboardResults.first();
+                } catch (SQLException e) {
+                    return new Response(false, "There was an SQL error");
+                }
+                try {
+                    // Todo: call the billboard constructor properly
+                    return new Response(true, new Billboard(billboardResults.getString(1)));
+                } catch (SQLException e) {
+                    return new Response(false, "There was an SQL error");
+                }
                 //server responds with billboards contents
-
-
-                break;
+            }
             case CREATE_BILLBOARD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
                 // triggered inside CreateBillboards() GUI
                 // user with "Create Billboards" permission
 
                 // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
-                // something like String billboardName = req.getData().get(billboardName);
+                // something like String billboardName = ((Billboard)req.getData().getName()).get(billboardName);
 
                 // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
 
                 // if billboard does exist
-                // get list of billboards session user has created
+                // determine whether the creator == session's user
                 // if billboardName in list make edit if not return error
 
                 // if billboardName does not exist create new billboard
@@ -329,16 +345,9 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 // server will expire session token and send back and acknowledgement
                 break;
+            default:
+                return new Response(false, String.format("Request of type %s is invalid", req.getRequestType().toString()));
         }
-
-
-//        String inputData = input.readUTF();
-//        System.out.println(this.client + " request: " + inputData); // Print client request to server
-//        if (inputData.equalsIgnoreCase("exit"))
-//            closeConnection();
-//        return inputData; // Will query the database with the input and return the response into "output" variable
-        // If the request is invalid:
-        throw new IllegalStateException("Unexpected value: " + req.getRequestType());
     }
 
     public boolean closeConnection() {
