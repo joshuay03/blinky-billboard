@@ -26,15 +26,6 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
-        try {
-            this.database = new blinkyDB();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("db.props file not found.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Connection to database failed.");
-        }
     }
 
     /**
@@ -44,6 +35,15 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
+            this.database = new blinkyDB();
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+            System.out.println("db.props file not found.");
+        }
+        catch(SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed.");
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
