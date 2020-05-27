@@ -35,19 +35,34 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            this.database = new blinkyDB();
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            System.out.println("db.props file not found.");
-        }
-        catch(SQLException e) {
-            e.printStackTrace();
-            System.out.println("Connection to database failed.");
+            if (connectToDB(0) == false) { close(); }
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
         }
+    }
+
+    private boolean connectToDB(int numTries) {
+        int tries = numTries;
+        try { this.database = new blinkyDB(); }
+        catch(SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed. Attempting connection again in 10 seconds.");
+            if (tries < 2) {
+                try { Thread.sleep(10000); } catch (InterruptedException t) {};
+                tries++;
+                connectToDB(tries);
+            }
+            else {
+                System.out.println("The connection has been attempted multiple times. Closing the server.");
+                return false;
+            }
+        }
+        catch(IOException e) {
+            System.out.println("db.props file not found. Closing server.");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -75,27 +90,22 @@ public class Server extends SocketConnection {
      * to the clientHandler object.
      * @see ClientHandler
      */
-    public void createClientThread() {
-        try {
-            // socket object to receive incoming client requests
-            client = server.accept();
+    public void createClientThread() throws Exception{
+        // socket object to receive incoming client requests
+        client = server.accept();
 
-            System.out.println("A new client is connected : " + client);
+        System.out.println("A new client is connected : " + client);
 
-            // obtaining input and output streams
-            DataInputStream input = new DataInputStream(client.getInputStream());
-            DataOutputStream output = new DataOutputStream(client.getOutputStream());
+        // obtaining input and output streams
+        DataInputStream input = new DataInputStream(client.getInputStream());
+        DataOutputStream output = new DataOutputStream(client.getOutputStream());
 
-            System.out.println("Assigning new thread for this client");
-            // create a new thread object
-            Thread thread = new ClientHandler(client, input, output, database);
+        System.out.println("Assigning new thread for this client");
+        // create a new thread object
+        Thread thread = new ClientHandler(client, input, output, database);
 
-            // Start the thread
-            thread.start();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
+        // Start the thread
+        thread.start();
     }
 
     /**
@@ -109,22 +119,19 @@ public class Server extends SocketConnection {
     public static void main(String[] args){
         Server server = new Server("properties.txt");
         try {
+            server.start();
             // Create a root user
             new User(new Credentials("Root", "root"), true, true, true, true, server.database);
-            server.start();
+
             boolean serverOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + serverOpen);
-            System.out.println("Currently operating on port: " + server.getPort());
+            if (serverOpen)
+                System.out.println("Currently operating on port: " + server.getPort());
 
             //noinspection InfiniteLoopStatement - Server is supposed to run in an infinite loop
-            while (true) {
-                if (serverOpen) {
-                    server.createClientThread();
-                }
-                else {
-                    server.close();
-                    serverOpen = false;
-                }
+            while (serverOpen) {
+                serverOpen = server.isServerAliveUtil();
+                server.createClientThread();
             }
         }
         catch (Exception e) {
