@@ -86,7 +86,6 @@ public class Viewer extends JFrame implements ActionListener   {
         });
     }
 
-    static int counter;
     @Override
     public void actionPerformed(ActionEvent e) {
         // Timer handling
