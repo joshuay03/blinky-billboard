@@ -57,10 +57,10 @@ public class Login {
                     ex.printStackTrace();
                 }
                 String username = usernameField.getText();
-                char[] password = passwordField.getPassword();
+                String password = new String(passwordField.getPassword());
 
                 //get login data
-                Credentials loginDetails = new Credentials(username, Arrays.toString(password));
+                Credentials loginDetails = new Credentials(username, password);
 
                 //create request
                 Request loginRequest = new Request(LOGIN, loginDetails, null);
