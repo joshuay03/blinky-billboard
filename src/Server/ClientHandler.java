@@ -26,7 +26,7 @@ import static SocketCommunication.ServerRequest.*;
  * Implements the SocketCommunication interface for communicating directly with the client socket.
  * @see SocketCommunication
  */
-public class ClientHandler extends Thread implements SocketCommunication {
+public class ClientHandler extends Thread {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -365,15 +365,5 @@ public class ClientHandler extends Thread implements SocketCommunication {
             e.printStackTrace();
         }
         return closed;
-    }
-
-    @Override
-    public void sendOutput(String msg) {
-
-    }
-
-    @Override
-    public void retrieveInput() {
-
     }
 }

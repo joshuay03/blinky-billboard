@@ -19,7 +19,7 @@ import java.util.Arrays;
  * @see SocketCommunication
  * @see SocketConnection
  */
-public class ClientConnector extends SocketConnection implements SocketCommunication {
+public class ClientConnector extends SocketConnection {
     Session session; // Starts empty, stays empty on Viewers
     Socket socket;
     DataInputStream input;
@@ -39,6 +39,9 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
     public void start() throws IOException{
         super.start();
         port = Integer.toString(getPort());
+        if (port == null) {
+            close();
+        }
         // If the address is not an IP, get the IP from the address
         InetAddress ip;
         boolean isIP = true;
@@ -108,14 +111,5 @@ public class ClientConnector extends SocketConnection implements SocketCommunica
         assert res != null;
         // Return the response that was received
         return res;
-    }
-
-    @Override
-    public void sendOutput(String msg) {
-
-    }
-
-    @Override
-    public void retrieveInput() {
     }
 }
