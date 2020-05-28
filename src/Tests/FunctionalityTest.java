@@ -1,6 +1,7 @@
 package Tests;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
@@ -12,7 +13,7 @@ import SocketCommunication.Credentials;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 import SocketCommunication.Session;
-import Utils.Triple;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.awt.*;
 import java.io.*;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -173,7 +173,9 @@ class FunctionalityTest {
 
     @Test
     void Schedule_Billboard(){
-        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, new Triple<Number, LocalDateTime, Number>(0, LocalDateTime.now(), 5), session);
+        Billboard mock = DummyBillboards.messageAndPictureBillboard();
+        // Set a schedule for the billboard
+        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, mock, session);
         Response scheduleRes = respondTo.apply(ScheduleRequestCreator.apply(session));
         Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
 
@@ -187,5 +189,10 @@ class FunctionalityTest {
         Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
+    }
+
+    @AfterAll()
+    static void Reset_Schema() throws IOException, SQLException {
+        new blinkyDB(true);
     }
 }

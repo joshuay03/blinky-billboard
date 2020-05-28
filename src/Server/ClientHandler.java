@@ -144,7 +144,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case CREATE_BILLBOARD:
-
+            if (false){
                 // EXAMPLE how to use the request given from the client
                 Billboard billboard;
                 try{
@@ -177,7 +177,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 // if billboardName exist and is currently scheduled edit can not be made return error
                 // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
-
+            }
                 break;
             case EDIT_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
