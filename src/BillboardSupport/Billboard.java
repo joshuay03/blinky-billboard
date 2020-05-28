@@ -25,53 +25,7 @@ import java.util.Locale;
 //TODO - Implement serializable
 public class Billboard implements Serializable {
 
-    public Color getBackgroundColour() {
-        return backgroundColour;
-    }
-
-    public void setBackgroundColour(Color backgroundColour) {
-        this.backgroundColour = backgroundColour;
-    }
-
-    public Color getMessageColour() {
-        return messageColour;
-    }
-
-    public void setMessageColour(Color messageColour) {
-        this.messageColour = messageColour;
-    }
-
-    public Color getInformationColour() {
-        return informationColour;
-    }
-
-    public void setInformationColour(Color informationColour) {
-        this.informationColour = informationColour;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getInformation() {
-        return information;
-    }
-
-    public void setInformation(String information) {
-        this.information = information;
-    }
-
-    public ImageIcon getBillboardImage() {
-        return billboardImage;
-    }
-
-    public void setBillboardImage(ImageIcon billboardImage) {
-        this.billboardImage = billboardImage;
-    }
+    //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
 
     public LocalDateTime getScheduledTime() {
         return scheduledTime;
@@ -97,13 +51,72 @@ public class Billboard implements Serializable {
         this.billboardDatabaseKey = billboardDatabaseKey;
     }
 
+    public URL getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(URL imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public String getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(String imageData) {
+        this.imageData = imageData;
+    }
+
+    public Color getBackgroundColour() {
+        return backgroundColour;
+    }
+
+    public void setBackgroundColour(Color backgroundColour) {
+        this.backgroundColour = backgroundColour;
+    }
+
+    public Color getMessageColour() {
+        return messageColour;
+    }
+
+    public void setMessageColour(Color messageColour) {
+        this.messageColour = messageColour;
+    }
+
+    public Color getInformationColour() {
+        return informationColour;
+    }
+
+    public void setInformationColour(Color informationColour) {
+        this.informationColour = informationColour;
+    }
+    //</editor-fold>
+
     private Color backgroundColour, messageColour, informationColour;
 
     private static Color DEFAULT_COLOUR = Color.WHITE;
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
+    }
+
     private String message, information;
 
-    private ImageIcon billboardImage;
+    private URL imageURL;
+
+    private String imageData;
 
     // ADD variable to track who owns the Billboard
 
@@ -112,53 +125,54 @@ public class Billboard implements Serializable {
 
     private int billboardDatabaseKey;
 
+
+
     /** New Billboard Object from scratch
      * @param backgroundColour The colour of the Billboard background
      * @param messageColour The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
      * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
      * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
-     * @param image The image to be displayed by the Billboard
+     * @param imageURL The URL of the image to be displayed by the Billboard
      * @param scheduledTime The time the billboard is first scheduled to display
      * @param duration The amount of time in seconds to display the Billboard
      * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL, LocalDateTime scheduledTime, int duration, int repeatInterval) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
         this.message = message;
         this.information = information;
-        this.billboardImage = image;
+        this.imageURL = imageURL;
         this.scheduledTime = scheduledTime;
         this.duration = duration;
         this.repeatInterval = repeatInterval;
     }
 
-    /** Create Billboard Object from Database field
+    /** New Billboard Object from scratch
      * @param backgroundColour The colour of the Billboard background
      * @param messageColour The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
      * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
      * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
-     * @param image The image to be displayed by the Billboard
+     * @param imageData The Base64 byte string of the image to be displayed by the Billboard
      * @param scheduledTime The time the billboard is first scheduled to display
      * @param duration The amount of time in seconds to display the Billboard
      * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
-     * @param billboardDatabaseKey The key which corresponds to this Billboard in the database
      */
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, ImageIcon image, LocalDateTime scheduledTime, int duration, int repeatInterval, int billboardDatabaseKey) {
+
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData, LocalDateTime scheduledTime, int duration, int repeatInterval) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
         this.message = message;
         this.information = information;
-        this.billboardImage = image;
+        this.imageData = imageData;
         this.scheduledTime = scheduledTime;
         this.duration = duration;
         this.repeatInterval = repeatInterval;
-        this.billboardDatabaseKey = billboardDatabaseKey;
     }
 
     /** Create Billboard from Billboard XML File
@@ -166,7 +180,7 @@ public class Billboard implements Serializable {
      * @param billboardXMLFile An XML File which conforms to the Billboard XML Spec.
      */
 
-    public Billboard getBillboardFromXML(File billboardXMLFile) {
+    public static Billboard getBillboardFromXML(File billboardXMLFile) {
         Billboard billboard = new Billboard();
 
         try {
@@ -203,11 +217,10 @@ public class Billboard implements Serializable {
             if (pictureNodes.getLength() > 0) {
                 if (pictureNodes.item(0).hasAttributes()) {
                     if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
-                        billboard.billboardImage = billboard.getImageIconFromURL(
-                                pictureNodes.item(0).getAttributes().item(0).getTextContent());
+                        billboard.imageURL = new URL(pictureNodes.item(0).getAttributes().item(0).getTextContent());
                     }
                     else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
-                        billboard.billboardImage = billboard.getImageIconFromBase64(pictureNodes.item(0).getAttributes().item(0).getTextContent());
+                        billboard.imageData = pictureNodes.item(0).getAttributes().item(0).getTextContent();
                     }
                 }
             }
@@ -270,42 +283,22 @@ public class Billboard implements Serializable {
             //  N.B. Because we only ever store the ImageIcon data (and we don't retain the URL) when we read a Billboard in, we only have to deal with writing out
             // Base64 encoded image data
             Element image = billboardXMLRep.createElement("picture");
-            Attr imageDataNode = billboardXMLRep.createAttribute("data");
+            Attr imageNode = null;
 
-            // Sort out the data for writing
-            String imgString = null;
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-            BufferedImage bufferedImageData = new BufferedImage(
-                    this.billboardImage.getIconWidth(),
-                    this.billboardImage.getIconHeight(),
-                    BufferedImage.TYPE_INT_RGB);
-
-            Graphics g = bufferedImageData.createGraphics();
-            // paint the Icon to the BufferedImage.
-            this.billboardImage.paintIcon(null, g, 0,0);
-            g.dispose();
-
-            try{
-                ImageIO.write(bufferedImageData, "PNG", byteArrayOutputStream);
-                byte[] imageBytes = byteArrayOutputStream.toByteArray();
-
-                Base64.Encoder encoder = Base64.getEncoder();
-                imgString = encoder.encode(imageBytes).toString();
-
-                byteArrayOutputStream.close();
-            } catch (Exception e){
-
+            if(this.imageData != null) {
+                // Sort out the data for writing
+                imageNode.setValue(imageData);
+                imageNode = billboardXMLRep.createAttribute("data");
+            } else if(this.imageURL != null){
+                imageNode.setValue(imageURL.toString());
+                imageNode = billboardXMLRep.createAttribute("url");
             }
-            imageDataNode.setValue(imgString);
-
-            image.setAttributeNode(imageDataNode);
+            if(imageNode != null) image.setAttributeNode(imageNode);
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         return stringRep;
     }
@@ -316,28 +309,9 @@ public class Billboard implements Serializable {
 
     public static Billboard errorBillboard(){
         Billboard errorBillboard = new Billboard();
-        errorBillboard.setMessage("Error: Could not connect to server");
+        errorBillboard.message = "Error: Could not connect to server";
 
         return errorBillboard;
-    }
-
-    public ImageIcon getImageIconFromURL(String url) {
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new URL(url));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(img != null) return new ImageIcon(img);
-        else return null;
-    }
-
-    public ImageIcon getImageIconFromBase64(String imageString) {
-
-        byte[] decodedImage = Base64.getDecoder().decode(imageString.getBytes());
-
-        return new ImageIcon(decodedImage);
     }
 
     @Override
@@ -353,9 +327,17 @@ public class Billboard implements Serializable {
                 this.informationColour.equals(comparator.informationColour) &&
                 collator.compare(this.message, comparator.message) == 0 &&
                 collator.compare(this.information, comparator.information) == 0 &&
-                this.billboardImage.equals(comparator.billboardImage);
+                imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : false ||
+                imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
 
     }
 
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 }

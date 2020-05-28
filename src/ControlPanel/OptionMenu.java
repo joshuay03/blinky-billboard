@@ -4,6 +4,7 @@ import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 import SocketCommunication.Session;
+import com.sun.jdi.connect.Connector;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -108,6 +109,7 @@ public class OptionMenu implements Runnable {
                 Response res = null;
                 try {
                     res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
+
                 } catch (IOException eo) {
                     eo.printStackTrace();
                 }

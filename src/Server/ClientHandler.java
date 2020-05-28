@@ -100,7 +100,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
             {
-                return new Response(true, DummyBillboards.messageAndInformationBillboard());
+                return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
             case LOGIN:
             {

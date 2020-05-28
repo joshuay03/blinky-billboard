@@ -24,7 +24,7 @@ public class DummyBillboards {
     public static Billboard pictureOnlyBillboard() {
         Billboard b = new Billboard();
 
-        b.setBillboardImage(b.getImageIconFromBase64(dummyImage));
+        b.setImageData(dummyImage);
 
         return b;
     }
@@ -42,7 +42,7 @@ public class DummyBillboards {
         Billboard b = new Billboard();
 
         b.setMessage("Billboard with message and picture with data attribute");
-        b.setBillboardImage(b.getImageIconFromBase64(dummyImage));
+        b.setImageData(dummyImage);
 
         return b;
     }
@@ -60,7 +60,7 @@ public class DummyBillboards {
         Billboard b = new Billboard();
 
         b.setInformation("Billboard with message and picture with data attribute");
-        b.setBillboardImage(b.getImageIconFromBase64(dummyImage));
+        b.setImageData(dummyImage);
 
         return b;
     }
@@ -71,7 +71,7 @@ public class DummyBillboards {
         b.setInformation("This billboard has a message tag, a picture tag (linking to a URL with a GIF image) and an information tag. The picture is drawn in the centre and the message and information text are centred in the space between the top of the image and the top of the page, and the space between the bottom of the image and the bottom of the page, respectively.");
         b.setMessage("Billboard with message, GIF and information");
         try{
-            b.setBillboardImage(b.getImageIconFromURL("https://cloudstor.aarnet.edu.au/plus/s/A26R8MYAplgjUhL/download"));
+            b.setImageURL(new URL("https://cloudstor.aarnet.edu.au/plus/s/A26R8MYAplgjUhL/download"));
         } catch (Exception e) {
             System.out.println(e);
         }
