@@ -156,7 +156,7 @@ class FunctionalityTest {
         Response unAuthedSameCreatorRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
         Response unAuthedDifferentCreatorRes = respondTo.apply(EditBillboardRequest.apply(1).apply(noperms_session));
         Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(999).apply(session));
-        assertTrue(authedRes.isStatus() && !unAuthedSameCreatorRes.isStatus() && !nonExistentBillboardRes.isStatus());
+        assertTrue(authedRes.isStatus() && unAuthedSameCreatorRes.isStatus() && !nonExistentBillboardRes.isStatus() && !unAuthedDifferentCreatorRes.isStatus());
     }
 
     @Test
