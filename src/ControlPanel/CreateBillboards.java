@@ -36,14 +36,17 @@ import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
  */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
-    protected JButton importButton;
-    protected JButton exportButton;
+    protected JPanel titlePanel;
+    protected JButton backButton;
     protected JLabel createBillboardsLabel;
     protected JPanel optionPanel;
+    protected JButton importButton;
+    protected JButton exportButton;
     protected JPanel createPanel;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
     protected JButton messageColourButton;
+    protected JButton pictureButton;
     protected JLabel pictureURLLabel;
     protected JFormattedTextField pictureURLFormattedTextField;
     protected JLabel informationLabel;
@@ -51,20 +54,19 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
-    private JButton backButton;
-    protected JPanel titlePanel;
-    private JButton pictureButton;
 
     protected Billboard billboard;
-    protected Color backgroundColour = null;
-    protected String messageText = null;
-    protected Color messageColor = null;
-    protected URL pictureURL = null;
-    protected byte[] pictureData = null;
-    protected String informationText = null;
-    protected Color informationColor = null;
+    protected Color backgroundColour;
+    protected String messageText;
+    protected Color messageColor;
+    protected URL pictureURL;
+    protected byte[] pictureData;
+    protected String informationText;
+    protected Color informationColor;
 
     protected ColourChooser colourChooser = new ColourChooser();
+
+    protected JFrame previewFrame;
 
     /**
      *
@@ -276,22 +278,14 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
                         (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
-
-                JFrame newFrame = new JFrame();
-                newFrame.setSize(renderDimension);
-
-
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
-                newFrame.setContentPane(renderedBillboard);
 
-                newFrame.setVisible(true);
-
+                previewFrame = new JFrame();
+                previewFrame.setSize(renderDimension);
+                previewFrame.setContentPane(renderedBillboard);
+                previewFrame.setVisible(true);
             }
         });
-    }
-
-    private void importXML(File xmlFile) {
-
     }
 
     private static String encodeFileToBase64Binary(File file) throws IOException {
