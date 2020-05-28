@@ -16,7 +16,7 @@ public class DummyBillboards {
     public static Billboard messageOnlyBillboard() {
         Billboard b = new Billboard();
 
-        b.setMessage("Basic message-only Billboard");
+        b.setMessage("Basic message-only billboard");
 
         return b;
     }

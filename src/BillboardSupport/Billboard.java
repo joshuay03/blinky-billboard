@@ -1,13 +1,26 @@
 package BillboardSupport;
 
+import org.junit.jupiter.api.Assertions;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Locale;
 
 //TODO - Implement serializable
 public class Billboard implements Serializable {
@@ -99,8 +112,6 @@ public class Billboard implements Serializable {
 
     private int billboardDatabaseKey;
 
-
-
     /** New Billboard Object from scratch
      * @param backgroundColour The colour of the Billboard background
      * @param messageColour The colour of the text which displays the 'message' string.
@@ -152,11 +163,151 @@ public class Billboard implements Serializable {
 
     /** Create Billboard from Billboard XML File
      *
-     * @param billboardXML An XML String which conforms to the Billboard XML Spec.
+     * @param billboardXMLFile An XML File which conforms to the Billboard XML Spec.
      */
 
-    public Billboard(String billboardXML) {
-        //TODO - read in Billboard XML
+    public Billboard getBillboardFromXML(File billboardXMLFile) {
+        Billboard billboard = new Billboard();
+
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(billboardXMLFile);
+            doc.getDocumentElement().normalize();
+
+            // Find the billboard element
+            NodeList billboardNodes = doc.getElementsByTagName("billboard");
+            if (billboardNodes.getLength() > 0) {
+
+                // While we're here, get the colour
+                if (billboardNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+            //If there are no elements with "billboard" in the tag name, it's probably a dud file
+            else {
+                System.out.println("Not a valid billboard XML File");
+                return null;
+            }
+
+            NodeList messageNodes = doc.getElementsByTagName("message");
+            if (messageNodes.getLength() > 0) {
+                billboard.message = messageNodes.item(0).getTextContent();
+
+                if (messageNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.messageColour = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+
+            NodeList pictureNodes = doc.getElementsByTagName("picture");
+            if (pictureNodes.getLength() > 0) {
+                if (pictureNodes.item(0).hasAttributes()) {
+                    if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
+                        billboard.billboardImage = billboard.getImageIconFromURL(
+                                pictureNodes.item(0).getAttributes().item(0).getTextContent());
+                    }
+                    else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
+                        billboard.billboardImage = billboard.getImageIconFromBase64(pictureNodes.item(0).getAttributes().item(0).getTextContent());
+                    }
+                }
+            }
+
+            NodeList informationNodes = doc.getElementsByTagName("information");
+            if (informationNodes.getLength() > 0) {
+                billboard.information = informationNodes.item(0).getTextContent();
+
+                if (informationNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.informationColour = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            System.out.println("That does not appear to be valid billboard data!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return billboard;
+    }
+
+    private static int ALPHA_MASK = 0x00FFFFFF;
+    public String getXMLRepresentation(){
+        String stringRep = "";
+
+        try {
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+
+            Document billboardXMLRep = documentBuilder.newDocument();
+
+            //Billboard element
+            Element root = billboardXMLRep.createElement("billboard");
+            billboardXMLRep.appendChild(root);
+
+            Attr backgroundHexRep = billboardXMLRep.createAttribute("background");
+            backgroundHexRep.setValue("#" + Integer.toHexString(this.backgroundColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+            root.setAttributeNode(backgroundHexRep);
+
+            //Message ------------------------------------------------
+            Element msg = billboardXMLRep.createElement("message");
+            msg.appendChild(billboardXMLRep.createTextNode(this.message));
+
+            Attr msgColor = billboardXMLRep.createAttribute("colour");
+            msgColor.setValue("#" + Integer.toHexString(this.messageColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+            msg.setAttributeNode(msgColor);
+
+            // Information ------------------------------------------------
+            Element info = billboardXMLRep.createElement("information");
+            info.appendChild(billboardXMLRep.createTextNode(this.information));
+
+            Attr infoColour = billboardXMLRep.createAttribute("colour");
+            infoColour.setValue("#" + Integer.toHexString(this.informationColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+            info.setAttributeNode(infoColour);
+
+            // Image ------------------------------------------------
+            //  N.B. Because we only ever store the ImageIcon data (and we don't retain the URL) when we read a Billboard in, we only have to deal with writing out
+            // Base64 encoded image data
+            Element image = billboardXMLRep.createElement("picture");
+            Attr imageDataNode = billboardXMLRep.createAttribute("data");
+
+            // Sort out the data for writing
+            String imgString = null;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+            BufferedImage bufferedImageData = new BufferedImage(
+                    this.billboardImage.getIconWidth(),
+                    this.billboardImage.getIconHeight(),
+                    BufferedImage.TYPE_INT_RGB);
+
+            Graphics g = bufferedImageData.createGraphics();
+            // paint the Icon to the BufferedImage.
+            this.billboardImage.paintIcon(null, g, 0,0);
+            g.dispose();
+
+            try{
+                ImageIO.write(bufferedImageData, "PNG", byteArrayOutputStream);
+                byte[] imageBytes = byteArrayOutputStream.toByteArray();
+
+                Base64.Encoder encoder = Base64.getEncoder();
+                imgString = encoder.encode(imageBytes).toString();
+
+                byteArrayOutputStream.close();
+            } catch (Exception e){
+
+            }
+            imageDataNode.setValue(imgString);
+
+            image.setAttributeNode(imageDataNode);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return stringRep;
     }
 
     public Billboard(){
@@ -171,9 +322,16 @@ public class Billboard implements Serializable {
     }
 
 
-    public ImageIcon getImageIconFromURL(String url) throws Exception {
-        BufferedImage img = ImageIO.read(new URL(url));
-        return new ImageIcon(img);
+    public ImageIcon getImageIconFromURL(String url) {
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new URL(url));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(img != null) return new ImageIcon(img);
+        else return null;
     }
 
     public ImageIcon getImageIconFromBase64(String imageString) {
@@ -181,6 +339,23 @@ public class Billboard implements Serializable {
         byte[] decodedImage = Base64.getDecoder().decode(imageString.getBytes());
 
         return new ImageIcon(decodedImage);
+    }
+
+    @Override
+    public boolean equals(Object object){
+
+        Billboard comparator = (Billboard) object;
+
+        Collator collator = Collator.getInstance(Locale.ENGLISH);
+
+        //Check whether all the constituent parts of the billboard match
+        return this.backgroundColour.equals(comparator.backgroundColour) &&
+                this.messageColour.equals(comparator.messageColour) &&
+                this.informationColour.equals(comparator.informationColour) &&
+                collator.compare(this.message, comparator.message) == 0 &&
+                collator.compare(this.information, comparator.information) == 0 &&
+                this.billboardImage.equals(comparator.billboardImage);
+
     }
 
 

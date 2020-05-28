@@ -178,7 +178,7 @@ public class CreateBillboards {
                     pictureURL = new URL(pictureURLFormattedTextField.getText());
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
-                };
+                }
             }
 
             @Override
@@ -187,7 +187,7 @@ public class CreateBillboards {
                     pictureURL = new URL(pictureURLFormattedTextField.getText());
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
-                };
+                }
             }
         });
 
@@ -266,52 +266,7 @@ public class CreateBillboards {
     }
 
     private void importXML(File xmlFile) {
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
 
-            NodeList billboardNodes = doc.getElementsByTagName("billboard");
-            if (billboardNodes.getLength() > 0) {
-                if (billboardNodes.item(0).getAttributes().getLength() > 0) {
-                    backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-            NodeList messageNodes = doc.getElementsByTagName("message");
-            if (messageNodes.getLength() > 0) {
-                messageText = messageNodes.item(0).getTextContent();
-
-                if (messageNodes.item(0).getAttributes().getLength() > 0) {
-                    messageColor = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-            NodeList pictureNodes = doc.getElementsByTagName("picture");
-            if (pictureNodes.getLength() > 0) {
-                if (pictureNodes.item(0).hasAttributes()) {
-                    if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
-                        pictureURL = new URL(pictureNodes.item(0).getAttributes().item(0).getTextContent());
-                    }
-                    else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
-                        pictureData = Base64.getDecoder().decode(pictureNodes.item(0).getAttributes().item(0).getTextContent().getBytes());
-                    }
-                }
-            }
-
-            NodeList informationNodes = doc.getElementsByTagName("information");
-            if (informationNodes.getLength() > 0) {
-                informationText = informationNodes.item(0).getTextContent();
-
-                if (informationNodes.item(0).getAttributes().getLength() > 0) {
-                    informationColor = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static String encodeFileToBase64Binary(File file) throws IOException {

@@ -65,8 +65,6 @@ public class Viewer extends JFrame implements ActionListener   {
         screenSize = new Dimension(   (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
                 (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
-
-
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -91,7 +89,6 @@ public class Viewer extends JFrame implements ActionListener   {
         // Timer handling
         if(e.getSource() == refreshTimer){
             System.out.println("Attempting to refresh");
-            // TODO - implement network retrieval of billboard
 
             Response response;
 
