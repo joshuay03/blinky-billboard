@@ -7,14 +7,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Arrays;
-import java.util.HashMap;
 
 import static SocketCommunication.ServerRequest.LOGIN;
-//import java.nio.charset.StandardCharsets;
-//import java.security.MessageDigest;
-//import java.security.NoSuchAlgorithmException;
 
 /**
  * A class to represent a "Login" page which is bound to Login.form
@@ -30,14 +24,14 @@ public class Login {
     protected JPanel passwordFieldPanel;
     protected JPanel loginButtonPanel;
     protected JPanel titlePanel;
-    private JPanel panel;
-
 
     /**
      * Authenticates the user and opens an "Option Menu" page on successful login
      * @param frame the main frame in which the next page is to be placed
      */
     public Login(JFrame frame, ClientConnector connector) {
+        frame.getRootPane().setDefaultButton(loginButton);
+
         loginButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the "Login" button is clicked. Sends the entered username to the server to verify its

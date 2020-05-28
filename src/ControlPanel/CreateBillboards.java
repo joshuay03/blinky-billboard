@@ -71,7 +71,6 @@ public class CreateBillboards {
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
-
         billboard = new Billboard();
 
         backButton.addActionListener(new ActionListener() {
