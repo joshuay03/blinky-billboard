@@ -3,18 +3,12 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
-import SocketCommunication.Request;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.tools.Tool;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -24,14 +18,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
 
 import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
@@ -41,6 +31,8 @@ import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
  * @author Joshua Young
  */
 public class CreateBillboards {
+    protected ColourChooser colourChooser = new ColourChooser();
+
     protected JPanel createBillboardsPanel;
     protected JPanel titlePanel;
     protected JButton backButton;
@@ -62,16 +54,6 @@ public class CreateBillboards {
     protected JButton viewBillboardButton;
 
     protected Billboard billboard;
-    protected Color backgroundColour;
-    protected String messageText;
-    protected Color messageColor;
-    protected URL pictureURL;
-    protected byte[] pictureData;
-    protected String informationText;
-    protected Color informationColor;
-
-    protected ColourChooser colourChooser = new ColourChooser();
-
     protected JFrame previewFrame;
 
     /**
@@ -207,7 +189,7 @@ public class CreateBillboards {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -216,7 +198,7 @@ public class CreateBillboards {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -225,7 +207,7 @@ public class CreateBillboards {
             @Override
             public void changedUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -235,17 +217,17 @@ public class CreateBillboards {
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
         });
 
