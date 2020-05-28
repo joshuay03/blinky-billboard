@@ -307,6 +307,15 @@ public class Billboard implements Serializable {
 
     }
 
+    public ImageIcon getBillboardImage(){
+        if(imageURL != null){
+            return RenderedBillboard.getImageIconFromURL(imageURL);
+        } else if (imageData != null){
+            return RenderedBillboard.getImageIconFromBase64(imageData);
+        }
+        return null;
+    }
+
     public static Billboard errorBillboard(){
         Billboard errorBillboard = new Billboard();
         errorBillboard.message = "Error: Could not connect to server";
