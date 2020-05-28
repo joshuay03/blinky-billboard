@@ -73,7 +73,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * @return A response
      */
     public Response handleInboundRequest(Request req) {
-        final Response permissionDeniedResponse = new Response(false, "Permission denied.");
+        final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
         if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
