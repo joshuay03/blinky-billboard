@@ -118,6 +118,12 @@ public class ClientHandler extends Thread implements SocketCommunication {
             }
             case LIST_BILLBOARDS:
             {
+                class BillboardList {
+                    List<Billboard> billboardList;
+                    public BillboardList(List<Billboard> billboardList) {
+                        this.billboardList = billboardList;
+                    }
+                }
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
                 List<Billboard> billboardList = new ArrayList<>();
