@@ -144,13 +144,28 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case CREATE_BILLBOARD:
+
+                // EXAMPLE how to use the request given from the client
+                Billboard billboard;
+                try{
+                    billboard = (Billboard) req.getData();
+                }catch (Exception e)
+
+                {return new Response(false, "Invalid billboard object");}
+
+
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // triggered inside CreateBillboards() GUI
-                // user with "Create Billboards" permission
+                // user with "Create Billboards" permission // inside Gui
+
+
 
                 // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
                 // something like String billboardName = req.getData().get(billboardName);
+                String billboardInfo = billboard.getInformation();
+
+
 
                 // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
 

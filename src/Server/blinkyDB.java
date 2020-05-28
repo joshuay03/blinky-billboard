@@ -40,7 +40,7 @@ public class blinkyDB {
     protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
-                "select * from Billboards where ? like ?" : "select * from Billboards";
+                "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
         dbconn.setAutoCommit(false);
         getBillboards = dbconn.prepareStatement(billboardLookUpString);
         if (searchQuery != null && searchType != null)

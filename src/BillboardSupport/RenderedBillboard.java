@@ -57,7 +57,7 @@ public class RenderedBillboard extends JPanel {
         StyleConstants.setAlignment(messageAttributes, StyleConstants.ALIGN_CENTER);
         StyleConstants.setSpaceAbove(messageAttributes, 0);
         StyleConstants.setForeground(messageAttributes, board.getMessageColour());
-        messageContainer.setParagraphAttributes(messageAttributes, false);
+//        messageContainer.setParagraphAttributes(messageAttributes, false);
         messageContainer.setOpaque(false);
 
         // Formatting and colour handling for the information container
@@ -66,7 +66,7 @@ public class RenderedBillboard extends JPanel {
         StyleConstants.setSpaceAbove(informationAttributes, 0);
         StyleConstants.setForeground(informationAttributes, board.getMessageColour());
 
-        informationContainer.setParagraphAttributes(informationAttributes, false);
+//        informationContainer.setParagraphAttributes(informationAttributes, false);
         informationContainer.setOpaque(false);
 
         // Formatting for the image container
@@ -300,5 +300,7 @@ public class RenderedBillboard extends JPanel {
     void addComponent(Component c){
         this.add(c);
     }
+
+
 }
 
