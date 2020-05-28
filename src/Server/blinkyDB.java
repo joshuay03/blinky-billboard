@@ -62,17 +62,13 @@ public class blinkyDB {
                 "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
         dbconn.setAutoCommit(false);
         getBillboards = dbconn.prepareStatement(billboardLookUpString);
-        if (searchQuery != null && searchType != null)
+        if (billboardLookUpString.contains("?"))
         {
             getBillboards.setString(1, searchType);
             getBillboards.setString(2, searchQuery);
         }
         dbconn.setAutoCommit(true);
         return getBillboards.executeQuery();
-    }
-
-    public ResultSet getBillboards(String searchQuery) throws SQLException{
-        return this.getBillboards(searchQuery, "creator");
     }
 
     public ResultSet getBillboards() throws SQLException {

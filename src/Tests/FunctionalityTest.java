@@ -58,10 +58,10 @@ class FunctionalityTest {
                 nopermsuser.setScheduleBillboards(false, db);
             } catch (NoSuchUserException ignored) {}
         }
-        // Write mock billboards
+        // Write other mock data
         db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
-        db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Liran");
-        db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
+        db.createBillboard(DummyBillboards.pictureAndInformationBillboard(), "Liran");
+        db.createBillboard(DummyBillboards.pictureOnlyBillboard(), "Lira");
         db.CreateViewer("localhost:5506");
     }
 
@@ -146,8 +146,7 @@ class FunctionalityTest {
 
     @Test
     void Create_BillBoard(){
-        Billboard mockBillboard = new Billboard(Color.WHITE, Color.BLACK, Color.DARK_GRAY, "Test Billboard", "This is a test billboard", "", null, 0, 0);
-        Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, mockBillboard, session);
+        Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, DummyBillboards.messagePictureAndInformationBillboard(), session);
         Response authedRes = respondTo.apply(CreateBillboardRequest.apply(session));
         Response unAuthedRes = respondTo.apply(CreateBillboardRequest.apply(noperms_session));
         Response noBillboardRes = respondTo.apply(new Request(CREATE_BILLBOARD, null, session));

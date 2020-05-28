@@ -7,6 +7,7 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -131,7 +132,24 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     ResultSet rs = database.getBillboards();
                     while (rs.next()){
                         // For each returned billboard from the database
-                        billboardList.add(new Billboard());
+                        Object image;
+                        try{
+                            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+                            ObjectInput in = new ObjectInputStream(bis);
+                            image = in.readObject();
+                        }
+                        catch (Exception e){
+                            image = null;
+                        }
+                        Billboard current = new Billboard(
+                                new Color(rs.getInt("backgroundColour")),
+                                new Color(rs.getInt("messageColour")),
+                                new Color(rs.getInt("informationColour")),
+                                rs.getString("message"),
+                                rs.getString("information"),
+                                (String) image
+                        );
+                        billboardList.add(current);
                     }
                 } catch (SQLException e){
                     return new Response(false, "There was an SQL error");
@@ -150,17 +168,19 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 break;
             case CREATE_BILLBOARD:
-            if (false){
-                // EXAMPLE how to use the request given from the client
+            {
+                assert authenticatedUser != null;
                 Billboard billboard;
                 try{
                     billboard = (Billboard) req.getData();
                 }catch (Exception e)
 
-                {return new Response(false, "Invalid billboard object");}
+                {return new Response(false, "Invalid billboard object"); }
 
+                if(authenticatedUser.CanCreateBillboards)
+                {
 
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
+                } else return permissionDeniedResponse;
 
                 // triggered inside CreateBillboards() GUI
                 // user with "Create Billboards" permission // inside Gui
