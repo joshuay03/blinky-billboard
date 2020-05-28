@@ -3,6 +3,7 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
+import SocketCommunication.Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -28,6 +29,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
+
+import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
@@ -250,10 +253,14 @@ public class CreateBillboards {
                     billboard = new Billboard(backgroundColour, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureURL), LocalDateTime.now(), 30, 5);
                 }
 
+                //create request
+                Request billboardRequest = new Request(CREATE_BILLBOARD, billboard, null);
+
                 frame.setContentPane(new RenderedBillboard(billboard, new Dimension(900, 500)));
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+
             }
         });
     }

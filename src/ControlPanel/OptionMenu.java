@@ -1,10 +1,16 @@
 package ControlPanel;
 
 import Client.ClientConnector;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
+import SocketCommunication.Session;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
+import static SocketCommunication.ServerRequest.*;
 
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
@@ -19,15 +25,19 @@ public class OptionMenu {
     protected JButton backButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
+    Session session;
+
+
 
     /**
      *
-     * @param frame
+     * @param frame: JPanel Frame
+     * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when the back button is clicked.
              *
              * @param e the event to be processed
              */
@@ -42,22 +52,25 @@ public class OptionMenu {
 
         createButton.addActionListener(new ActionListener() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when the create billboards button is clicked.
              *
              * @param e the event to be processed
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                    frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+
             }
+
         });
+
 
         scheduleButton.addActionListener(new ActionListener() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when the schedule billboard button is clicked.
              *
              * @param e the event to be processed
              */
@@ -72,7 +85,7 @@ public class OptionMenu {
 
         editButton.addActionListener(new ActionListener() {
             /**
-             * Invoked when an action occurs.
+             * Invoked when the edit billboard button is clicked.
              *
              * @param e the event to be processed
              */
@@ -82,6 +95,23 @@ public class OptionMenu {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+            }
+        });
+
+        listButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when the list billboard button is clicked.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Response res = null;
+                try {
+                    res = new Request(LIST_BILLBOARD, null, connector.session).Send(connector);
+                } catch (IOException eo) {
+                    eo.printStackTrace();
+                }
             }
         });
     }

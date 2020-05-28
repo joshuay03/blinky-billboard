@@ -20,7 +20,7 @@ import java.util.Arrays;
  * @see SocketConnection
  */
 public class ClientConnector extends SocketConnection {
-    Session session; // Starts empty, stays empty on Viewers
+    public Session session; // Starts empty, stays empty on Viewers
     Socket socket;
     DataInputStream input;
     DataOutputStream output;
