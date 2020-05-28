@@ -73,6 +73,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
      * @return A response
      */
     public Response handleInboundRequest(Request req) {
+        final Response permissionDeniedResponse = new Response(false, "Permission denied.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
         if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
@@ -117,7 +118,6 @@ public class ClientHandler extends Thread implements SocketCommunication {
             }
             case LIST_BILLBOARDS:
             {
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
                 List<Billboard> billboardList = new ArrayList<>();
@@ -260,7 +260,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 }
                 else
                 {
-                    return new Response(false, "Permission denied.");
+                    return permissionDeniedResponse;
                 }
             }
             case CREATE_USER:
