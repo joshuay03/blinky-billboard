@@ -6,7 +6,7 @@ package SocketCommunication;
 public enum ServerRequest {
     VIEWER_CURRENTLY_SCHEDULED,
     LOGIN,
-    LIST_BILLBOARD,
+    LIST_BILLBOARDS,
     GET_BILLBOARD_INFO,
     CREATE_BILLBOARD,
     EDIT_BILLBOARD,

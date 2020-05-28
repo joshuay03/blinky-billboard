@@ -7,7 +7,6 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -116,7 +115,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                     return new Response( false, "Cannot create session.");
                 }
             }
-            case LIST_BILLBOARD:
+            case LIST_BILLBOARDS:
             {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 Response res = null; // null needs to be replaced with the server.
@@ -338,15 +337,9 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 // server will expire session token and send back and acknowledgement
                 break;
         }
-
-
-//        String inputData = input.readUTF();
-//        System.out.println(this.client + " request: " + inputData); // Print client request to server
-//        if (inputData.equalsIgnoreCase("exit"))
-//            closeConnection();
-//        return inputData; // Will query the database with the input and return the response into "output" variable
         // If the request is invalid:
-        throw new IllegalStateException("Invalid request type: " + req.getRequestType());
+        return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
+        //throw new IllegalStateException("Invalid request type: " + req.getRequestType());
     }
 
     public boolean closeConnection() {

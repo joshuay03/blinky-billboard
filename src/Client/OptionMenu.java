@@ -1,5 +1,6 @@
 package Client;
 
+import BillboardSupport.Billboard;
 import SocketCommunication.Request;
 import static SocketCommunication.ServerRequest.*;
 
@@ -8,6 +9,7 @@ import SocketCommunication.Response;
 import javax.swing.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class OptionMenu extends JFrame {
 
@@ -61,9 +63,17 @@ public class OptionMenu extends JFrame {
             System.out.println("Testing list billboards button");
             Response res = null;
             try {
-                res = new Request(LIST_BILLBOARD, null, connector.session).Send(connector);
+                res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            if (res.isStatus()) {
+                // Retrieve the list from the response
+                List<Billboard> BillboardList = (List<Billboard>) res.getData();
+            }
+            else
+            {
+                // List retrieval failed
             }
         });
     }
