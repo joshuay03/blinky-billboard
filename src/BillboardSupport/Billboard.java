@@ -331,11 +331,11 @@ public class Billboard implements Serializable {
 
     }
 
-    public ImageIcon getBillboardImage(){
+    public String getBillboardImage(){
         if(imageURL != null){
-            return RenderedBillboard.getImageIconFromURL(imageURL);
+            return imageURL.toString();
         } else if (imageData != null){
-            return RenderedBillboard.getImageIconFromBase64(imageData);
+            return imageData;
         }
         return null;
     }

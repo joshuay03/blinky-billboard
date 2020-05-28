@@ -62,13 +62,6 @@ public class CreateBillboards {
     private JButton pictureButton;
 
     protected Billboard billboard;
-    protected Color backgroundColour = null;
-    protected String messageText = null;
-    protected Color messageColor = null;
-    protected URL pictureURL = null;
-    protected byte[] pictureData = null;
-    protected String informationText = null;
-    protected Color informationColor = null;
 
     protected ColourChooser colourChooser = new ColourChooser();
 
@@ -109,6 +102,13 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File xmlFile = chooser.getSelectedFile();
                     billboard = Billboard.getBillboardFromXML(xmlFile);
+
+                    messageTextArea.setText(billboard.getMessage());
+                    informationTextArea.setText(billboard.getInformation());
+
+                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
+
+
                 }
             }
         });
@@ -205,7 +205,7 @@ public class CreateBillboards {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -214,7 +214,7 @@ public class CreateBillboards {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -223,7 +223,7 @@ public class CreateBillboards {
             @Override
             public void changedUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -233,17 +233,17 @@ public class CreateBillboards {
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
         });
 
