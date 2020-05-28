@@ -1,6 +1,7 @@
 package Server;
 
 import Exceptions.AuthenticationFailedException;
+import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
@@ -114,9 +115,12 @@ public class Server extends SocketConnection {
         try {
             server.start();
             boolean serverOpen = server.isServerAliveUtil();
+            try {
+                new User(new Credentials("Root", "root"), true, true, true, true, server.database);
+            }
+            catch (UserAlreadyExistsException ignored) {}
             System.out.println("Server Alive: " + serverOpen);
             System.out.println("Currently operating on port: " + server.getPort());
-
             //noinspection InfiniteLoopStatement
             while (true) {
                 if (serverOpen) {
