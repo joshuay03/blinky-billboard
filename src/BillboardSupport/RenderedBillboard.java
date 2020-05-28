@@ -290,7 +290,7 @@ public class RenderedBillboard extends JPanel {
 
                 // Unwrapped scaling - one line only
                 else {
-                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE) break;
+                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE || renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
                 }
             }
 
