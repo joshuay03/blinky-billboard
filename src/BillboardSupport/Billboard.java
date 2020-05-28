@@ -321,7 +321,6 @@ public class Billboard implements Serializable {
         return errorBillboard;
     }
 
-
     public ImageIcon getImageIconFromURL(String url) {
         BufferedImage img = null;
         try {
