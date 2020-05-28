@@ -146,7 +146,7 @@ class FunctionalityTest {
 
     @Test
     void Create_BillBoard(){
-        Billboard mockBillboard = new Billboard(Color.WHITE, Color.BLACK, Color.DARK_GRAY, "Test Billboard", "This is a test billboard", null, null, 0, 0);
+        Billboard mockBillboard = new Billboard(Color.WHITE, Color.BLACK, Color.DARK_GRAY, "Test Billboard", "This is a test billboard", "", null, 0, 0);
         Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, mockBillboard, session);
         Response authedRes = respondTo.apply(CreateBillboardRequest.apply(session));
         Response unAuthedRes = respondTo.apply(CreateBillboardRequest.apply(noperms_session));

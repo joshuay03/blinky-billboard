@@ -23,13 +23,13 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="70b2c" class="javax.swing.JButton" binding="createButton" custom-create="true">
+              <component id="70b2c" class="javax.swing.JButton" binding="createButton">
                 <constraints>
                   <card name="Card1"/>
                 </constraints>
                 <properties>
                   <text value="Create Billboards"/>
-                  <visible value="false"/>
+                  <visible value="true"/>
                 </properties>
               </component>
             </children>
@@ -42,7 +42,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="ac2ad" class="javax.swing.JButton" binding="listButton" custom-create="true">
+              <component id="ac2ad" class="javax.swing.JButton" binding="listButton">
                 <constraints>
                   <card name="Card1"/>
                 </constraints>

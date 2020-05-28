@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.tools.Tool;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
@@ -20,10 +21,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -73,6 +71,9 @@ public class CreateBillboards {
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
+
+        billboard = new Billboard();
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -102,25 +103,53 @@ public class CreateBillboards {
                 int returnVal = chooser.showOpenDialog(null);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File xmlFile = chooser.getSelectedFile();
-                    importXML(xmlFile);
+                    billboard = Billboard.getBillboardFromXML(xmlFile);
                 }
+            }
+        });
+
+        exportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String XMLRep = billboard.getXMLRepresentation();
+
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showSaveDialog(null);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File xmlFile = chooser.getSelectedFile();
+
+                    try {
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(xmlFile));
+
+                        writer.write(XMLRep);
+
+                        writer.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+
             }
         });
 
         messageTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
         });
 
@@ -134,7 +163,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    messageColor = colourChooser.getColor();
+                    billboard.setMessageColour(colourChooser.getColor());
                 }
             }
         });
@@ -154,7 +183,7 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File pictureFile = chooser.getSelectedFile();
                     try {
-                        pictureData = Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes());
+                        billboard.setImageData(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes()).toString());
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -178,7 +207,7 @@ public class CreateBillboards {
                     pictureURL = new URL(pictureURLFormattedTextField.getText());
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
-                };
+                }
             }
 
             @Override
@@ -187,7 +216,7 @@ public class CreateBillboards {
                     pictureURL = new URL(pictureURLFormattedTextField.getText());
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
-                };
+                }
             }
         });
 
@@ -218,7 +247,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    informationColor = colourChooser.getColor();
+                    billboard.setInformationColour(colourChooser.getColor());
                 }
             }
         });
@@ -233,7 +262,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    backgroundColour = colourChooser.getColor();
+                    billboard.setBackgroundColour(colourChooser.getColor());
                 }
             }
         });
@@ -246,72 +275,26 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (pictureURL == null) {
-                    billboard = new Billboard(backgroundColour, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureData), LocalDateTime.now(), 30, 5);
-                }
-                else {
-                    billboard = new Billboard(backgroundColour, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureURL), LocalDateTime.now(), 30, 5);
-                }
 
-                //create request
-                Request billboardRequest = new Request(CREATE_BILLBOARD, billboard, null);
 
-                frame.setContentPane(new RenderedBillboard(billboard, new Dimension(900, 500)));
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
+                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
+
+                JFrame newFrame = new JFrame();
+                newFrame.setSize(renderDimension);
+
+
+                RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
+                newFrame.setContentPane(renderedBillboard);
+
+                newFrame.setVisible(true);
 
             }
         });
     }
 
     private void importXML(File xmlFile) {
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
 
-            NodeList billboardNodes = doc.getElementsByTagName("billboard");
-            if (billboardNodes.getLength() > 0) {
-                if (billboardNodes.item(0).getAttributes().getLength() > 0) {
-                    backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-            NodeList messageNodes = doc.getElementsByTagName("message");
-            if (messageNodes.getLength() > 0) {
-                messageText = messageNodes.item(0).getTextContent();
-
-                if (messageNodes.item(0).getAttributes().getLength() > 0) {
-                    messageColor = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-            NodeList pictureNodes = doc.getElementsByTagName("picture");
-            if (pictureNodes.getLength() > 0) {
-                if (pictureNodes.item(0).hasAttributes()) {
-                    if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
-                        pictureURL = new URL(pictureNodes.item(0).getAttributes().item(0).getTextContent());
-                    }
-                    else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
-                        pictureData = Base64.getDecoder().decode(pictureNodes.item(0).getAttributes().item(0).getTextContent().getBytes());
-                    }
-                }
-            }
-
-            NodeList informationNodes = doc.getElementsByTagName("information");
-            if (informationNodes.getLength() > 0) {
-                informationText = informationNodes.item(0).getTextContent();
-
-                if (informationNodes.item(0).getAttributes().getLength() > 0) {
-                    informationColor = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static String encodeFileToBase64Binary(File file) throws IOException {
