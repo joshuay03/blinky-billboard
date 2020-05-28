@@ -15,6 +15,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.tools.Tool;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,14 +42,17 @@ import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
  */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
-    protected JButton importButton;
-    protected JButton exportButton;
+    protected JPanel titlePanel;
+    protected JButton backButton;
     protected JLabel createBillboardsLabel;
     protected JPanel optionPanel;
+    protected JButton importButton;
+    protected JButton exportButton;
     protected JPanel createPanel;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
     protected JButton messageColourButton;
+    protected JButton pictureButton;
     protected JLabel pictureURLLabel;
     protected JFormattedTextField pictureURLFormattedTextField;
     protected JLabel informationLabel;
@@ -51,27 +60,17 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
-    private JButton backButton;
-    protected JPanel titlePanel;
-    private JButton pictureButton;
 
     protected Billboard billboard;
-    protected Color backgroundColour = null;
-    protected String messageText = null;
-    protected Color messageColor = null;
-    protected URL pictureURL = null;
-    protected byte[] pictureData = null;
-    protected String informationText = null;
-    protected Color informationColor = null;
 
     protected ColourChooser colourChooser = new ColourChooser();
+    protected JFrame previewFrame;
 
     /**
      *
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
-
         billboard = new Billboard();
 
         backButton.addActionListener(new ActionListener() {
@@ -104,6 +103,13 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File xmlFile = chooser.getSelectedFile();
                     billboard = Billboard.getBillboardFromXML(xmlFile);
+
+                    messageTextArea.setText(billboard.getMessage());
+                    informationTextArea.setText(billboard.getInformation());
+
+                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
+
+
                 }
             }
         });
@@ -112,22 +118,27 @@ public class CreateBillboards {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String XMLRep = billboard.getXMLRepresentation();
+                Document XMLRep = billboard.getXMLRepresentation();
 
                 JFileChooser chooser = new JFileChooser();
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
                 chooser.setFileFilter(filter);
                 int returnVal = chooser.showSaveDialog(null);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File xmlFile = chooser.getSelectedFile();
+                    File fileLocation = chooser.getSelectedFile();
 
                     try {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(xmlFile));
+                        // create the xml file
+                        //transform the DOM Object to an XML File
+                        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                        Transformer transformer = transformerFactory.newTransformer();
+                        DOMSource domSource = new DOMSource(XMLRep);
+                        StreamResult streamResult = new StreamResult(fileLocation);
 
-                        writer.write(XMLRep);
-
-                        writer.close();
-                    } catch (IOException ex) {
+                        transformer.transform(domSource, streamResult);
+                    } catch (TransformerConfigurationException ex) {
+                        ex.printStackTrace();
+                    } catch (TransformerException ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -195,7 +206,7 @@ public class CreateBillboards {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -204,7 +215,7 @@ public class CreateBillboards {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -213,7 +224,7 @@ public class CreateBillboards {
             @Override
             public void changedUpdate(DocumentEvent e) {
                 try {
-                    pictureURL = new URL(pictureURLFormattedTextField.getText());
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -223,17 +234,17 @@ public class CreateBillboards {
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
         });
 
@@ -275,20 +286,14 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-
-
                 Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
                         (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
-
-                JFrame newFrame = new JFrame();
-                newFrame.setSize(renderDimension);
-
-
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
-                newFrame.setContentPane(renderedBillboard);
 
-                newFrame.setVisible(true);
-
+                previewFrame = new JFrame();
+                previewFrame.setSize(renderDimension);
+                previewFrame.setContentPane(renderedBillboard);
+                previewFrame.setVisible(true);
             }
         });
     }
@@ -322,7 +327,7 @@ public class CreateBillboards {
         }
 
         if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "+file.getName());
+            throw new IOException("Could not completely read file " + file.getName());
         }
 
         is.close();

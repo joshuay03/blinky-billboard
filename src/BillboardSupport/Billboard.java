@@ -251,73 +251,97 @@ public class Billboard implements Serializable {
     }
 
     private static int ALPHA_MASK = 0x00FFFFFF;
-    public String getXMLRepresentation(){
-        String stringRep = "";
+    public Document getXMLRepresentation(){
 
+        Document billboardXMLRep = null;
         try {
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
-            Document billboardXMLRep = documentBuilder.newDocument();
+            billboardXMLRep = documentBuilder.newDocument();
 
             //Billboard element
             Element root = billboardXMLRep.createElement("billboard");
             billboardXMLRep.appendChild(root);
 
-            Attr backgroundHexRep = billboardXMLRep.createAttribute("background");
-            backgroundHexRep.setValue("#" + Integer.toHexString(this.backgroundColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
-            root.setAttributeNode(backgroundHexRep);
+            // Background colour, if any
+            if(this.backgroundColour != null) {
+                Attr backgroundHexRep = billboardXMLRep.createAttribute("background");
+                backgroundHexRep.setValue("#" + Integer.toHexString(this.backgroundColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+                root.setAttributeNode(backgroundHexRep);
+            }
 
             //Message ------------------------------------------------
-            Element msg = billboardXMLRep.createElement("message");
-            msg.appendChild(billboardXMLRep.createTextNode(this.message));
+            Element msg = null;
+            if(this.message != null) {
+                msg = billboardXMLRep.createElement("message");
+                msg.appendChild(billboardXMLRep.createTextNode(this.message));
 
-            Attr msgColor = billboardXMLRep.createAttribute("colour");
-            msgColor.setValue("#" + Integer.toHexString(this.messageColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
-            msg.setAttributeNode(msgColor);
+
+                // Message colour, if any
+                if (this.messageColour != null) {
+                    Attr msgColor = billboardXMLRep.createAttribute("colour");
+                    msgColor.setValue("#" + Integer.toHexString(this.messageColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+                    msg.setAttributeNode(msgColor);
+                }
+                root.appendChild(msg);
+            }
 
             // Information ------------------------------------------------
-            Element info = billboardXMLRep.createElement("information");
-            info.appendChild(billboardXMLRep.createTextNode(this.information));
+            Element info = null;
+            if(this.information != null) {
+                info = billboardXMLRep.createElement("information");
+                info.appendChild(billboardXMLRep.createTextNode(this.information));
 
-            Attr infoColour = billboardXMLRep.createAttribute("colour");
-            infoColour.setValue("#" + Integer.toHexString(this.informationColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
-            info.setAttributeNode(infoColour);
+
+                //Info colour, if any
+                if (this.informationColour != null) {
+                    Attr infoColour = billboardXMLRep.createAttribute("colour");
+                    infoColour.setValue("#" + Integer.toHexString(this.informationColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
+                    info.setAttributeNode(infoColour);
+                }
+                root.appendChild(info);
+            }
 
             // Image ------------------------------------------------
             //  N.B. Because we only ever store the ImageIcon data (and we don't retain the URL) when we read a Billboard in, we only have to deal with writing out
             // Base64 encoded image data
-            Element image = billboardXMLRep.createElement("picture");
-            Attr imageNode = null;
+            Element image = null;
+            if (this.imageData != null ^ this.imageURL != null) {
+                image = billboardXMLRep.createElement("picture");
+                Attr imageNode = null;
 
-            if(this.imageData != null) {
-                // Sort out the data for writing
-                imageNode.setValue(imageData);
-                imageNode = billboardXMLRep.createAttribute("data");
-            } else if(this.imageURL != null){
-                imageNode.setValue(imageURL.toString());
-                imageNode = billboardXMLRep.createAttribute("url");
+                if(this.imageData != null) {
+                    // Sort out the data for writing
+                    imageNode = billboardXMLRep.createAttribute("data");
+                    imageNode.setValue(imageData);
+                } else if(this.imageURL != null){
+                    imageNode = billboardXMLRep.createAttribute("url");
+                    imageNode.setValue(imageURL.toString());
+                }
+                image.setAttributeNode(imageNode);
+                root.appendChild(image);
             }
-            if(imageNode != null) image.setAttributeNode(imageNode);
+
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return stringRep;
+        return billboardXMLRep;
     }
 
     public Billboard(){
 
     }
 
-    public ImageIcon getBillboardImage(){
+    public String getBillboardImage(){
         if(imageURL != null){
-            return RenderedBillboard.getImageIconFromURL(imageURL);
+            return imageURL.toString();
         } else if (imageData != null){
-            return RenderedBillboard.getImageIconFromBase64(imageData);
+            return imageData;
         }
         return null;
     }
