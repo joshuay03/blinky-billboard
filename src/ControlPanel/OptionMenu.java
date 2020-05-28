@@ -114,7 +114,7 @@ public class OptionMenu implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 Response res = null;
                 try {
-                    res = new Request(LIST_BILLBOARD, null, connector.session).Send(connector);
+                    res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
                 } catch (IOException eo) {
                     eo.printStackTrace();
                 }
@@ -135,23 +135,8 @@ public class OptionMenu implements Runnable {
      */
     @Override
     public void run() {
-        if(connector.session.canCreateBillboards) {
-            createButton.setVisible(true);
-        }
-        else {
-            createButton.setVisible(false);
-        }
-        if(connector.session.scheduleBillboards) {
-            scheduleButton.setVisible((true));
-        }
-        else {
-            scheduleButton.setVisible(false);
-        }
-        if(connector.session.editUsers) {
-            editButton.setVisible(true);
-        }
-        else {
-            editButton.setVisible(false);
-        }
+        createButton.setVisible(connector.session.canCreateBillboards);
+        scheduleButton.setVisible(connector.session.scheduleBillboards);
+        editButton.setVisible(connector.session.editUsers);
     }
 }
