@@ -16,7 +16,7 @@ import static SocketCommunication.ServerRequest.*;
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
  * @author Joshua Young
  */
-public class OptionMenu {
+public class OptionMenu implements Runnable {
     protected JPanel optionMenuPanel;
     protected JButton createButton;
     protected JButton listButton;
@@ -37,6 +37,7 @@ public class OptionMenu {
     public OptionMenu(JFrame frame, ClientConnector connector) {
         this.connector = connector;
 
+        run();
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -121,8 +122,19 @@ public class OptionMenu {
         });
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+    /**
+     * When an object implementing interface {@code Runnable} is used
+     * to create a thread, starting the thread causes the object's
+     * {@code run} method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method {@code run} is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
         if(connector.session.canCreateBillboards) {
             createButton.setVisible(true);
         }
@@ -141,6 +153,5 @@ public class OptionMenu {
         else {
             editButton.setVisible(false);
         }
-
     }
 }
