@@ -34,7 +34,7 @@ class FunctionalityTest {
     Function<Request, Response> respondTo;
 
     @BeforeAll
-    static void setUsers() throws IOException, SQLException {
+    static void setUsersAndMockDBData() throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
         try {
             new User(new Credentials("Liran", "SeaMonkey123"), true, true, true, true, db);
@@ -58,6 +58,7 @@ class FunctionalityTest {
                 nopermsuser.setScheduleBillboards(false, db);
             } catch (NoSuchUserException ignored) {}
         }
+
     }
 
     @BeforeEach @Test
