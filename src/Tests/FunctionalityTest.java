@@ -145,16 +145,18 @@ class FunctionalityTest {
         Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, mockBillboard, session);
         Response authedRes = respondTo.apply(CreateBillboardRequest.apply(session));
         Response unAuthedRes = respondTo.apply(CreateBillboardRequest.apply(noperms_session));
-        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus());
+        Response noBillboardRes = respondTo.apply(new Request(CREATE_BILLBOARD, null, session));
+        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
 
     @Test
     void Edit_Billboard(){
         Function<Number, Function<Session, Request>> EditBillboardRequest = (Number id) -> (Session session) -> new Request(EDIT_BILLBOARD, 0, session);
         Response authedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(session));
-        Response unAuthedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
+        Response unAuthedSameCreatorRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
+        Response unAuthedDifferentCreatorRes = respondTo.apply(EditBillboardRequest.apply(1).apply(noperms_session));
         Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(999).apply(session));
-        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !nonExistentBillboardRes.isStatus());
+        assertTrue(authedRes.isStatus() && !unAuthedSameCreatorRes.isStatus() && !nonExistentBillboardRes.isStatus());
     }
 
     @Test
