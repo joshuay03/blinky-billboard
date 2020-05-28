@@ -1,14 +1,25 @@
 package Server;
 
+import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import SocketCommunication.Credentials;
+import SocketCommunication.Response;
 
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 
 public class blinkyDB {
     private DBProps props;
@@ -44,7 +55,7 @@ public class blinkyDB {
         this.props = newDB.props;
     }
 
-    protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
+    public ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
                 "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
@@ -59,12 +70,44 @@ public class blinkyDB {
         return getBillboards.executeQuery();
     }
 
-    protected ResultSet getBillboards(String searchQuery) throws SQLException{
+    public ResultSet getBillboards(String searchQuery) throws SQLException{
         return this.getBillboards(searchQuery, "creator");
     }
 
-    protected ResultSet getBillboards() throws SQLException {
+    public ResultSet getBillboards() throws SQLException {
         return this.getBillboards(null, null);
+    }
+
+    public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
+        assert creator != null;
+        // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
+        Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
+                Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
+        String BillboardInsertQuery = "INSERT INTO Billboards\n" +
+                "(creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
+                "VALUES(?, ?, ?, ?, ?, ?, ?);\n";
+        dbconn.setAutoCommit(false);
+        byte[] SerialisedImage;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+            SerialisedImage = bos.toByteArray();
+        } catch (IOException e) { SerialisedImage = new byte[0]; }
+        PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+        try {
+            insertBillboard.setString(1, creator);
+            insertBillboard.setInt(2, ((Color)getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+            insertBillboard.setInt(3, ((Color)getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+            insertBillboard.setInt(4, ((Color)getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+            insertBillboard.setString(5, ((String)getPropertySafely.apply(Billboard::getMessage)));
+            insertBillboard.setString(6, ((String)getPropertySafely.apply(Billboard::getInformation)));
+            insertBillboard.setBytes(7, SerialisedImage);
+            insertBillboard.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
     }
 
     /**

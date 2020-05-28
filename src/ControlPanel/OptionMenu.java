@@ -133,5 +133,6 @@ public class OptionMenu implements Runnable {
         createButton.setVisible(connector.session.canCreateBillboards);
         scheduleButton.setVisible(connector.session.scheduleBillboards);
         editButton.setVisible(connector.session.editUsers);
+
     }
 }

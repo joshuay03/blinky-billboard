@@ -58,7 +58,10 @@ class FunctionalityTest {
                 nopermsuser.setScheduleBillboards(false, db);
             } catch (NoSuchUserException ignored) {}
         }
-
+        // Write mock billboards
+        db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
+        db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Liran");
+        db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
     }
 
     @BeforeEach @Test

@@ -3,6 +3,7 @@ package BillboardSupport;
 import com.sun.source.tree.NewArrayTree;
 
 import javax.swing.*;
+import java.awt.*;
 import java.beans.JavaBean;
 import java.net.URL;
 
@@ -12,6 +13,17 @@ import java.net.URL;
 public class DummyBillboards {
 
     static String dummyImage = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAIAAAD4YuoOAAAAKXRFWHRDcmVhdGlvbiBUaW1lAJCFIDI1IDMgMjAyMCAwOTowMjoxNyArMDkwMHlQ1XMAAAAHdElNRQfkAxkAAyQ8nibjAAAACXBIWXMAAAsSAAALEgHS3X78AAAABGdBTUEAALGPC/xhBQAAAS5JREFUeNq1kb9KxEAQxmcgcGhhJ4cnFwP6CIIiPoZwD+ALXGFxj6BgYeU7BO4tToSDFHYWZxFipeksbMf5s26WnAkJki2+/c03OzPZDRJNYcgVwfsU42cmKi5YjS1s4p4DCrkBPc0wTlkdX6bsG4hZQOj3HRDLHqh08U4Adb/zgEMtq5RuH3Axd45PbftdB2wO5OsWc7pOYaOeOk63wYfdFtL5qldB34W094ZfJ+4RlFldTrmW/ZNbn2g0of1vLHdZq77qSDCaSAsLf9kXh9w44PNoR/YSPHycEmbIOs5QzBJsmDHrWLPeF24ZkCe6ZxDCOqHcmxmsr+hsicahss+n8vYb8NHZPTJxi/RGC5IqbRwqH6uxVTX+5LvHtvT/V/R6PGh/iF4GHoBAwz7RD26spwq6Amh/AAAAAElFTkSuQmCC";
+
+    public static Billboard defaultBillboard() {
+        Billboard b = new Billboard();
+        b.setBackgroundColour(Color.WHITE);
+        b.setMessageColour(Color.BLACK);
+        b.setInformationColour(Color.DARK_GRAY);
+        b.setMessage("");
+        b.setInformation("");
+        b.setBillboardImage(b.getImageIconFromBase64(dummyImage));
+        return b;
+    }
 
     public static Billboard messageOnlyBillboard() {
         Billboard b = new Billboard();
@@ -73,7 +85,7 @@ public class DummyBillboards {
         try{
             b.setImageURL(new URL("https://cloudstor.aarnet.edu.au/plus/s/A26R8MYAplgjUhL/download"));
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
         return b;
