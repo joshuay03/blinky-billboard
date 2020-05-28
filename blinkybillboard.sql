@@ -28,11 +28,11 @@ USE `blinkyBillboard`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Billboards` (
-  `billboard_id` int(11) unsigned NOT NULL,
+  `billboard_id` int(11) unsigned AUTO_INCREMENT NOT NULL,
   `creator` varchar(100) NOT NULL COMMENT 'User ID of the billboard''s creator',
-  `backgroundColour` varchar(8) DEFAULT NULL,
-  `messageColour` varchar(8) DEFAULT NULL,
-  `informationColour` varchar(8) DEFAULT NULL,
+  `backgroundColour` int(11) DEFAULT NULL,
+  `messageColour` int(11) DEFAULT NULL,
+  `informationColour` int(11) DEFAULT NULL,
   `message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `information` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `billboardImage` blob DEFAULT NULL,
