@@ -25,7 +25,7 @@ public class Session implements Serializable {
         else{
             User serverUser = new User(credentials.getUsername(), database);
             this.token = Token.Generate(credentials.getUsername());
-            this.username = serverUser.getCredentials().getUsername();
+            this.username = serverUser.getSaltedCredentials().getUsername();
             this.canCreateBillboards = serverUser.CanCreateBillboards;
             this.editAllBillboards = serverUser.EditAllBillBoards;
             this.scheduleBillboards = serverUser.ScheduleBillboards;

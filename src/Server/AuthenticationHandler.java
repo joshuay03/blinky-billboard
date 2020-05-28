@@ -3,11 +3,8 @@ package Server;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.Credentials;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.Arrays;
 
 public class AuthenticationHandler {
 
@@ -45,7 +42,7 @@ public class AuthenticationHandler {
         // Concatenate the password and the salt
         // Hash the result
         // If the result of the password + salt hash matches the content of the database, return true
-            return user.MatchPasswordHash(credentials);
+            return user.MatchUnsaltedCredentials(credentials);
 
         } catch (NoSuchUserException e) { // If user does not exist
             return false;

@@ -1,8 +1,6 @@
 package Server;
 
-import Exceptions.NoSuchUserException;
 import SocketCommunication.Credentials;
-import org.mariadb.jdbc.internal.com.read.resultset.UpdatableColumnDefinition;
 
 import java.io.File;
 import java.io.IOException;
@@ -163,15 +161,13 @@ public class blinkyDB {
                 "SET user_permissions=?, password_hash=?, salt=?\n" +
                 "WHERE user_name=?;";
 
-        byte[] Salted = AuthenticationHandler.HashPasswordHashSalt(user.getCredentials().getPasswordHash(), user.salt);
-
         dbconn.setAutoCommit(false);
         PreparedStatement updateUser = dbconn.prepareStatement(userUpdateString);
         try{
             updateUser.setString(1, new String(permissions));
-            updateUser.setBytes(2, Salted);
+            updateUser.setBytes(2, user.getSaltedCredentials().getPasswordHash());
             updateUser.setBytes(3, user.salt);
-            updateUser.setString(4, user.getCredentials().getUsername());
+            updateUser.setString(4, user.getSaltedCredentials().getUsername());
 
             updateUser.executeUpdate();
             dbconn.commit();
