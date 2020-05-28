@@ -1,6 +1,7 @@
 package Tests;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
@@ -12,7 +13,7 @@ import SocketCommunication.Credentials;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 import SocketCommunication.Session;
-import Utils.Triple;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.awt.*;
 import java.io.*;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -34,7 +34,7 @@ class FunctionalityTest {
     Function<Request, Response> respondTo;
 
     @BeforeAll
-    static void setUsers() throws IOException, SQLException {
+    static void setUsersAndMockDBData() throws IOException, SQLException {
         blinkyDB db = new blinkyDB();
         try {
             new User(new Credentials("Liran", "SeaMonkey123"), true, true, true, true, db);
@@ -58,6 +58,7 @@ class FunctionalityTest {
                 nopermsuser.setScheduleBillboards(false, db);
             } catch (NoSuchUserException ignored) {}
         }
+
     }
 
     @BeforeEach @Test
@@ -145,16 +146,19 @@ class FunctionalityTest {
         Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, mockBillboard, session);
         Response authedRes = respondTo.apply(CreateBillboardRequest.apply(session));
         Response unAuthedRes = respondTo.apply(CreateBillboardRequest.apply(noperms_session));
-        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus());
+        Response noBillboardRes = respondTo.apply(new Request(CREATE_BILLBOARD, null, session));
+        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
 
     @Test
     void Edit_Billboard(){
         Function<Number, Function<Session, Request>> EditBillboardRequest = (Number id) -> (Session session) -> new Request(EDIT_BILLBOARD, 0, session);
         Response authedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(session));
-        Response unAuthedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
+        Response unAuthedSameCreatorRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
+        Response unAuthedSameCreatorScheduledRes = respondTo.apply(EditBillboardRequest.apply(2).apply(noperms_session));
+        Response unAuthedDifferentCreatorRes = respondTo.apply(EditBillboardRequest.apply(1).apply(noperms_session));
         Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(999).apply(session));
-        assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !nonExistentBillboardRes.isStatus());
+        assertTrue(authedRes.isStatus() && unAuthedSameCreatorRes.isStatus() && !unAuthedSameCreatorScheduledRes.isStatus() && !nonExistentBillboardRes.isStatus() && !unAuthedDifferentCreatorRes.isStatus());
     }
 
     @Test
@@ -169,7 +173,9 @@ class FunctionalityTest {
 
     @Test
     void Schedule_Billboard(){
-        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, new Triple<Number, LocalDateTime, Number>(0, LocalDateTime.now(), 5), session);
+        Billboard mock = DummyBillboards.messageAndPictureBillboard();
+        // Set a schedule for the billboard
+        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, mock, session);
         Response scheduleRes = respondTo.apply(ScheduleRequestCreator.apply(session));
         Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
 
@@ -183,5 +189,10 @@ class FunctionalityTest {
         Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
+    }
+
+    @AfterAll()
+    static void Reset_Schema() throws IOException, SQLException {
+        new blinkyDB(true);
     }
 }

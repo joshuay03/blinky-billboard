@@ -128,23 +128,8 @@ public class OptionMenu implements Runnable {
      */
     @Override
     public void run() {
-        if(connector.session.canCreateBillboards) {
-            createButton.setVisible(true);
-        }
-        else {
-            createButton.setVisible(false);
-        }
-        if(connector.session.scheduleBillboards) {
-            scheduleButton.setVisible((true));
-        }
-        else {
-            scheduleButton.setVisible(false);
-        }
-        if(connector.session.editUsers) {
-            editButton.setVisible(true);
-        }
-        else {
-            editButton.setVisible(false);
-        }
+        createButton.setVisible(connector.session.canCreateBillboards);
+        scheduleButton.setVisible(connector.session.scheduleBillboards);
+        editButton.setVisible(connector.session.editUsers);
     }
 }

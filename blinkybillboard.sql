@@ -29,7 +29,6 @@ USE `blinkyBillboard`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Billboards` (
   `billboard_id` int(11) unsigned NOT NULL,
-  `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
   `creator` varchar(100) NOT NULL COMMENT 'User ID of the billboard''s creator',
   `backgroundColour` varchar(8) DEFAULT NULL,
   `messageColour` varchar(8) DEFAULT NULL,
@@ -64,6 +63,7 @@ CREATE TABLE IF NOT EXISTS `Scheduling` (
   `viewer_id` int(11) unsigned NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
+  `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
   `interval` int(11) unsigned NOT NULL COMMENT 'How often should the billboard repeat itself in minutes? (must be more than the duration )',
   `scheduled_at` time NOT NULL COMMENT 'When was the billboard created?',
   PRIMARY KEY (`schedule_id`,`billboard_id`,`viewer_id`),

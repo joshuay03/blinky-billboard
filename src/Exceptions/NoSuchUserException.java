@@ -5,6 +5,9 @@ public class NoSuchUserException extends Exception {
     public NoSuchUserException(String username){
         super(String.format("User '%s' doesn't exist in the specified database.", username));
         this.username = username;
+    }
 
+    public String getUsername(){
+        return this.username;
     }
 }

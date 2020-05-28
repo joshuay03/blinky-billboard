@@ -86,7 +86,7 @@ public class Login {
                     // if status == true, get session object Session session = response.getData()
                     if (status) {
                         // Save session object and move onto next screen
-                        Session session = (Session) response.getData();
+                        connector.session = (Session) response.getData();
                         frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                         frame.pack();
                         frame.setLocationRelativeTo(null);
