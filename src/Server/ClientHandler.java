@@ -155,8 +155,8 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 } catch (SQLException e){
                     return new Response(false, "There was an SQL error");
                 }
-                // The billboard list now has all of the returned billboards
-                return new Response(true, billboardList);
+                // The billboard list now has all of the returned billboards - convert to an array and return
+                return new Response(true, billboardList.toArray(new Billboard[0]));
             }
             case GET_BILLBOARD_INFO:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
