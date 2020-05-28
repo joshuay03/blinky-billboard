@@ -15,6 +15,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.tools.Tool;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -113,22 +119,27 @@ public class CreateBillboards {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String XMLRep = billboard.getXMLRepresentation();
+                Document XMLRep = billboard.getXMLRepresentation();
 
                 JFileChooser chooser = new JFileChooser();
                 FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
                 chooser.setFileFilter(filter);
                 int returnVal = chooser.showSaveDialog(null);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File xmlFile = chooser.getSelectedFile();
+                    File fileLocation = chooser.getSelectedFile();
 
                     try {
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(xmlFile));
+                        // create the xml file
+                        //transform the DOM Object to an XML File
+                        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                        Transformer transformer = transformerFactory.newTransformer();
+                        DOMSource domSource = new DOMSource(XMLRep);
+                        StreamResult streamResult = new StreamResult(fileLocation);
 
-                        writer.write(XMLRep);
-
-                        writer.close();
-                    } catch (IOException ex) {
+                        transformer.transform(domSource, streamResult);
+                    } catch (TransformerConfigurationException ex) {
+                        ex.printStackTrace();
+                    } catch (TransformerException ex) {
                         ex.printStackTrace();
                     }
                 }
