@@ -19,10 +19,11 @@ public class blinkyDB {
      * @throws IOException If db.props isn't found
      * @throws SQLException If there's a problem connecting to the database
      */
-    public blinkyDB() throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
+    public blinkyDB(Boolean dropSchema) throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
         props = new DBProps(); // Read db.props
         // Ensure the schema exists
         Connection init_schema = DriverManager.getConnection("jdbc:mariadb://"+props.url+":3306/", props.username, props.password);
+        if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
         init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
         init_schema.close();
         // Start a database connection
@@ -35,6 +36,12 @@ public class blinkyDB {
             if (!toExec.trim().isEmpty()) // (don't execute empty statements)
             dbconn.createStatement().executeQuery(toExec);
         }
+    }
+
+    public blinkyDB() throws IOException, SQLException {
+        blinkyDB newDB = new blinkyDB(false);
+        this.dbconn = newDB.dbconn;
+        this.props = newDB.props;
     }
 
     protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
