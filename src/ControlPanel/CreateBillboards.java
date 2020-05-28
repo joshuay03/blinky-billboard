@@ -77,7 +77,6 @@ public class CreateBillboards {
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
-
         billboard = new Billboard();
 
         backButton.addActionListener(new ActionListener() {
@@ -286,8 +285,6 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-
-
                 Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
                         (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
 
@@ -333,7 +330,7 @@ public class CreateBillboards {
         }
 
         if (offset < bytes.length) {
-            throw new IOException("Could not completely read file "+file.getName());
+            throw new IOException("Could not completely read file " + file.getName());
         }
 
         is.close();

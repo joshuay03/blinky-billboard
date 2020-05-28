@@ -42,7 +42,7 @@
               <font/>
               <name value=""/>
               <preferredSize width="250" height="30"/>
-              <text value="Username"/>
+              <text value=""/>
               <toolTipText value=""/>
             </properties>
           </component>
@@ -63,7 +63,7 @@
             <properties>
               <minimumSize width="0" height="0"/>
               <preferredSize width="250" height="30"/>
-              <text value="Password"/>
+              <text value=""/>
             </properties>
           </component>
         </children>
