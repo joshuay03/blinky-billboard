@@ -41,11 +41,9 @@ public class User {
             EditUsers = permissions.indexOf('U') != -1;
         }
         catch (SQLException e) {
-            if (e.getMessage().equals("Current position is after the last row"))
-            {
-                throw new NoSuchUserException(username);
-            }
-            else e.printStackTrace();
+            if (!e.getMessage().equals("Current position is after the last row"))
+            { e.printStackTrace(); }
+            throw new NoSuchUserException(username);
         }
     }
 
@@ -91,10 +89,10 @@ public class User {
     }
 
     /** Setters **/
-    /*public void setCredentials(String newPassword, blinkyDB database) throws SQLException { // Change user password. Changing the user's username is not allowed.
-        this.saltedCredentials = new Credentials(this.saltedCredentials.getUsername(), newPassword);
+    public void setPasswordFromCredentials(Credentials newCredentials, blinkyDB database) throws SQLException { // Change user password. Changing the user's username is not allowed.
+        this.saltedCredentials = new Credentials(this.saltedCredentials.getUsername(), AuthenticationHandler.HashPasswordHashSalt(newCredentials.getPasswordHash(), salt));
         database.UpdateUserDetails(this);
-    }*/
+    }
 
     public void setSalt(byte[] salt, blinkyDB database) throws SQLException {
         this.salt = salt;
