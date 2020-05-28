@@ -25,7 +25,7 @@ public class OptionMenu {
     protected JButton backButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
-    Session session;
+    protected ClientConnector connector;
 
 
 
@@ -35,6 +35,9 @@ public class OptionMenu {
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
+        this.connector = connector;
+
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the back button is clicked.
@@ -80,6 +83,8 @@ public class OptionMenu {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+
+
             }
         });
 
@@ -114,5 +119,28 @@ public class OptionMenu {
                 }
             }
         });
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        if(connector.session.canCreateBillboards) {
+            createButton.setVisible(true);
+        }
+        else {
+            createButton.setVisible(false);
+        }
+        if(connector.session.scheduleBillboards) {
+            scheduleButton.setVisible((true));
+        }
+        else {
+            scheduleButton.setVisible(false);
+        }
+        if(connector.session.editUsers) {
+            editButton.setVisible(true);
+        }
+        else {
+            editButton.setVisible(false);
+        }
+
     }
 }

@@ -166,8 +166,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
                 // something like String billboardName = req.getData().get(billboardName);
                 String billboardInfo = billboard.getInformation();
 
-                // get list of billboards
-                database.getBillboards()
+
 
                 // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
 
