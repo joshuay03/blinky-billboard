@@ -62,6 +62,7 @@ class FunctionalityTest {
         db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
         db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Liran");
         db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
+        db.CreateViewer("localhost:5506");
     }
 
     @BeforeEach @Test

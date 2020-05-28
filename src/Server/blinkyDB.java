@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -76,6 +77,21 @@ public class blinkyDB {
 
     public ResultSet getBillboards() throws SQLException {
         return this.getBillboards(null, null);
+    }
+
+    public void CreateViewer(String socket) throws SQLException {
+        String ViewerCreationString = "INSERT INTO blinkyBillboard.Viewers\n" +
+                "(socket)\n" +
+                "VALUES(?);\n";
+        PreparedStatement ViewerInserter = dbconn.prepareStatement(ViewerCreationString);
+        dbconn.setAutoCommit(false);
+        ViewerInserter.setString(1, socket);
+        ViewerInserter.executeUpdate();
+        try{dbconn.commit();}
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
     }
 
     public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
@@ -151,6 +167,16 @@ public class blinkyDB {
 
         dbconn.setAutoCommit(true);
         return UserLookUp.executeQuery(); // Run the query
+    }
+
+    public ResultSet getSchedules(LocalDateTime time) throws SQLException {
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
+        PreparedStatement ScheduleLookUp;
+        dbconn.setAutoCommit(false);
+        ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);
+        ScheduleLookUp.setTimestamp(1, Timestamp.valueOf(time));
+        dbconn.setAutoCommit(true);
+        return ScheduleLookUp.executeQuery();
     }
 
     /**
