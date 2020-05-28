@@ -104,6 +104,10 @@ public class Billboard implements Serializable {
         this.message = message;
     }
 
+    public void setCreator(String username){
+        this.creator = username;
+    }
+
     public String getInformation() {
         return information;
     }
@@ -117,6 +121,8 @@ public class Billboard implements Serializable {
     private URL imageURL;
 
     private String imageData;
+
+    private String creator;
 
     // ADD variable to track who owns the Billboard
 
@@ -345,6 +351,8 @@ public class Billboard implements Serializable {
     public int getDuration() {
         return duration;
     }
+
+    public String getCreator() { return creator; }
 
     public void setDuration(int duration) {
         this.duration = duration;

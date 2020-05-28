@@ -141,14 +141,15 @@ public class ClientHandler extends Thread implements SocketCommunication {
                         catch (Exception e){
                             image = null;
                         }
-                        Billboard current = new Billboard(
-                                new Color(rs.getInt("backgroundColour")),
-                                new Color(rs.getInt("messageColour")),
-                                new Color(rs.getInt("informationColour")),
-                                rs.getString("message"),
-                                rs.getString("information"),
-                                (String) image
-                        );
+                        Billboard current = new Billboard();
+                        current.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+                        current.setCreator(rs.getString("creator"));
+                        current.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+                        current.setMessageColour(new Color(rs.getInt("messageColour")));
+                        current.setInformationColour(new Color(rs.getInt("informationColour")));
+                        current.setMessage(rs.getString("message"));
+                        current.setInformation(rs.getString("information"));
+                        current.setImageData((String) image);
                         billboardList.add(current);
                     }
                 } catch (SQLException e){
