@@ -47,58 +47,55 @@ public class Login {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                try{
-                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
-                }
-                catch(Exception ex) {
-                    ex.printStackTrace();
-                }
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword());
-
-                //get login data
-                Credentials loginDetails = new Credentials(username, password);
-
-                //create request
-                Request loginRequest = new Request(LOGIN, loginDetails, null);
-
-                // Send request to server
-                Response response;
-                // use global input stream, this is just to show how it works
-
                 try {
-                    response = loginRequest.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
-                    usernameField.setText("");
-                    passwordField.setText("");
-                    usernameField.requestFocus();
-                    return;
-                }
+                    String username = usernameField.getText();
+                    String password = new String(passwordField.getPassword());
 
-                // check status of response
-                boolean status = response.isStatus();
+                    //get login data
+                    Credentials loginDetails = new Credentials(username, password);
 
-                if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, errorMsg);
-                    usernameField.setText("");
-                    passwordField.setText("");
-                    usernameField.requestFocus();
-                    // return some error response if status is false
-                }
+                    //create request
+                    Request loginRequest = new Request(LOGIN, loginDetails, null);
 
-                // if status == true, get session object Session session = response.getData()
-                if(status) {
-                    // Save session object and move onto next screen
-                    Session session = (Session) response.getData();
+                    // Send request to server
+                    Response response;
+                    // use global input stream, this is just to show how it works
+
+                    try {
+                        response = loginRequest.Send(connector);
+                    } catch (IOException excep) {
+                        JOptionPane.showMessageDialog(null, "Cannot connect to server");
+                        usernameField.setText("");
+                        passwordField.setText("");
+                        usernameField.requestFocus();
+                        return;
+                    }
+
+                    // check status of response
+                    boolean status = response.isStatus();
+
+                    if (!status) {
+                        String errorMsg = (String) response.getData();
+                        JOptionPane.showMessageDialog(null, errorMsg);
+                        usernameField.setText("");
+                        passwordField.setText("");
+                        usernameField.requestFocus();
+                        // return some error response if status is false
+                    }
+
+                    // if status == true, get session object Session session = response.getData()
+                    if (status) {
+                        // Save session object and move onto next screen
+                        Session session = (Session) response.getData();
+                        frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                        frame.pack();
+                        frame.setLocationRelativeTo(null);
+                        frame.setVisible(true);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });
-
-
     }
 }

@@ -27,8 +27,6 @@ public class OptionMenu implements Runnable {
     protected JPanel optionsPanel;
     protected ClientConnector connector;
 
-
-
     /**
      *
      * @param frame: JPanel Frame
@@ -66,11 +64,8 @@ public class OptionMenu implements Runnable {
                     frame.pack();
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
-
             }
-
         });
-
 
         scheduleButton.addActionListener(new ActionListener() {
             /**
@@ -84,8 +79,6 @@ public class OptionMenu implements Runnable {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-
-
             }
         });
 
