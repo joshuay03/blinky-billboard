@@ -71,13 +71,12 @@ class FunctionalityTest {
 
     @BeforeEach @Test
     void setUpAndLogin() throws SQLException, IOException{
-        Function<Credentials, Request> MakeLoginRequest = (Credentials credentials) -> Request.loginReq(credentials);
         respondTo = new ClientHandler(null, null, null, new blinkyDB())::handleInboundRequest;
         // Create and send a login request
-        noperms_session = (Session) respondTo.apply(MakeLoginRequest.apply(
+        noperms_session = (Session) respondTo.apply(Request.loginReq(
                 new Credentials("Lira", "SeaMonkey123"))).getData();
         Credentials credentials = new Credentials("Liran", "SeaMonkey123");
-        Response res = respondTo.apply(MakeLoginRequest.apply(credentials));
+        Response res = respondTo.apply(Request.loginReq(credentials));
         if (res.isStatus()){
             // Set the session token
             session = (Session) res.getData();
@@ -161,7 +160,7 @@ class FunctionalityTest {
 
     @Test
     void Edit_Billboard(){
-        Billboard mock = DummyBillboards.messagePictureAndInformationBillboard();
+        Billboard mock = DummyBillboards.pictureOnlyBillboard();
 
         // User with edit billboards permission attempts to edit a billboard which exists
         Response authedRes = respondTo.apply(Request.editBillboardReq(VALID_BILLBOARD, mock, session));
@@ -284,7 +283,7 @@ class FunctionalityTest {
 
         Response adminDeleteSelf = respondTo.apply(Request.deleteUserReq(adminCredentials.getUsername(), session));
 
-        assertTrue(!adminDeleteSelf.isStatus());
+        assertFalse(adminDeleteSelf.isStatus());
     }
 
     @Test
@@ -318,11 +317,6 @@ class FunctionalityTest {
         //... should fail
         Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser, session));
 
-        assertTrue(!adminRemoveSelfPermissions.isStatus());
-    }
-
-    @AfterAll()
-    static void Reset_Schema() throws IOException, SQLException {
-        new blinkyDB(true);
+        assertFalse(adminRemoveSelfPermissions.isStatus());
     }
 }
