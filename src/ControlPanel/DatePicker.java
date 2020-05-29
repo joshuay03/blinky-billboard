@@ -83,7 +83,7 @@ public class DatePicker {
         for (int x = 6 + dayOfWeek, day = 1; day <= daysInMonth; x++, day++)
             button[x].setText("" + day);
         label.setText(sdf.format(cal.getTime()));
-        dialog.setTitle("Date Picker");
+        dialog.setTitle("Pick Date");
     }
 
     public String setPickedDate() {
