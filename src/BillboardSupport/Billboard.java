@@ -1,46 +1,27 @@
 package BillboardSupport;
 
-import org.junit.jupiter.api.Assertions;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.Collator;
-import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Locale;
 
 public class Billboard implements Serializable {
 
+    // Creates an empty billboard
+    public Billboard() {
+    }
+
     //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
 
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public void setScheduledTime(LocalDateTime scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
-
-    public int getRepeatInterval() {
-        return repeatInterval;
-    }
-
-    public void setRepeatInterval(int repeatInterval) {
-        this.repeatInterval = repeatInterval;
-    }
 
     public int getBillboardDatabaseKey() {
         return billboardDatabaseKey;
@@ -123,12 +104,9 @@ public class Billboard implements Serializable {
 
     private String creator;
 
-    // ADD variable to track who owns the Billboard
-
-    private LocalDateTime scheduledTime;
-    private int duration, repeatInterval; // in seconds - controlled at user level
-
     private int billboardDatabaseKey;
+
+    private Schedule schedule;
 
 
 
@@ -139,21 +117,15 @@ public class Billboard implements Serializable {
      * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
      * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
      * @param imageURL The URL of the image to be displayed by the Billboard
-     * @param scheduledTime The time the billboard is first scheduled to display
-     * @param duration The amount of time in seconds to display the Billboard
-     * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL, LocalDateTime scheduledTime, int duration, int repeatInterval) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
         this.message = message;
         this.information = information;
         this.imageURL = imageURL;
-        this.scheduledTime = scheduledTime;
-        this.duration = duration;
-        this.repeatInterval = repeatInterval;
     }
 
     /** New Billboard Object from scratch
@@ -163,28 +135,21 @@ public class Billboard implements Serializable {
      * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
      * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
      * @param imageData The Base64 byte string of the image to be displayed by the Billboard
-     * @param scheduledTime The time the billboard is first scheduled to display
-     * @param duration The amount of time in seconds to display the Billboard
-     * @param repeatInterval The frequency, expressed in seconds, that the billboard repeats
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData, LocalDateTime scheduledTime, int duration, int repeatInterval) {
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
         this.message = message;
         this.information = information;
         this.imageData = imageData;
-        this.scheduledTime = scheduledTime;
-        this.duration = duration;
-        this.repeatInterval = repeatInterval;
     }
 
     /** Create Billboard from Billboard XML File
      *
      * @param billboardXMLFile An XML File which conforms to the Billboard XML Spec.
      */
-
     public static Billboard getBillboardFromXML(File billboardXMLFile) {
         Billboard billboard = new Billboard();
 
@@ -330,10 +295,6 @@ public class Billboard implements Serializable {
         return billboardXMLRep;
     }
 
-    public Billboard(){
-
-    }
-
     public String getBillboardImage(){
         if(imageURL != null){
             return imageURL.toString();
@@ -368,14 +329,13 @@ public class Billboard implements Serializable {
 
     }
 
-
-    public int getDuration() {
-        return duration;
-    }
-
     public String getCreator() { return creator; }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 }
