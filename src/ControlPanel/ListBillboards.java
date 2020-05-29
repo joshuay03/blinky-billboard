@@ -21,7 +21,7 @@ import static SocketCommunication.ServerRequest.LIST_BILLBOARDS;
 import static SocketCommunication.ServerRequest.LOGIN;
 
 public class ListBillboards {
-    protected JList<Billboard> billboardList;
+    protected JList<Billboard> billboardJList;
     protected JPanel listBillboardsPanel;
     protected JPanel listPanel;
     protected JButton backButton;
@@ -30,9 +30,16 @@ public class ListBillboards {
     protected  ClientConnector connector;
     DefaultListModel<Billboard> model = new DefaultListModel<>();
 
-    public ListBillboards(JFrame frame, ClientConnector connector) {
-        this.frame = frame;
-        this.connector = connector;
+    public ListBillboards(JFrame frame, ClientConnector connector, Billboard[] billboardList) {
+
+        billboardJList.setModel(model);
+
+        for (Billboard b : billboardList) {
+            model.addElement(b);
+        }
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -50,42 +57,7 @@ public class ListBillboards {
         });
     }
 
-
     private void createUIComponents() {
-        Request listRequest = Request.listAllBillboardsReq(connector.session);
-
-        // Send request to server
-        Response response;
-        // use global input stream, this is just to show how it works
-
-        try {
-            response = listRequest.Send(connector);
-        } catch (IOException excep) {
-            JOptionPane.showMessageDialog(null, "Cannot connect to server");
-            return;
-        }
-
-
-        // check status of response
-        boolean status = response.isStatus();
-
-        if (!status) {
-            String errorMsg = (String) response.getData();
-            JOptionPane.showMessageDialog(null, errorMsg);
-            // return some error response if status is false
-        }
-
-
-        if (status) {
-
-            Billboard[] billboardListServer =  ((Billboard[])response.getData());
-            billboardList.setModel(model);
-
-            for (Billboard b : billboardListServer) {
-                model.addElement(b);
-            }
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        }    }
+        billboardJList = new JList<>();
+    }
 }
