@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,22 +21,32 @@ import static SocketCommunication.ServerRequest.LIST_BILLBOARDS;
 import static SocketCommunication.ServerRequest.LOGIN;
 
 public class ListBillboards {
-    private JList<Billboard> billboardList;
-    private JPanel mainPanel;
-    private JLabel listLabel;
-    private JPanel listPanel;
-    private JFrame frame;
-    private  ClientConnector connector;
+    protected JList<Billboard> billboardList;
+    protected JPanel listBillboardsPanel;
+    protected JLabel listLabel;
+    protected JPanel listPanel;
+    protected JPanel titlePanel;
+    protected JButton backButton;
+    protected JFrame frame;
+    protected  ClientConnector connector;
     DefaultListModel<Billboard> model = new DefaultListModel<>();
 
     public ListBillboards(JFrame frame, ClientConnector connector) {
         this.frame = frame;
         this.connector = connector;
 
-        billboardList.addListSelectionListener(new ListSelectionListener() {
+        backButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
     }
@@ -64,7 +76,7 @@ public class ListBillboards {
             // return some error response if status is false
         }
 
-        // if status == true, get session object Session session = response.getData()
+
         if (status) {
 
             Billboard[] billboardListServer =  ((Billboard[])response.getData());
