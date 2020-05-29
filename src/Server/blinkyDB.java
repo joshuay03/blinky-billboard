@@ -2,6 +2,7 @@ package Server;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
+import BillboardSupport.Schedule;
 import SocketCommunication.Credentials;
 import SocketCommunication.Response;
 
@@ -184,30 +185,90 @@ public class blinkyDB {
     /**
      * Get all schedules from the specified start time onwards
      * @param time The earliest start time to get schedules of
-     * @param id The billboard ID to get schedules for
      * @return The schedules
      * @throws SQLException If the lookup fails
      */
-    public ResultSet getSchedules(LocalDateTime time, int id) throws SQLException {
-        String filterString = id == -1 ? "" : "AND billboard_id = ?";
-        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?" + filterString;
+    public List<Schedule> getSchedules(LocalDateTime time) throws SQLException {
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
         PreparedStatement ScheduleLookUp;
         dbconn.setAutoCommit(false);
         ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);
         ScheduleLookUp.setTimestamp(1, Timestamp.valueOf(time));
-        if (filterString.contains("?")) ScheduleLookUp.setInt(2, id);
         dbconn.setAutoCommit(true);
-        return ScheduleLookUp.executeQuery();
+        ResultSet rs = ScheduleLookUp.executeQuery();
+        List<Schedule> ScheduleList = new ArrayList<>();
+        while (rs.next()){
+            try {
+                Timestamp startTime = Timestamp.from(rs.getTime("start_time").toInstant());
+                int repeatInterval = rs.getInt("interval");
+                int duration = rs.getInt("duration");
+                int billboardID = rs.getInt("billboard_id");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+            }
+            catch (SQLException e){e.printStackTrace();}
+        }
+        return ScheduleList;
     }
 
     /**
-     * Get all schedules from the specified start time onwards
-     * @param time The earliest start time to get schedules of
-     * @return The schedules
-     * @throws SQLException If the lookup fails
+     * Put in billboard ID - get schedule (including future schedules)
+     * @param id The billboard ID
+     * @return The schedule of that billboard
+     * @throws SQLException if the lookup fails
      */
-    public ResultSet getSchedules(LocalDateTime time) throws SQLException {
-        return getSchedules(time, -1);
+    public Schedule getScheduleForBillboard(int id) throws SQLException {
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE billboard_id = ?";
+        PreparedStatement scheduleLookUpForBillboard;
+        dbconn.setAutoCommit(false);
+        scheduleLookUpForBillboard = dbconn.prepareStatement(scheduleLookup);
+        scheduleLookUpForBillboard.setInt(1, id);
+        dbconn.setAutoCommit(true);
+        ResultSet rs = scheduleLookUpForBillboard.executeQuery();
+        List<Schedule> ScheduleList = new ArrayList<>();
+        while (rs.next()){
+            try {
+                Timestamp startTime = rs.getTimestamp("start_time");
+                int repeatInterval = rs.getInt("interval");
+                int duration = rs.getInt("duration");
+                int billboardID = rs.getInt("billboard_id");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+            }
+            catch (SQLException e){e.printStackTrace();}
+        }
+        return ScheduleList.get(0);
+    }
+
+    /**
+     * Takes a billboard, and assigns a given schedule to it
+     * @param billboard The billboard
+     * @param schedule The schedule to assign to the billboard
+     */
+    public void ScheduleBillboard(Billboard billboard, Schedule schedule) throws SQLException {
+        String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
+                "(billboard_id, viewer_id, start_time, duration, `interval`)\n" +
+                "VALUES(?, ?, ?, ?, ?);\n";
+
+        PreparedStatement CreateSchedule;
+        dbconn.setAutoCommit(false);
+        try{
+            CreateSchedule = dbconn.prepareStatement(SchedulingString);
+
+            CreateSchedule.setInt(1, billboard.getBillboardDatabaseKey());
+            CreateSchedule.setInt(2, 1);
+            CreateSchedule.setTimestamp(3, schedule.StartTime);
+            CreateSchedule.setInt(4, schedule.duration);
+            CreateSchedule.setInt(5, schedule.repeatInterval);
+
+            CreateSchedule.executeUpdate();
+            dbconn.commit();
+
+        } catch (SQLException e) {
+            dbconn.setAutoCommit(true);
+            dbconn.rollback();
+        }
+
+        billboard.setSchedule(schedule);
+        dbconn.setAutoCommit(true);
     }
 
     /**

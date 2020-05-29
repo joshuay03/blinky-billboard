@@ -7,4 +7,11 @@ public class Schedule {
     public int duration;
     public int repeatInterval;
     public int billboardID;
+
+    public Schedule(Timestamp startTime, int duration, int repeatInterval, int billboardID) {
+        StartTime = startTime;
+        this.duration = duration;
+        this.repeatInterval = repeatInterval;
+        this.billboardID = billboardID;
+    }
 }
