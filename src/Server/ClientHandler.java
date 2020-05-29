@@ -6,7 +6,9 @@ import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
+import com.sun.source.tree.IfTree;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -281,12 +283,29 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
+                if(authenticatedUser.CanEditUsers()) {
+                    // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // TODO - Fix spec compliance
+                    User newUser = req.getUser();
 
-                // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // if username already exist send error
+                    if(database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false){
 
-                // if username already exist send error
+                    }
+                    else{
+                        // FIXME - BlinkyDB logic
 
-                // else Server will create user and send back acknowledgement of success
+                    }
+
+
+
+                    // else Server will create user and send back acknowledgement of success
+
+                } else {
+                    return permissionDeniedResponse;
+                }
+
+
 
                 break;
             case GET_USER_PERMISSION:
@@ -318,23 +337,30 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PASSWORD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+                Collator collator = Collator.getInstance(Locale.ENGLISH);
                 // Client will send server a username and hashedPassword
 
-                // if session user is trying to change own password Server will change password and send back acknowledgement of success
+                //If the user has the edit users permission, or if they are just trying to change their own password,
+                // they may....
+                if(authenticatedUser.CanEditUsers() == true || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0){
 
-                // else if session user is trying to change password of another user check permission = 'Edit User' == true then allow change
-                //and send back acknowledgement of success
+                    ResultSet userToChange = database.LookUpUserDetails(req.getUsername());
 
-                // else return false send error
+                    if(userToChange.next() != false){
+
+                    } else return new Response (false, "Could not find user");
+
+                } // else return false send error
+                else return permissionDeniedResponse;
+
+
                 break;
             case DELETE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
-                if(req.getSession().serverUser.CanEditUsers() == true) {
+                if(authenticatedUser.CanEditUsers()) {
 
                     // Client will send username of user to be deleted and valid session token
                     String deletionCandidate = req.getUsername();
