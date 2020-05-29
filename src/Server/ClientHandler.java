@@ -192,9 +192,14 @@ public class ClientHandler extends Thread {
 
             case DELETE_BILLBOARD:
                 try {
-                    database.DeleteBillboard(req.getBillboardID());
-                    return new Response(true, "The billboard has successfully been deleted.");
-                } catch (Exception e) {
+                    assert authenticatedUser != null;
+                    if(authenticatedUser.CanEditAllBillboards()) {
+                        database.DeleteBillboard(req.getBillboardID());
+                        return new Response(true, "The billboard has successfully been deleted.");
+                    }
+                    else
+                        return new Response(false, "Not permitted to make this request.");
+                } catch (SQLException e) {
                     e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
                 }
