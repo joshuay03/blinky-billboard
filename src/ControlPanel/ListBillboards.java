@@ -21,25 +21,18 @@ import static SocketCommunication.ServerRequest.LIST_BILLBOARDS;
 import static SocketCommunication.ServerRequest.LOGIN;
 
 public class ListBillboards {
-    protected JList<Billboard> billboardJList;
     protected JPanel listBillboardsPanel;
     protected JPanel listPanel;
     protected JButton backButton;
-    private JLabel listBillboardsLabel;
-    protected JFrame frame;
+    protected JLabel listBillboardsLabel;
     protected  ClientConnector connector;
-    DefaultListModel<Billboard> model = new DefaultListModel<>();
+
+    protected Billboard[] billboardList;
+    protected JList<Billboard> billboardJList;
+    DefaultListModel<Billboard> model;
 
     public ListBillboards(JFrame frame, ClientConnector connector, Billboard[] billboardList) {
-
-        billboardJList.setModel(model);
-
-        for (Billboard b : billboardList) {
-            model.addElement(b);
-        }
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        this.billboardList = billboardList;
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -59,5 +52,12 @@ public class ListBillboards {
 
     private void createUIComponents() {
         billboardJList = new JList<>();
+        model = new DefaultListModel<>();
+
+        for (Billboard billboard : billboardList) {
+            model.addElement(billboard);
+        }
+
+        billboardJList.setModel(model);
     }
 }
