@@ -158,7 +158,7 @@ public class ClientHandler extends Thread {
                     List<Billboard> billboards = database.getBillboards();
                     if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
                         // TODO: somehow check if a billboard is already scheduled in the DB
-                        if (billboard.isSheduled()) {
+                        if (billboard.isScheduled()) {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
@@ -188,8 +188,6 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
-                break;
-
             case DELETE_BILLBOARD:
                 try {
                     assert authenticatedUser != null;
@@ -198,7 +196,7 @@ public class ClientHandler extends Thread {
                         return new Response(true, "The billboard has successfully been deleted.");
                     }
                     else
-                        return new Response(false, "Not permitted to make this request.");
+                        return permissionDeniedResponse;
                 } catch (SQLException e) {
                     e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
@@ -239,18 +237,18 @@ public class ClientHandler extends Thread {
 
                 break;
             case REMOVE_SCHEDULED:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
+                try {
+                    assert authenticatedUser != null;
+                    if (authenticatedUser.CanEditAllBillboards()) {
+                        database.UnscheduleBillboard(req.getBillboardID());
+                        return new Response(true, "Billboard has been removed from the schedule.");
+                    } else {
+                        return permissionDeniedResponse;
+                    }
+                } catch(SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
+                    return new Response(false, "Billboard lookup failed.");
+                }
 
-                // this request will only happen is user has 'Schedule Billboards' permission
-                // triggered inside the ScheduleBillboards() GUI
-
-                //Client will send the valid session token, billboardName and scheduledTime of billboard that is to be deleted
-
-                // if billboardName does not exist or is not scheduled for sheduledTime return error
-
-                // if info is correct Server will remove the billboard from the schedule and send back an acknowledgement of success
-
-                break;
             case LIST_USERS:
             {
                 // request only happens if user has 'Edit Users' permission
