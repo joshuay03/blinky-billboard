@@ -2,14 +2,14 @@ package Tests;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 public class BillboardXMLReadingTests {
 
-    Billboard getBillboardFromPath(String path){
+    Billboard getBillboardFromPath(String path) {
         File billboard = new File(path);
 
         System.out.println(billboard.toString());
@@ -18,7 +18,7 @@ public class BillboardXMLReadingTests {
     }
 
     @Test
-    void readInMessageOnlyBillboard(){
+    void readInMessageOnlyBillboard() {
 
         Billboard parsedBillboard = getBillboardFromPath("Billboard_Examples/1.xml");
 
@@ -26,29 +26,29 @@ public class BillboardXMLReadingTests {
     }
 
     @Test
-    void readInpPictureOnlyBillboard(){
+    void readInpPictureOnlyBillboard() {
 
     }
 
     @Test
-    void readInInformationOnlyBillboard(){
+    void readInInformationOnlyBillboard() {
         Billboard parsedBillboard = getBillboardFromPath("Billboard_Examples/2.xml");
 
         Assertions.assertEquals(parsedBillboard, DummyBillboards.messageOnlyBillboard());
     }
 
     @Test
-    void readInMessageAndPictureBillboard(){
+    void readInMessageAndPictureBillboard() {
 
     }
 
     @Test
-    void readInMessageAndInformationBillboard(){
+    void readInMessageAndInformationBillboard() {
 
     }
 
     @Test
-    void readInPictureAndInformationBillboard(){
+    void readInPictureAndInformationBillboard() {
 
     }
 

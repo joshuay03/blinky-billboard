@@ -2,30 +2,17 @@ package ControlPanel;
 
 import BillboardSupport.Billboard;
 import Client.ClientConnector;
-import SocketCommunication.Request;
-import SocketCommunication.Response;
-import SocketCommunication.Session;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static SocketCommunication.ServerRequest.LIST_BILLBOARDS;
-import static SocketCommunication.ServerRequest.LOGIN;
 
 public class ListBillboards {
     protected JPanel listBillboardsPanel;
     protected JPanel listPanel;
     protected JButton backButton;
     protected JLabel listBillboardsLabel;
-    protected  ClientConnector connector;
+    protected ClientConnector connector;
 
     protected Billboard[] billboardList;
     protected JList<Billboard> billboardJList;

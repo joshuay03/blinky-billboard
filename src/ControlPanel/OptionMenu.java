@@ -4,18 +4,15 @@ import BillboardSupport.Billboard;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import SocketCommunication.Session;
-import com.sun.jdi.connect.Connector;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import static SocketCommunication.ServerRequest.*;
-
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
+ *
  * @author Joshua Young
  */
 public class OptionMenu implements Runnable {
@@ -27,12 +24,11 @@ public class OptionMenu implements Runnable {
     protected JButton backButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
-    private JButton logoutButton;
     protected ClientConnector connector;
+    private JButton logoutButton;
 
     /**
-     *
-     * @param frame: JPanel Frame
+     * @param frame:     JPanel Frame
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
@@ -63,10 +59,10 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                    frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
+                frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
 

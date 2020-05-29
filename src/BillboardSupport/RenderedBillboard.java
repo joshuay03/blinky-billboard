@@ -2,10 +2,7 @@ package BillboardSupport;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,24 +21,8 @@ public class RenderedBillboard extends JPanel {
     private JLabel imageContainer;
     private JTextPane messageContainer, informationContainer;
 
-    private ImageIcon getScaledImage (ImageIcon src, int maxWidth, int maxHeight){
-
-        // Determine which side to bound the scaling on
-        float scalingFactor = 0.0f;
-        if(maxHeight <= maxWidth){
-             scalingFactor = (float)maxHeight / src.getIconHeight(); // Height dependent scaling - must calc tallest we can make the image
-        } else if(maxWidth < maxHeight) {
-            scalingFactor = (float)maxWidth / src.getIconWidth(); // Width depending scaling - can't go larger than a particular width
-        }
-
-        Image srcImg = src.getImage();
-        Image newImg = srcImg.getScaledInstance((int)(src.getIconWidth() * scalingFactor), (int)(src.getIconHeight() * scalingFactor), Image.SCALE_SMOOTH);
-        return new ImageIcon(newImg);
-    }
-
     /**
-     *
-     * @param board The billboard that you would like to render
+     * @param board            The billboard that you would like to render
      * @param renderDimensions The dimensions of the area you want to render the billboard in
      */
     public RenderedBillboard(Billboard board, Dimension renderDimensions) {
@@ -51,12 +32,12 @@ public class RenderedBillboard extends JPanel {
         //Initialise member objects
         this.messageContainer = new JTextPane();
         this.informationContainer = new JTextPane();
-        this.imageContainer= new JLabel();
+        this.imageContainer = new JLabel();
 
         // ----------------------------
         // HANDLE COMMON FORMATTING
         // ----------------------------
-       // Formatting and colour handling for the message container
+        // Formatting and colour handling for the message container
         SimpleAttributeSet messageAttributes = new SimpleAttributeSet();
         StyleConstants.setAlignment(messageAttributes, StyleConstants.ALIGN_CENTER);
         StyleConstants.setSpaceAbove(messageAttributes, 0);
@@ -86,9 +67,9 @@ public class RenderedBillboard extends JPanel {
         messageContainer.setText(board.getMessage());
         informationContainer.setText(board.getInformation());
 
-        if(board.getImageURL() != null){
+        if (board.getImageURL() != null) {
             imageContainer.setIcon(getImageIconFromURL(board.getImageURL()));
-        } else if(board.getImageData() != null){
+        } else if (board.getImageData() != null) {
             imageContainer.setIcon(getImageIconFromBase64(board.getImageData()));
         }
 
@@ -109,7 +90,7 @@ public class RenderedBillboard extends JPanel {
         // ONLY message present...
         if (hasImage == false && hasInformation == false && hasMessage == true) {
 
-            int     widthLimit = (int) (renderDimensions.getWidth()),
+            int widthLimit = (int) (renderDimensions.getWidth()),
                     heightLimit = (int) (renderDimensions.getHeight());
 
             // Message should be displayed as large as possible while still (1) fully on screen, and (2) with no line breaks
@@ -126,8 +107,8 @@ public class RenderedBillboard extends JPanel {
         // ONLY picture present
         if (hasImage == true && hasInformation == false && hasMessage == false) {
 
-            int     widthLimit = (int) (renderDimensions.getWidth() * 0.5),
-                    heightLimit = (int) (renderDimensions.getHeight() * 0.5 );
+            int widthLimit = (int) (renderDimensions.getWidth() * 0.5),
+                    heightLimit = (int) (renderDimensions.getHeight() * 0.5);
 
             imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
             imageContainer.setIcon(getScaledImage((ImageIcon) imageContainer.getIcon(), widthLimit, heightLimit));
@@ -142,7 +123,7 @@ public class RenderedBillboard extends JPanel {
         if (hasImage == false && hasInformation == true && hasMessage == false) {
 
             // Text should be displayed filling only 75% screen width, 50% screen height
-            int     textWidthLimit = (int) (renderDimensions.getWidth() * 0.75), // Only use 75% of the height
+            int textWidthLimit = (int) (renderDimensions.getWidth() * 0.75), // Only use 75% of the height
                     textHeightLimit = (int) (renderDimensions.getHeight() * 0.50); // Only use 50% of height
 
             Font boardFont = getScaledFontForArea(textWidthLimit, textHeightLimit, board.getInformation(), true);
@@ -161,7 +142,7 @@ public class RenderedBillboard extends JPanel {
         if (hasImage == true && hasInformation == false && hasMessage == true) {
 
             // Message on top 1/3 of screen, filling width
-            int     messageWidthLimit = (int) (renderDimensions.getWidth()),
+            int messageWidthLimit = (int) (renderDimensions.getWidth()),
                     messageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
             //FIXME - displays fine, but still manages to wrap on occasion
@@ -169,7 +150,7 @@ public class RenderedBillboard extends JPanel {
             messageContainer.setMaximumSize(new Dimension(messageWidthLimit, messageHeightLimit));
 
             // Picture filling bottom 2/3
-            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(),
+            imageContainer.setIcon(getScaledImage((ImageIcon) imageContainer.getIcon(),
                     (int) (renderDimensions.getWidth()),
                     (int) (renderDimensions.getHeight() / 3.0)));
 
@@ -185,7 +166,7 @@ public class RenderedBillboard extends JPanel {
         if (hasImage == false && hasInformation == true && hasMessage == true) {
 
             // 50% of height for each of the message and information - use the same values
-            int     widthLimit = (int) (renderDimensions.getWidth()),
+            int widthLimit = (int) (renderDimensions.getWidth()),
                     heightLimit = (int) (renderDimensions.getHeight() * 0.5);
 
             messageContainer.setFont(getScaledFontForArea(widthLimit, heightLimit, board.getMessage(), false));
@@ -210,13 +191,13 @@ public class RenderedBillboard extends JPanel {
             int imageWidthLimit = (int) (renderDimensions.getWidth()),
                     imageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
-            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
+            imageContainer.setIcon(getScaledImage((ImageIcon) imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
 
             imageContainer.setMaximumSize(new Dimension(imageWidthLimit, imageHeightLimit));
 
             // Information in bottom 1/3 of screen, centered, no more than 75% of screen width
 
-            int     informationWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
+            int informationWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
                     informationHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
             informationContainer.setFont(getScaledFontForArea(informationWidthLimit, informationHeightLimit, board.getInformation(), true)); //TODO - Dynamic font size calculation
@@ -235,18 +216,18 @@ public class RenderedBillboard extends JPanel {
 
             // Both message and information must be in 1/3 of screen, centered, no more than 75% of screen width
             // So use the same values
-            int     textWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
+            int textWidthLimit = (int) (renderDimensions.getWidth() * 0.75),
                     textHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
             messageContainer.setFont(getScaledFontForArea(textWidthLimit, textHeightLimit, board.getMessage(), false));
             messageContainer.setMaximumSize(new Dimension(textWidthLimit, textHeightLimit));
 
             // Picture in middle 1/3 of screen, centered
-            int     imageWidthLimit = (int) (renderDimensions.getWidth()),
-                    imageHeightLimit = (int) (renderDimensions.getHeight()/3.0);
+            int imageWidthLimit = (int) (renderDimensions.getWidth()),
+                    imageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
-            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
-            imageContainer.setMaximumSize(new Dimension(imageWidthLimit,imageHeightLimit));
+            imageContainer.setIcon(getScaledImage((ImageIcon) imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
+            imageContainer.setMaximumSize(new Dimension(imageWidthLimit, imageHeightLimit));
             //Information in bottom 1/3 of screen, centered, no more than 75% of screen width
 
             informationContainer.setFont(getScaledFontForArea(textWidthLimit, textHeightLimit, board.getInformation(), true));
@@ -265,7 +246,7 @@ public class RenderedBillboard extends JPanel {
 
     public static ImageIcon getImageIconFromURL(URL url) {
 
-        if(url == null) return null;
+        if (url == null) return null;
 
         BufferedImage img = null;
         try {
@@ -274,65 +255,81 @@ public class RenderedBillboard extends JPanel {
             e.printStackTrace();
         }
 
-        if(img != null) return new ImageIcon(img);
+        if (img != null) return new ImageIcon(img);
         else return null;
     }
 
     public static ImageIcon getImageIconFromBase64(String imageString) {
 
-        if(imageString == null) return null;
+        if (imageString == null) return null;
 
         byte[] decodedImage = Base64.getDecoder().decode(imageString.getBytes());
 
         return new ImageIcon(decodedImage);
     }
 
-    Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap){
+    private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
+
+        // Determine which side to bound the scaling on
+        float scalingFactor = 0.0f;
+        if (maxHeight <= maxWidth) {
+            scalingFactor = (float) maxHeight / src.getIconHeight(); // Height dependent scaling - must calc tallest we can make the image
+        } else if (maxWidth < maxHeight) {
+            scalingFactor = (float) maxWidth / src.getIconWidth(); // Width depending scaling - can't go larger than a particular width
+        }
+
+        Image srcImg = src.getImage();
+        Image newImg = srcImg.getScaledInstance((int) (src.getIconWidth() * scalingFactor), (int) (src.getIconHeight() * scalingFactor), Image.SCALE_SMOOTH);
+        return new ImageIcon(newImg);
+    }
+
+    Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap) {
         Font boardFont = new Font(defaultBillboardFont, Font.BOLD, 10);
 
         int renderedStringWidth, renderedStringHeight;
 
-            while (true) {
-                boardFont = boardFont.deriveFont((float) (boardFont.getSize() + FONT_SIZE_INCREASE_RATE));
+        while (true) {
+            boardFont = boardFont.deriveFont((float) (boardFont.getSize() + FONT_SIZE_INCREASE_RATE));
 
-                FontMetrics fontMetrics = headlessCanvas.getFontMetrics(boardFont);
+            FontMetrics fontMetrics = headlessCanvas.getFontMetrics(boardFont);
 
-                // Calculate the number of rows required to render the text in a given width (text width / width of screen)
-                int requiredRowsToRender = (int) Math.ceil((float)fontMetrics.stringWidth(stringToRender) / (float)widthLimit);
+            // Calculate the number of rows required to render the text in a given width (text width / width of screen)
+            int requiredRowsToRender = (int) Math.ceil((float) fontMetrics.stringWidth(stringToRender) / (float) widthLimit);
 
-                //Determine width and height of the string
-                renderedStringHeight = (fontMetrics.getHeight() + fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent()) * requiredRowsToRender;
-                renderedStringWidth = fontMetrics.stringWidth(stringToRender);
+            //Determine width and height of the string
+            renderedStringHeight = (fontMetrics.getHeight() + fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent()) * requiredRowsToRender;
+            renderedStringWidth = fontMetrics.stringWidth(stringToRender);
 
-                //Wrapped scaling
-                if(allowWrap) {
-                    // If the information, wrapped, is the right height for the screen, we should be done
-                    if (renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
+            //Wrapped scaling
+            if (allowWrap) {
+                // If the information, wrapped, is the right height for the screen, we should be done
+                if (renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
 
-                    // If we've gone too wide for the screen...
-                    if (renderedStringWidth / requiredRowsToRender >= widthLimit) {
-                        // Check whether another line would cause us to blow out of our boundaries
-                        if((requiredRowsToRender + 1) * fontMetrics.getHeight() <= heightLimit) {
-                            // .... If not, add another row
-                            requiredRowsToRender++;
-                        }
-                        // ... If it is, that's the limit
-                        else {
-                            break;
-                        }
+                // If we've gone too wide for the screen...
+                if (renderedStringWidth / requiredRowsToRender >= widthLimit) {
+                    // Check whether another line would cause us to blow out of our boundaries
+                    if ((requiredRowsToRender + 1) * fontMetrics.getHeight() <= heightLimit) {
+                        // .... If not, add another row
+                        requiredRowsToRender++;
+                    }
+                    // ... If it is, that's the limit
+                    else {
+                        break;
                     }
                 }
-
-                // Unwrapped scaling - one line only
-                else {
-                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE || renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
-                }
             }
+
+            // Unwrapped scaling - one line only
+            else {
+                if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE || renderedStringHeight >= heightLimit * PADDING_PERCENTAGE)
+                    break;
+            }
+        }
 
         return boardFont;
     }
 
-    void addComponent(Component c){
+    void addComponent(Component c) {
         this.add(c);
     }
 

@@ -1,12 +1,13 @@
 package ControlPanel;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class DatePicker {
     int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
-    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
+    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
     JLabel label = new JLabel("", JLabel.CENTER);
     String day = "";
     JDialog dialog;
@@ -15,7 +16,7 @@ public class DatePicker {
     public DatePicker(JFrame parent) {
         dialog = new JDialog();
         dialog.setModal(true);
-        String[] header = { "Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
+        String[] header = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
         JPanel displayPanel = new JPanel(new GridLayout(7, 7));
         displayPanel.setPreferredSize(new Dimension(430, 120));
 

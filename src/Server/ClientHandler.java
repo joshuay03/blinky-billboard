@@ -6,10 +6,7 @@ import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
-import com.sun.source.tree.IfTree;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -30,11 +27,6 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
-    private DataInputStream input;
-    private DataOutputStream output;
-    private Socket client;
-    private blinkyDB database;
-
     private final int BILLBOARD_ID = 0,
             CREATOR = 1,
             BACKGROUND_COLOUR = 2,
@@ -43,6 +35,10 @@ public class ClientHandler extends Thread {
             MESSAGE = 5,
             INFORMATION = 6,
             IMAGE = 7;
+    private DataInputStream input;
+    private DataOutputStream output;
+    private Socket client;
+    private blinkyDB database;
 
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;

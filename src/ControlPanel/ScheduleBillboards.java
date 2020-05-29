@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 
 /**
  * A class to represent a "Schedule Billboards" page which is bound to ScheduleBillboards.form
+ *
  * @author Joshua Young
  */
 public class ScheduleBillboards {
@@ -24,7 +25,6 @@ public class ScheduleBillboards {
     protected JFrame scheduleFrame;
 
     /**
-     *
      * @param frame
      */
     public ScheduleBillboards(JFrame frame, ClientConnector connector) {
@@ -57,8 +57,8 @@ public class ScheduleBillboards {
      *
      */
     private void createUIComponents() {
-        String[] columns = new String[] {"Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        Object[][] data = new Object[][] {
+        String[] columns = new String[]{"Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        Object[][] data = new Object[][]{
                 {"00:00 - 01:00", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"},
                 {"01:00 - 02:00", "", "", "", "", "", ""},
                 {"02:00 - 03:00", "", "", "", "", "", ""},

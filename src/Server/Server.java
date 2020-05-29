@@ -4,14 +4,19 @@ import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.SQLException;
 
 
 /**
  * A class to initiate a server for client-server connection.
  * Extends the FileParse class.
+ *
  * @see SocketConnection
  */
 public class Server extends SocketConnection {
@@ -22,10 +27,36 @@ public class Server extends SocketConnection {
 
     /**
      * Constructor for the server object. Calls the base class constructor.
+     *
      * @param propFile a file containing the relevent networking information.
      */
     public Server(String propFile) {
         super(propFile);
+    }
+
+    public static void main(String[] args) {
+        Server server = new Server("properties.txt");
+        try {
+            server.start();
+            try {
+                new User(new Credentials("Root", "root"), true, true, true, true, server.database);
+            } catch (UserAlreadyExistsException ignored) {
+            }
+
+            server.serverIsOpen = server.isServerAliveUtil();
+            System.out.println("Server Alive: " + server.serverIsOpen);
+
+            if (server.serverIsOpen)
+                System.out.println("Currently operating on port: " + server.getPort());
+            else
+                System.out.println("Try starting the server again...");
+
+            while (server.serverIsOpen) {
+                server.createClientThread();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -35,35 +66,39 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            if (connectToDB(0) == false) { close(); }
-        }
-        catch(Exception e) {
+            if (connectToDB(0) == false) {
+                close();
+            }
+        } catch (Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
         }
     }
 
     /**
      * Method which tries instantiating a database connection.
+     *
      * @param numTries
      * @return
      */
     private boolean connectToDB(int numTries) {
         int tries = numTries;
-        try { this.database = new blinkyDB(); }
-        catch(SQLException e) {
+        try {
+            this.database = new blinkyDB();
+        } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Connection to database failed. Attempting connection again in 10 seconds.");
             if (tries < 2) {
-                try { Thread.sleep(10000); } catch (InterruptedException t) {};
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException t) {
+                }
                 tries++;
                 connectToDB(tries);
-            }
-            else {
+            } else {
                 System.out.println("The connection has been attempted multiple times. Closing the server.");
                 return false;
             }
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             System.out.println("db.props file not found. Closing server.");
             return false;
         }
@@ -72,18 +107,18 @@ public class Server extends SocketConnection {
 
     /**
      * A helper method to determine whether or not the server is currently active.
+     *
      * @return a boolean value representing whether or not the server can be connected to.
      */
     public boolean isServerAliveUtil() {
         boolean isAlive = false;
         String host = "localhost"; // pass host in
-        try{
+        try {
             InetAddress ip = InetAddress.getByName(host);
             Socket testSocket = new Socket(ip, getPort());
             testSocket.close();
             isAlive = true;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e + " - cannot connect to " + host + " on port " + getPort() + ".");
         }
         return isAlive;
@@ -93,9 +128,10 @@ public class Server extends SocketConnection {
      * A method to handle incoming socket requests and allocate a new thread independently
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
+     *
      * @see ClientHandler
      */
-    public void createClientThread() throws Exception{
+    public void createClientThread() throws Exception {
         // socket object to receive incoming client requests
         client = server.accept();
 
@@ -116,35 +152,9 @@ public class Server extends SocketConnection {
     /**
      * Method to close the server.
      */
-    public void close() throws IOException{
+    public void close() throws IOException {
         server.close();
         super.close();
         serverIsOpen = false;
-    }
-
-    public static void main(String[] args){
-        Server server = new Server("properties.txt");
-        try {
-            server.start();
-            try {
-                new User(new Credentials("Root", "root"), true, true, true, true, server.database);
-            }
-            catch (UserAlreadyExistsException ignored) {}
-
-            server.serverIsOpen = server.isServerAliveUtil();
-            System.out.println("Server Alive: " + server.serverIsOpen);
-
-            if (server.serverIsOpen)
-                System.out.println("Currently operating on port: " + server.getPort());
-            else
-                System.out.println("Try starting the server again...");
-
-            while (server.serverIsOpen) {
-                server.createClientThread();
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
