@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 
 /**
  * A class to represent an "Edit Users" page which is bound to EditUsers.form
- * @author Joshua Young
  */
 public class EditUsers {
     protected JPanel editUsersPanel;

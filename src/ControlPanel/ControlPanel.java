@@ -12,7 +12,6 @@ import java.util.Scanner;
 
 /**
  * A class which represents a control panel which connects to the server
- * @author Joshua Young
  */
 public class ControlPanel extends ClientConnector implements Runnable {
     protected ClientConnector connector;

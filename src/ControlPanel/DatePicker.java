@@ -4,6 +4,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+/**
+ * A custom date picker class which displays a calendar view style date picker
+ */
 public class DatePicker {
     int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
     int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
@@ -80,7 +83,7 @@ public class DatePicker {
         for (int x = 6 + dayOfWeek, day = 1; day <= daysInMonth; x++, day++)
             button[x].setText("" + day);
         label.setText(sdf.format(cal.getTime()));
-        dialog.setTitle("Date Picker");
+        dialog.setTitle("Pick Date");
     }
 
     public String setPickedDate() {

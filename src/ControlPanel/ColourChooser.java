@@ -6,7 +6,6 @@ import javax.swing.colorchooser.DefaultColorSelectionModel;
 
 /**
  * A custom JColorChooser class
- * @author Joshua Young
  */
 public class ColourChooser extends JColorChooser {
 
