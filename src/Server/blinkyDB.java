@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public class blinkyDB {
-    private DBProps props;
-    private Connection dbconn;
+    final private DBProps props;
+    final private Connection dbconn;
 
     /**
      * Database object constructor
@@ -414,6 +414,11 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
     }
 
+    /**
+     * Deletes schedules for a given billboard ID
+     * @param id Billboard ID
+     * @throws SQLException If the deletion fails
+     */
     public void UnscheduleBillboard(int id) throws SQLException {
         String SchedulesDeletionString = "DELETE FROM blinkyBillboard.Scheduling\n" +
                 "billboard_id=?;\n";
