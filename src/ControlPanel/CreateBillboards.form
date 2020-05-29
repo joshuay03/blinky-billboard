@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.CreateBillboards">
   <grid id="27dc6" binding="createBillboardsPanel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="500" height="415"/>
+      <xy x="20" y="20" width="830" height="415"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -15,24 +15,43 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="833ab" class="javax.swing.JButton" binding="importButton">
+          <splitpane id="526ed">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-              <gridbag weightx="1.0" weighty="1.0"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="833ab" class="javax.swing.JButton" binding="importButton">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <horizontalTextPosition value="11"/>
+                  <text value="Import Billboard as XML"/>
+                  <verticalAlignment value="0"/>
+                </properties>
+              </component>
+              <component id="8d801" class="javax.swing.JButton" binding="exportButton">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <text value="Export Billboard as XML"/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+          <component id="75e5c" class="javax.swing.JButton" binding="previewBillboardButton">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
-              <horizontalTextPosition value="11"/>
-              <text value="Import Billboard as XML"/>
-              <verticalAlignment value="0"/>
-            </properties>
-          </component>
-          <component id="8d801" class="javax.swing.JButton" binding="exportButton">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-              <gridbag weightx="1.0" weighty="1.0"/>
-            </constraints>
-            <properties>
-              <text value="Export Billboard as XML"/>
+              <text value="Preview Billboard"/>
             </properties>
           </component>
         </children>
@@ -157,15 +176,6 @@
               <text value="Choose Background Colour"/>
             </properties>
           </component>
-          <component id="c47a9" class="javax.swing.JButton" binding="viewBillboardButton" default-binding="true">
-            <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-              <gridbag weightx="1.0" weighty="1.0"/>
-            </constraints>
-            <properties>
-              <text value="View Billboard"/>
-            </properties>
-          </component>
           <component id="333ee" class="javax.swing.JButton" binding="pictureButton">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -173,6 +183,15 @@
             </constraints>
             <properties>
               <text value="Select Picture"/>
+            </properties>
+          </component>
+          <component id="c47a9" class="javax.swing.JButton" binding="saveBillboardButton">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Save Billboard"/>
             </properties>
           </component>
         </children>
@@ -190,7 +209,7 @@
               <card name="Card1"/>
             </constraints>
             <properties>
-              <dividerLocation value="75"/>
+              <dividerLocation value="78"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>

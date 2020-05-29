@@ -3,18 +3,12 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
-import SocketCommunication.Request;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.tools.Tool;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -24,17 +18,11 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
-
-import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
@@ -47,6 +35,7 @@ public class CreateBillboards {
     protected JPanel optionPanel;
     protected JButton importButton;
     protected JButton exportButton;
+    protected JButton previewBillboardButton;
     protected JPanel createPanel;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
@@ -58,7 +47,8 @@ public class CreateBillboards {
     protected JTextArea informationTextArea;
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
-    protected JButton viewBillboardButton;
+    protected JButton saveBillboardButton;
+
 
     protected Billboard billboard;
 
@@ -277,7 +267,7 @@ public class CreateBillboards {
             }
         });
 
-        viewBillboardButton.addActionListener(new ActionListener() {
+        previewBillboardButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
              *
