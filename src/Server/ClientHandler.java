@@ -117,39 +117,12 @@ public class ClientHandler extends Thread {
             }
             case LIST_BILLBOARDS:
             {
-                class BillboardList {
-                    List<Billboard> billboardList;
-                    public BillboardList(List<Billboard> billboardList) {
-                        this.billboardList = billboardList;
-                    }
-                }
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
-                List<Billboard> billboardList = new ArrayList<>();
+                List<Billboard> billboardList;
                 try{
-                    ResultSet rs = database.getBillboards();
-                    while (rs.next()){
-                        // For each returned billboard from the database
-                        Object image;
-                        try{
-                            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
-                            ObjectInput in = new ObjectInputStream(bis);
-                            image = in.readObject();
-                        }
-                        catch (Exception e){
-                            image = null;
-                        }
-                        Billboard current = new Billboard();
-                        current.setBillboardDatabaseKey(rs.getInt("billboard_id"));
-                        current.setCreator(rs.getString("creator"));
-                        current.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
-                        current.setMessageColour(new Color(rs.getInt("messageColour")));
-                        current.setInformationColour(new Color(rs.getInt("informationColour")));
-                        current.setMessage(rs.getString("message"));
-                        current.setInformation(rs.getString("information"));
-                        current.setImageData((String) image);
-                        billboardList.add(current);
-                    }
+                    billboardList = database.getBillboards();
+
                 } catch (SQLException e){
                     return new Response(false, "There was an SQL error");
                 }
