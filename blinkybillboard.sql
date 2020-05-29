@@ -125,6 +125,16 @@ CREATE TABLE IF NOT EXISTS `Viewers` (
 -- Dumping data for table `Viewers`
 --
 
+
+--
+-- Dumping structure for table `BlacklistedTokens`
+--
+CREATE TABLE IF NOT EXISTS BlacklistedTokens (
+	token BLOB NOT NULL,
+	expiry TIMESTAMP NOT NULL,
+	CONSTRAINT BlacklistedTokens_PK PRIMARY KEY (token)
+)
+
 LOCK TABLES `Viewers` WRITE;
 /*!40000 ALTER TABLE `Viewers` DISABLE KEYS */;
 /*!40000 ALTER TABLE `Viewers` ENABLE KEYS */;
@@ -138,5 +148,10 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
 
 -- Dump completed on 2020-05-05 22:54:48

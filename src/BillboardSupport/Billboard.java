@@ -96,6 +96,10 @@ public class Billboard implements Serializable {
         this.information = information;
     }
 
+    public boolean isScheduled(){
+        return this.schedule != null;
+    }
+
     private String message, information;
 
     private URL imageURL;

@@ -3,6 +3,7 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import Exceptions.AuthenticationFailedException;
+import Exceptions.BillboardNotFoundException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
@@ -158,11 +159,15 @@ public class ClientHandler extends Thread {
                     List<Billboard> billboards = database.getBillboards();
                     if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
                         // TODO: somehow check if a billboard is already scheduled in the DB
-                        if (billboard.isSheduled()) {
+                        if (billboard.isScheduled()) {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
-                                database.editBillboard(billboard, "test_user");
+                                try {
+                                    database.editBillboard(billboard.getBillboardDatabaseKey(), null, null, null, "test_user", null, null);
+                                } catch (BillboardNotFoundException e) {
+                                    return new Response(false, "Billboard was not found in the database.");
+                                }
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }

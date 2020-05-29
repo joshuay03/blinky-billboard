@@ -38,7 +38,7 @@ class FunctionalityTest {
 
     @BeforeAll
     static void setUsersAndMockDBData() throws IOException, SQLException {
-        blinkyDB db = new blinkyDB();
+        blinkyDB db = new blinkyDB(true, "testing");
         try {
             new User(new Credentials("Liran", "SeaMonkey123"), true, true, true, true, db);
         } catch (UserAlreadyExistsException e) {

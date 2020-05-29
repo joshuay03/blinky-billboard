@@ -3,6 +3,7 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
+import Exceptions.BillboardNotFoundException;
 import SocketCommunication.Credentials;
 import SocketCommunication.Response;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class blinkyDB {
     final private DBProps props;
@@ -99,6 +101,39 @@ public class blinkyDB {
         return this.getBillboards(null, null);
     }
 
+    public Billboard getBillboard(int id) throws BillboardNotFoundException, SQLException {
+        PreparedStatement getBillboard;
+        final String billboardLookUpString = "select * from Billboards where billboard_id = ?";
+        dbconn.setAutoCommit(false);
+        getBillboard = dbconn.prepareStatement(billboardLookUpString);
+        getBillboard.setInt(1, id);
+        dbconn.setAutoCommit(true);
+        ResultSet rs = getBillboard.executeQuery();
+        try {rs.first();} // Go to the result
+        catch (SQLException e) {throw new BillboardNotFoundException(id);} // If there is no result, throw an exception
+        // Process billboard data
+            Object image;
+            try{
+                ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+                ObjectInput in = new ObjectInputStream(bis);
+                image = in.readObject();
+            }
+            catch (Exception e){
+                image = null;
+            }
+            Billboard billboard = new Billboard();
+            billboard.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+            billboard.setCreator(rs.getString("creator"));
+            billboard.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+            billboard.setMessageColour(new Color(rs.getInt("messageColour")));
+            billboard.setInformationColour(new Color(rs.getInt("informationColour")));
+            billboard.setMessage(rs.getString("message"));
+            billboard.setInformation(rs.getString("information"));
+            billboard.setImageData((String) image);
+
+        return billboard;
+    }
+
     public void CreateViewer(String socket) throws SQLException {
         String ViewerCreationString = "INSERT INTO blinkyBillboard.Viewers\n" +
                 "(socket)\n" +
@@ -109,6 +144,45 @@ public class blinkyDB {
         ViewerInserter.executeUpdate();
         try{dbconn.commit();}
         catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public void editBillboard(int id, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) throws SQLException, BillboardNotFoundException {
+        // Takes billboard properties, and applies them to the given id
+        getBillboard(id); // Will throw an exception if the billboard doesn't exist
+        byte[] SerialisedImage;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(bos).writeObject(imageData);
+            SerialisedImage = bos.toByteArray();
+        } catch (IOException e) { SerialisedImage = null; }
+        List<String> updateList = new ArrayList<>();
+        if (backgroundColour != null) updateList.add("backgroundColour=?");
+        if (messageColour != null) updateList.add("messageColour=?");
+        if (informationColour != null) updateList.add("informationColour=?");
+        if (message != null) updateList.add("message=?");
+        if (information != null) updateList.add("information=?");
+        if (imageData != null) updateList.add("billboardImage=?");
+        String AttrsUpdateString = String.join(", ", updateList);
+        String BillboardInsertQuery = "UPDATE Billboards\n" +
+                "SET" + AttrsUpdateString + "\n" +
+                "WHERE billboard_id=?;\n";
+        dbconn.setAutoCommit(false);
+        PreparedStatement updateBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+        try {
+            {int index = updateList.indexOf("backgroundColour=?"); if (index != -1) updateBillboard.setInt(index+1, backgroundColour.getRGB());}
+            {int index = updateList.indexOf("messageColour=?"); if (index != -1) updateBillboard.setInt(index+1, messageColour.getRGB());}
+            {int index = updateList.indexOf("informationColour=?"); if (index != -1) updateBillboard.setInt(index+1, informationColour.getRGB());}
+            {int index = updateList.indexOf("message=?"); if (index != -1) updateBillboard.setString(index+1, message);}
+            {int index = updateList.indexOf("information=?"); if (index != -1) updateBillboard.setString(index+1, information);}
+            {int index = updateList.indexOf("billboardImage=?"); if (index != -1) updateBillboard.setBytes(index+1, SerialisedImage);}
+            updateBillboard.setInt(updateList.size()+1 ,id);
+            updateBillboard.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
