@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.*;
 import java.io.*;
+import java.net.Authenticator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
@@ -44,10 +45,10 @@ class FunctionalityTest {
         } catch (UserAlreadyExistsException e) {
             try {
                 User user = new User("Liran", db);
-                user.setCanCreateBillboards(true, db);
-                user.setEditAllBillBoards(true, db);
-                user.setEditUsers(true, db);
-                user.setScheduleBillboards(true, db);
+                user.setCanCreateBillboards(true);
+                user.setEditAllBillBoards(true);
+                user.setEditUsers(true);
+                user.setScheduleBillboards(true);
             } catch (NoSuchUserException ignored) {}
         }
         try {
@@ -55,10 +56,10 @@ class FunctionalityTest {
         } catch (UserAlreadyExistsException e) {
             try {
                 User nopermsuser = new User("Lira", db);
-                nopermsuser.setCanCreateBillboards(false, db);
-                nopermsuser.setEditAllBillBoards(false, db);
-                nopermsuser.setEditUsers(false, db);
-                nopermsuser.setScheduleBillboards(false, db);
+                nopermsuser.setCanCreateBillboards(false);
+                nopermsuser.setEditAllBillBoards(false);
+                nopermsuser.setEditUsers(false);
+                nopermsuser.setScheduleBillboards(false);
             } catch (NoSuchUserException ignored) {}
         }
         // Write other mock data
@@ -70,7 +71,7 @@ class FunctionalityTest {
 
     @BeforeEach @Test
     void setUpAndLogin() throws SQLException, IOException{
-        Function<Credentials, Request> MakeLoginRequest = (Credentials credentials) -> new Request(LOGIN, credentials, null);
+        Function<Credentials, Request> MakeLoginRequest = (Credentials credentials) -> Request.loginReq(credentials);
         respondTo = new ClientHandler(null, null, null, new blinkyDB())::handleInboundRequest;
         // Create and send a login request
         noperms_session = (Session) respondTo.apply(MakeLoginRequest.apply(
@@ -145,7 +146,7 @@ class FunctionalityTest {
 
         Response authedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, session));
         Response unAuthedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, noperms_session));
-        Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(INVALID_BILLBOARD).apply(session));
+        Response nonExistentBillboardRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, session));
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !nonExistentBillboardRes.isStatus());
     }
 
@@ -153,8 +154,8 @@ class FunctionalityTest {
     void Create_BillBoard(){
 
         Response authedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), session));
-        Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session);
-        Response noBillboardRes = respondTo.apply(null, session);
+        Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session));
+        Response noBillboardRes = respondTo.apply(Request.createBillboardReq(null, session));
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
 
@@ -192,8 +193,12 @@ class FunctionalityTest {
 
     //TODO implement spec-compliant test
     @Test
-    void Get_Billboards(){
+    void List_Billboards(){
+        Response unAuthenticatedResponse = respondTo.apply(Request.listAllBillboardsReq(null));
+        Response adminResponse = respondTo.apply(Request.listAllBillboardsReq(session));
+        Response userResponse = respondTo.apply(Request.listAllBillboardsReq(noperms_session));
 
+        assertTrue(!unAuthenticatedResponse.isStatus() && adminResponse.isStatus() && userResponse.isStatus());
     }
 
     @Test
@@ -210,10 +215,18 @@ class FunctionalityTest {
     @Test
     void Remove_Scheduled(){
 
-        Response scheduleRes = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD));
+        Response scheduleRes = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD, session));
         Response scheduleResNoPerms = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD, noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
+    }
+
+    @Test
+    void List_Users(){
+        Response noPermsResponse = respondTo.apply(Request.listUsersReq(noperms_session));
+        Response permsResponse = respondTo.apply(Request.listUsersReq(session));
+
+        assertTrue(!noPermsResponse.isStatus() && permsResponse.isStatus());
     }
 
     @Test
@@ -222,13 +235,13 @@ class FunctionalityTest {
         Credentials altUserCredentials = session.serverUser.getSaltedCredentials();
 
         // Try to change own password - should succeed
-        Response changeSelf = respondTo.apply(Request.setPasswordReq(new Credentials(userCredentials.getUsername(), "Test")), noperms_session);
+        Response changeSelf = respondTo.apply(Request.setPasswordReq(new Credentials(userCredentials.getUsername(), "Test"), noperms_session));
 
         // Try to change someone else's password - should fail
-        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(altUserCredentials, "Test")), noperms_session);
+        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(altUserCredentials.getUsername(), "Test"), noperms_session));
 
         // Non existent user
-        Response changeNonExistentUser = respondTo.apply(Request.setPasswordReq(new Credentials("Non-existent user", "Test")), noperms_session);
+        Response changeNonExistentUser = respondTo.apply(Request.setPasswordReq(new Credentials("Non-existent user", "Test"), noperms_session));
 
         assertTrue(changeSelf.isStatus() && !changeOtherUser.isStatus() && !changeNonExistentUser.isStatus());
     }
@@ -242,7 +255,7 @@ class FunctionalityTest {
         Response changeSelf = respondTo.apply(Request.setPasswordReq(new Credentials(adminCredentials.getUsername(), "Test"), session));
 
         // Try to change someone else's password - should succeed
-        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(adminCredentials, "Test")), session);
+        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(adminCredentials.getUsername(), "Test"), session));
 
         assertTrue(changeSelf.isStatus() && !changeOtherUser.isStatus());
     }
@@ -258,23 +271,43 @@ class FunctionalityTest {
         // Admin attempts to delete a user (who we know exists) - should succeed
         Response adminDeleteUser = respondTo.apply(Request.deleteUserReq(userCredentials.getUsername(), session));
 
-        assertTrue(!userAttemptDelete.isStatus() && adminDeleteUser.isStatus() && !adminDeleteSelf.isStatus());
+        // Admin attempts to delete self - should fail
+        Response adminDeleteSelf = respondTo.apply(Request.deleteUserReq(adminCredentials.getUsername(), session));
+
+        assertTrue(!userAttemptDelete.isStatus() && adminDeleteUser.isStatus());
     }
 
     // Special case - admins cannot delete themselves
     @Test
-    void deleteUser() {
+    void adminDeleteSelf() {
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
-
 
         Response adminDeleteSelf = respondTo.apply(Request.deleteUserReq(adminCredentials.getUsername(), session));
 
         assertTrue(!adminDeleteSelf.isStatus());
     }
+
     @Test
     void changeUserPermissions(){
 
-        assertTrue(!adminDeleteSelf.isStatus());
+        Response adminEditPermissions = respondTo.apply(Request.setUserPermissionsReq(noperms_session.serverUser, session));
+        Response nonAdminEditPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser, noperms_session));
+
+        assertTrue(!adminEditPermissions.isStatus() && nonAdminEditPermissions.isStatus());
+    }
+
+    @Test
+    void getUserPermissions(){
+        // Get user's own permissions - should succeed
+        Response selfPermissionsReq = respondTo.apply(Request.getUserPermissionsReq(noperms_session.username, noperms_session));
+
+        // Admin get another user's permissions
+        Response adminCheckUserPerms = respondTo.apply(Request.getUserPermissionsReq(noperms_session.username, session));
+
+        // User attempts to get another user's permissions
+        Response userCheckPermissions = respondTo.apply(Request.getUserPermissionsReq(session.username, noperms_session));
+
+        assertTrue(selfPermissionsReq.isStatus() && adminCheckUserPerms.isStatus() && !userCheckPermissions.isStatus());
     }
 
     // A special case- the admin must not be able to remove edit users perm. from self ...
@@ -283,9 +316,9 @@ class FunctionalityTest {
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
         //... should fail
-        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session));
+        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser, session));
 
-        assertTrue(!adminDeleteSelf.isStatus());
+        assertTrue(!adminRemoveSelfPermissions.isStatus());
     }
 
     @AfterAll()
