@@ -28,6 +28,9 @@ import java.util.function.Function;
 
 import static SocketCommunication.ServerRequest.*;
 
+/**
+ * A suite of tests to ensure that permissions are being handled according to specification
+ */
 class FunctionalityTest {
     Session session;
     Session noperms_session;
@@ -105,8 +108,7 @@ class FunctionalityTest {
 
     @Test
     void ViewerCurrentlyScheduled(){
-        // Do not attempt to authenticate - pass null in as the session
-        Request ScheduledBillboardRequest = new Request(VIEWER_CURRENTLY_SCHEDULED, null, null);
+        Request ScheduledBillboardRequest = new Request.scheduledBillboardReq();
 
         // Retrieve billboard from request
         Response res = respondTo.apply(ScheduledBillboardRequest);
@@ -122,7 +124,7 @@ class FunctionalityTest {
 
     @Test
     void GetBillboards(){
-        Request BillboardsRequest = new Request(LIST_BILLBOARDS, null, session);
+        Request BillboardsRequest = Request.listAllBillboardsReq(session);
 
         Response res = respondTo.apply(BillboardsRequest);
 
@@ -135,93 +137,156 @@ class FunctionalityTest {
         }
     }
 
+    static final int    VALID_BILLBOARD = 0,
+                        VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER = 1,
+                        CURRENTLY_SCHEDULED_BILLBOARD = 2,
+                        INVALID_BILLBOARD = 999;
     @Test
     void Delete_Billboard(){
-        Function<Number, Function<Session, Request>> EditBillboardRequest = (Number id) -> (Session session) -> new Request(DELETE_BILLBOARD, 0, session);
-        Response authedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(session));
-        Response unAuthedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
-        Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(999).apply(session));
+
+        Response authedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, session));
+        Response unAuthedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, noperms_session));
+        Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(INVALID_BILLBOARD).apply(session));
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !nonExistentBillboardRes.isStatus());
     }
 
     @Test
     void Create_BillBoard(){
-        Function<Session, Request> CreateBillboardRequest = (Session session) -> new Request(CREATE_BILLBOARD, DummyBillboards.messagePictureAndInformationBillboard(), session);
-        Response authedRes = respondTo.apply(CreateBillboardRequest.apply(session));
-        Response unAuthedRes = respondTo.apply(CreateBillboardRequest.apply(noperms_session));
-        Response noBillboardRes = respondTo.apply(new Request(CREATE_BILLBOARD, null, session));
+
+        Response authedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), session));
+        Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session);
+        Response noBillboardRes = respondTo.apply(null, session);
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
 
     @Test
     void Edit_Billboard(){
-        Function<Number, Function<Session, Request>> EditBillboardRequest = (Number id) -> (Session session) -> new Request(EDIT_BILLBOARD, 0, session);
-        Response authedRes = respondTo.apply(EditBillboardRequest.apply(0).apply(session));
-        Response unAuthedSameCreatorRes = respondTo.apply(EditBillboardRequest.apply(0).apply(noperms_session));
-        Response unAuthedSameCreatorScheduledRes = respondTo.apply(EditBillboardRequest.apply(2).apply(noperms_session));
-        Response unAuthedDifferentCreatorRes = respondTo.apply(EditBillboardRequest.apply(1).apply(noperms_session));
-        Response nonExistentBillboardRes = respondTo.apply(EditBillboardRequest.apply(999).apply(session));
+        Billboard mock = DummyBillboards.messagePictureAndInformationBillboard();
+
+        // User with edit billboards permission attempts to edit a billboard which exists
+        Response authedRes = respondTo.apply(Request.editBillboardReq(VALID_BILLBOARD, mock, session));
+
+        // User who does not have edit billboard permission attempts to edit a billboard which exists, but which they created
+        // FIXME - I don't think this test does what it purports to do - if it does, consider reframing the tests so that the context of what is going on is mroe obvious
+
+        Response unAuthedSameCreatorRes = respondTo.apply(Request.editBillboardReq(VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER, mock, noperms_session));
+        Response unAuthedSameCreatorScheduledRes = respondTo.apply(Request.editBillboardReq(CURRENTLY_SCHEDULED_BILLBOARD, mock, noperms_session));
+
+        // FIXME - I think this one again does something different to what it purports to do
+        Response unAuthedDifferentCreatorRes = respondTo.apply(Request.editBillboardReq(VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER, mock, noperms_session));
+        Response nonExistentBillboardRes = respondTo.apply(Request.editBillboardReq(INVALID_BILLBOARD, mock, session));
         assertTrue(authedRes.isStatus() && unAuthedSameCreatorRes.isStatus() && !unAuthedSameCreatorScheduledRes.isStatus() && !nonExistentBillboardRes.isStatus() && !unAuthedDifferentCreatorRes.isStatus());
     }
 
+    //FIXME - underlying function needs to be amended
+    /* DEPRECATED TEST - unnecessary for spec compliance
     @Test
     void Get_Billboards(){
         Function<String, Function<String, Request>> SearchBillboards = (String searchType) -> (String searchQuery) -> new Request(GET_BILLBOARD_INFO, new String[]{searchType, searchQuery}, session);
+        Response creatorSearchRes = respondTo.apply(Request.getBillboardInfoReq())
         Response creatorSearchRes = respondTo.apply(SearchBillboards.apply("billboard_id").apply("0"));
         Response durationSearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("10"));
         Response emptySearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("100000000"));
 
         assertTrue(creatorSearchRes.isStatus() && durationSearchRes.isStatus() && emptySearchRes.isStatus() && ((List<Billboard>) emptySearchRes.getData()).isEmpty());
+    }*/
+
+    //TODO implement spec-compliant test
+    @Test
+    void Get_Billboards(){
+
     }
 
     @Test
     void Schedule_Billboard(){
         Billboard mock = DummyBillboards.messageAndPictureBillboard();
         // Set a schedule for the billboard
-        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, mock, session);
-        Response scheduleRes = respondTo.apply(ScheduleRequestCreator.apply(session));
-        Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
+
+        Response scheduleRes = respondTo.apply(Request.scheduleBillboard(mock, session));
+        Response scheduleResNoPerms = respondTo.apply(Request.scheduleBillboard(mock, noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
     }
 
     @Test
     void Remove_Scheduled(){
-        Function<Session, Request> ScheduleRequestCreator = (Session session) -> new Request(SCHEDULE_BILLBOARD, 0, session);
-        Response scheduleRes = respondTo.apply(ScheduleRequestCreator.apply(session));
-        Response scheduleResNoPerms = respondTo.apply(ScheduleRequestCreator.apply(noperms_session));
+
+        Response scheduleRes = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD));
+        Response scheduleResNoPerms = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD, noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
     }
 
     @Test
     void userChangePassword(){
+        Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
+        Credentials altUserCredentials = session.serverUser.getSaltedCredentials();
 
+        // Try to change own password - should succeed
+        Response changeSelf = respondTo.apply(Request.setPasswordReq(new Credentials(userCredentials.getUsername(), "Test")), noperms_session);
+
+        // Try to change someone else's password - should fail
+        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(altUserCredentials, "Test")), noperms_session);
+
+        // Non existent user
+        Response changeNonExistentUser = respondTo.apply(Request.setPasswordReq(new Credentials("Non-existent user", "Test")), noperms_session);
+
+        assertTrue(changeSelf.isStatus() && !changeOtherUser.isStatus() && !changeNonExistentUser.isStatus());
     }
 
     @Test
     void adminChangePassword(){
+        Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
+        Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
+        // Try to change own password - should succeed
+        Response changeSelf = respondTo.apply(Request.setPasswordReq(new Credentials(adminCredentials.getUsername(), "Test"), session));
+
+        // Try to change someone else's password - should succeed
+        Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(adminCredentials, "Test")), session);
+
+        assertTrue(changeSelf.isStatus() && !changeOtherUser.isStatus());
     }
 
     @Test
     void deleteUser(){
+        Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
+        Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
+        // User attempts to exercise deletion power - should fail
+        Response userAttemptDelete = respondTo.apply(Request.deleteUserReq(userCredentials.getUsername(), noperms_session));
+
+        // Admin attempts to delete a user (who we know exists) - should succeed
+        Response adminDeleteUser = respondTo.apply(Request.deleteUserReq(userCredentials.getUsername(), session));
+
+        assertTrue(!userAttemptDelete.isStatus() && adminDeleteUser.isStatus() && !adminDeleteSelf.isStatus());
     }
 
-    @Test // Special case - admins cannot delete themselves
-    void adminDeleteSelf(){
+    // Special case - admins cannot delete themselves
+    @Test
+    void deleteUser() {
+        Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
+
+        Response adminDeleteSelf = respondTo.apply(Request.deleteUserReq(adminCredentials.getUsername(), session));
+
+        assertTrue(!adminDeleteSelf.isStatus());
     }
-
     @Test
     void changeUserPermissions(){
 
+        assertTrue(!adminDeleteSelf.isStatus());
     }
 
-    @Test // A special case- the admin must not be able to remove edit users perm. from self
+    // A special case- the admin must not be able to remove edit users perm. from self ...
+    @Test
     void adminRemoveOwnEditUserPermission(){
+        Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
+        //... should fail
+        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session));
+
+        assertTrue(!adminDeleteSelf.isStatus());
     }
 
     @AfterAll()
