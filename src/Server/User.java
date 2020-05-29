@@ -4,11 +4,12 @@ import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-public class User {
+public class User implements Serializable {
 
     private Credentials saltedCredentials;
     public Credentials getSaltedCredentials() {
@@ -99,33 +100,32 @@ public class User {
      */
     public boolean MatchUnsaltedCredentials(Credentials inputCredentials){
         byte[] SaltedInput = AuthenticationHandler.HashPasswordHashSalt(inputCredentials.getPasswordHash(), salt);
-        //Arrays.equals(AuthenticationHandler.HashPasswordHashSalt(new Credentials("Liran", "SeaMonkey123").getPasswordHash(), salt), credentials.getPasswordHash());
         // The user's credentials are already salted and rehashed
         return Arrays.equals(saltedCredentials.getPasswordHash(), SaltedInput);
     }
 
     /** Setters **/
-    public void setPasswordFromCredentials(Credentials newCredentials, blinkyDB database) throws SQLException { // Change user password. Changing the user's username is not allowed.
+    public void setPasswordFromCredentials(Credentials newCredentials, blinkyDB database) { // Change user password. Changing the user's username is not allowed.
         this.saltedCredentials = new Credentials(this.saltedCredentials.getUsername(), AuthenticationHandler.HashPasswordHashSalt(newCredentials.getPasswordHash(), salt));
     }
 
-    public void setSalt(byte[] salt) throws SQLException {
+    public void setSalt(byte[] salt) {
         this.salt = salt;
     }
 
-    public void setCanCreateBillboards(boolean canCreateBillboards) throws SQLException {
+    public void setCanCreateBillboards(boolean canCreateBillboards) {
         CanCreateBillboards = canCreateBillboards;
     }
 
-    public void setEditAllBillBoards(boolean editAllBillBoards) throws SQLException {
+    public void setEditAllBillBoards(boolean editAllBillBoards) {
         EditAllBillBoards = editAllBillBoards;
     }
 
-    public void setScheduleBillboards(boolean scheduleBillboards) throws SQLException {
+    public void setScheduleBillboards(boolean scheduleBillboards) {
         ScheduleBillboards = scheduleBillboards;
     }
 
-    public void setEditUsers(boolean editUsers) throws SQLException {
+    public void setEditUsers(boolean editUsers) {
         EditUsers = editUsers;
     }
 }
