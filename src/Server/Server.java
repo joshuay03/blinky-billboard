@@ -1,6 +1,7 @@
 package Server;
 
 import Exceptions.AuthenticationFailedException;
+import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 import SocketCommunication.SocketConnection;
 
@@ -18,6 +19,9 @@ import java.util.Random;
 public class Server extends SocketConnection {
     private ServerSocket server;
     private Socket client;
+    // The list of currently valid tokens is intentionally stored only in memory, and not in the database,
+    // because we don't want it to persist server restarts
+    //private List<Token> tokens;
     private blinkyDB database;
 
     /**
@@ -26,6 +30,15 @@ public class Server extends SocketConnection {
      */
     public Server(String propFile) {
         super(propFile);
+        try {
+            this.database = new blinkyDB();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("db.props file not found.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Connection to database failed.");
+        }
     }
 
     /**
@@ -35,39 +48,10 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            if (connectToDB(0) == false) { close(); }
         }
         catch(Exception e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
         }
-    }
-
-    /**
-     * Method which tries instantiating a database connection.
-     * @param numTries
-     * @return
-     */
-    private boolean connectToDB(int numTries) {
-        int tries = numTries;
-        try { this.database = new blinkyDB(); }
-        catch(SQLException e) {
-            e.printStackTrace();
-            System.out.println("Connection to database failed. Attempting connection again in 10 seconds.");
-            if (tries < 2) {
-                try { Thread.sleep(10000); } catch (InterruptedException t) {};
-                tries++;
-                connectToDB(tries);
-            }
-            else {
-                System.out.println("The connection has been attempted multiple times. Closing the server.");
-                return false;
-            }
-        }
-        catch(IOException e) {
-            System.out.println("db.props file not found. Closing server.");
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -90,27 +74,32 @@ public class Server extends SocketConnection {
     }
 
     /**
-     * A method to handle incoming socket requests and allocate a new thread independently
+     * A method to handle incoming socket requests and allocate a new thread indipendently
      * to each socket. Creates a new input and output stream, and a client and passes these objects
      * to the clientHandler object.
      * @see ClientHandler
      */
-    public void createClientThread() throws Exception{
-        // socket object to receive incoming client requests
-        client = server.accept();
+    public void createClientThread() {
+        try {
+            // socket object to receive incoming client requests
+            client = server.accept();
 
-        System.out.println("A new client is connected : " + client);
+            System.out.println("A new client is connected : " + client);
 
-        // obtaining input and output streams
-        DataInputStream input = new DataInputStream(client.getInputStream());
-        DataOutputStream output = new DataOutputStream(client.getOutputStream());
+            // obtaining input and output streams
+            DataInputStream input = new DataInputStream(client.getInputStream());
+            DataOutputStream output = new DataOutputStream(client.getOutputStream());
 
-        System.out.println("Assigning new thread for this client");
-        // create a new thread object
-        Thread thread = new ClientHandler(client, input, output, database);
+            System.out.println("Assigning new thread for this client");
+            // create a new thread object
+            Thread thread = new ClientHandler(client, input, output, database);
 
-        // Start the thread
-        thread.start();
+            // Start the thread
+            thread.start();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -122,21 +111,25 @@ public class Server extends SocketConnection {
     }
 
     public static void main(String[] args){
-        Server server = new Server("properties.txt");
+        Server server = new Server(System.getProperty("user.dir") + "/properties.txt");
         try {
             server.start();
-            // Create a root user
-            new User(new Credentials("Root", "root"), true, true, true, true, server.database);
-
             boolean serverOpen = server.isServerAliveUtil();
+            try {
+                new User(new Credentials("Root", "root"), true, true, true, true, server.database);
+            }
+            catch (UserAlreadyExistsException ignored) {}
             System.out.println("Server Alive: " + serverOpen);
-            if (serverOpen)
-                System.out.println("Currently operating on port: " + server.getPort());
-
-            //noinspection InfiniteLoopStatement - Server is supposed to run in an infinite loop
-            while (serverOpen) {
-                serverOpen = server.isServerAliveUtil();
-                server.createClientThread();
+            System.out.println("Currently operating on port: " + server.getPort());
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                if (serverOpen) {
+                    server.createClientThread();
+                }
+                else {
+                    server.close();
+                    serverOpen = false;
+                }
             }
         }
         catch (Exception e) {

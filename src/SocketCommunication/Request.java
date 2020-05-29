@@ -6,10 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 
 
-public class Request implements Serializable, Cloneable {
+public class Request implements Serializable {
     public ServerRequest requestType;
     private Session session; //can be null
     private Object data; // can be null
@@ -39,15 +38,8 @@ public class Request implements Serializable, Cloneable {
      * @return A new request with an attached session
      */
     public Request withSession(Session session){
-        Request newReq = null;
-        try {
-            newReq = (Request)this.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        assert newReq != null;
-        newReq.session = session;
-        return newReq;
+        this.session = session;
+        return this;
     }
 
     /**

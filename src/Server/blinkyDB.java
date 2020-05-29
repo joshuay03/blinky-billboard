@@ -1,16 +1,26 @@
 package Server;
 
-import Exceptions.NoSuchUserException;
+import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import SocketCommunication.Credentials;
-import org.mariadb.jdbc.internal.com.read.resultset.UpdatableColumnDefinition;
+import SocketCommunication.Response;
 
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 
 public class blinkyDB {
     private DBProps props;
@@ -21,10 +31,11 @@ public class blinkyDB {
      * @throws IOException If db.props isn't found
      * @throws SQLException If there's a problem connecting to the database
      */
-    public blinkyDB() throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
+    public blinkyDB(Boolean dropSchema) throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
         props = new DBProps(); // Read db.props
         // Ensure the schema exists
         Connection init_schema = DriverManager.getConnection("jdbc:mariadb://"+props.url+":3306/", props.username, props.password);
+        if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
         init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
         init_schema.close();
         // Start a database connection
@@ -38,13 +49,20 @@ public class blinkyDB {
             dbconn.createStatement().executeQuery(toExec);
         }
     }
-    protected ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
+
+    public blinkyDB() throws IOException, SQLException {
+        blinkyDB newDB = new blinkyDB(false);
+        this.dbconn = newDB.dbconn;
+        this.props = newDB.props;
+    }
+
+    public ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
                 "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
         dbconn.setAutoCommit(false);
         getBillboards = dbconn.prepareStatement(billboardLookUpString);
-        if (searchQuery != null && searchType != null)
+        if (billboardLookUpString.contains("?"))
         {
             getBillboards.setString(1, searchType);
             getBillboards.setString(2, searchQuery);
@@ -53,12 +71,55 @@ public class blinkyDB {
         return getBillboards.executeQuery();
     }
 
-    protected ResultSet getBillboards(String searchQuery) throws SQLException{
-        return this.getBillboards(searchQuery, "creator");
+    public ResultSet getBillboards() throws SQLException {
+        return this.getBillboards(null, null);
     }
 
-    protected ResultSet getBillboards() throws SQLException {
-        return this.getBillboards(null, null);
+    public void CreateViewer(String socket) throws SQLException {
+        String ViewerCreationString = "INSERT INTO blinkyBillboard.Viewers\n" +
+                "(socket)\n" +
+                "VALUES(?);\n";
+        PreparedStatement ViewerInserter = dbconn.prepareStatement(ViewerCreationString);
+        dbconn.setAutoCommit(false);
+        ViewerInserter.setString(1, socket);
+        ViewerInserter.executeUpdate();
+        try{dbconn.commit();}
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
+        assert creator != null;
+        // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
+        Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
+                Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
+        String BillboardInsertQuery = "INSERT INTO Billboards\n" +
+                "(creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
+                "VALUES(?, ?, ?, ?, ?, ?, ?);\n";
+        dbconn.setAutoCommit(false);
+        byte[] SerialisedImage;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+            SerialisedImage = bos.toByteArray();
+        } catch (IOException e) { SerialisedImage = new byte[0]; }
+        PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+        try {
+            insertBillboard.setString(1, creator);
+            insertBillboard.setInt(2, ((Color)getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+            insertBillboard.setInt(3, ((Color)getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+            insertBillboard.setInt(4, ((Color)getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+            insertBillboard.setString(5, ((String)getPropertySafely.apply(Billboard::getMessage)));
+            insertBillboard.setString(6, ((String)getPropertySafely.apply(Billboard::getInformation)));
+            insertBillboard.setBytes(7, SerialisedImage);
+            insertBillboard.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
     }
 
     /**
@@ -91,7 +152,27 @@ public class blinkyDB {
 
         dbconn.setAutoCommit(true);
         return UserLookUp.executeQuery(); // Run the query
-        //rs.next(); // Go to the first result (which should be the only result in this case
+    }
+
+    protected ResultSet LookUpAllUserDetails() throws SQLException {
+        PreparedStatement UserLookUp; // Create the prepared statement object
+        String userLookUpString = "select * from Users"; // Define the query to run
+        dbconn.setAutoCommit(false);
+
+        UserLookUp = dbconn.prepareStatement(userLookUpString); // Compile the statement
+
+        dbconn.setAutoCommit(true);
+        return UserLookUp.executeQuery(); // Run the query
+    }
+
+    public ResultSet getSchedules(LocalDateTime time) throws SQLException {
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
+        PreparedStatement ScheduleLookUp;
+        dbconn.setAutoCommit(false);
+        ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);
+        ScheduleLookUp.setTimestamp(1, Timestamp.valueOf(time));
+        dbconn.setAutoCommit(true);
+        return ScheduleLookUp.executeQuery();
     }
 
     /**
@@ -130,15 +211,8 @@ public class blinkyDB {
             dbconn.commit();
         }
         catch (SQLException e) {
-            try { // If the insertion failed
-                dbconn.rollback();
-                throw e;
-            }
-            catch (SQLException excep)
-            { // If the rollback failed
-                System.out.println("Couldn't roll back transaction - " + excep.toString());
-                throw excep;
-            }
+            dbconn.rollback(); // Try to rollback
+            throw e;
         }
         dbconn.setAutoCommit(true);
     }
@@ -159,15 +233,13 @@ public class blinkyDB {
                 "SET user_permissions=?, password_hash=?, salt=?\n" +
                 "WHERE user_name=?;";
 
-        byte[] Salted = AuthenticationHandler.HashPasswordHashSalt(user.getCredentials().getPasswordHash(), user.salt);
-
         dbconn.setAutoCommit(false);
         PreparedStatement updateUser = dbconn.prepareStatement(userUpdateString);
         try{
             updateUser.setString(1, new String(permissions));
-            updateUser.setBytes(2, Salted);
+            updateUser.setBytes(2, user.getSaltedCredentials().getPasswordHash());
             updateUser.setBytes(3, user.salt);
-            updateUser.setString(4, user.getCredentials().getUsername());
+            updateUser.setString(4, user.getSaltedCredentials().getUsername());
 
             updateUser.executeUpdate();
             dbconn.commit();

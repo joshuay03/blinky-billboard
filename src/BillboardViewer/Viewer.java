@@ -4,9 +4,14 @@ import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import BillboardSupport.DummyBillboards;
 import Client.ClientConnector;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
+import SocketCommunication.ServerRequest;
+import SocketCommunication.Session;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 import javax.swing.*;
 
@@ -52,6 +57,7 @@ public class Viewer extends JFrame implements ActionListener   {
         this.setSize(screenSize);
         this.setVisible(true);
 
+        this.connector = new ClientConnector("properties.txt");
     }
 
     public static void main(String[] args) {
@@ -78,16 +84,22 @@ public class Viewer extends JFrame implements ActionListener   {
         });
     }
 
-    static int counter;
     @Override
     public void actionPerformed(ActionEvent e) {
         // Timer handling
         if(e.getSource() == refreshTimer){
+            System.out.println("Attempting to refresh");
 
-            // TODO - implement network retrieval of billboard
-            currentBillboard = DummyBillboards.messagePictureAndInformationBillboard();
-            currentBillboard.setMessage("Have ticked over " + counter + " times");
-            counter++;
+            Response response;
+
+            try {
+                connector.start();
+                response = connector.sendRequest(new Request(ServerRequest.VIEWER_CURRENTLY_SCHEDULED, null, null));
+                connector.close();
+                currentBillboard = (Billboard) response.getData();
+            } catch (IOException ex) {
+                currentBillboard = Billboard.errorBillboard();
+            }
 
             // Clear the deck to avoid memory blowout over time
             if(displayedBillboard != null) this.getContentPane().remove(displayedBillboard);

@@ -1,12 +1,12 @@
 package Server;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.DummyBillboards;
 import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -17,21 +17,20 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 
-import static SocketCommunication.ServerRequest.*;
+import static SocketCommunication.ServerRequest.LOGIN;
+import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 /**
  * A class to handle each client individually on an assigned thread.
  * Implements the SocketCommunication interface for communicating directly with the client socket.
  * @see SocketCommunication
  */
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread implements SocketCommunication {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
     private blinkyDB database;
-    private Session session;
 
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;
@@ -54,6 +53,9 @@ public class ClientHandler extends Thread {
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
                     outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
                 }
+                catch (IllegalStateException e){
+                    outputWriter.writeObject(new Response(false, e.getMessage())); // Send a response to the client, informing it that an invalid request has been sent
+                }
                 catch (Exception e)
                 {
                     e.printStackTrace();
@@ -67,21 +69,23 @@ public class ClientHandler extends Thread {
     }
 
     /**
-     * A function which takes requests and returns a response object, to be sent back Todo: Rewrite the function to do something other than returning a string
+     * A function which takes a request and returns a response object, to be sent back
      * @param req The request to handle
-     * @return A response Todo: Replace the string with a response object
+     * @return A response
      */
     public Response handleInboundRequest(Request req) {
-        // Invalid Request Error generator
-        Function<Request, Response> InvalidRequestError = (Request requ) -> new Response(false, String.format("Invalid %s request", requ.getRequestType().toString()));
-        Token sessionAuthentication = null;
-        User requester = null; // Details about the authenticated user making the request, such as its permissions
-        // Request types specified here will not require authentication to use - intended for LOGIN requests and requests made by a viewer.
-        List<ServerRequest> authlessReqs = Arrays.asList(LOGIN, VIEW_SCHEDULED_BILLBOARD);
-        if(!authlessReqs.contains(req.getRequestType())) // Verify the token before continuing, except for authless requests
+        final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
+        User authenticatedUser = null;
+        List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
+        if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
-                sessionAuthentication = Token.validate(session.token);
+                Token sessionAuthentication = Token.validate(req.getSession().token);
+                try {
+                    authenticatedUser = new User(sessionAuthentication.username, database);
+                } catch (NoSuchUserException e) {
+                    return new Response(false, "The user this token was assigned to is not registered.");
+                }
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
@@ -92,102 +96,115 @@ public class ClientHandler extends Thread {
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
             }
-            try {
-                requester = new User(sessionAuthentication.username, database);
-            } catch (NoSuchUserException e) {
-                return new Response(false, "The user this token was assigned to is not registered.");
-            }
         }
+        // Example handle login
         switch(req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED:
-                break;
+            {
+                return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
+            }
             case LOGIN:
             {
                 // EXAMPLE how to use the request given from the client
                 Credentials credentials;
-                try {credentials = (Credentials) req.getData();} // Try reading credentials from the request since presumably that's what they are
-                catch (Exception e){
-                    return new Response(false, "Missing username or password");
-                }
+                try{
+                    credentials = (Credentials)req.getData();
+                }catch (Exception e)
+                {return new Response(false, "Missing username or password");}
                 try {
-                    // User the real server for the parameter not null
-                    session = new Session(credentials, database);
+                    return new Response(true, new Session(credentials, database));
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
                     return new Response( false, "Cannot create session.");
                 }
-
-                return new Response(true, session);
             }
-            case LIST_BILLBOARD:
+            case LIST_BILLBOARDS:
             {
-                session = req.getSession();
-                Response res = null;
-                ResultSet rs = null;
-                try {
-                    rs = database.getBillboards();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                class BillboardList {
+                    List<Billboard> billboardList;
+                    public BillboardList(List<Billboard> billboardList) {
+                        this.billboardList = billboardList;
+                    }
                 }
+                Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
-                ArrayList<Billboard> billboardList = new ArrayList<>();
+                List<Billboard> billboardList = new ArrayList<>();
                 try{
-                    assert rs != null;
+                    ResultSet rs = database.getBillboards();
                     while (rs.next()){
                         // For each returned billboard from the database
-                        billboardList.add(new Billboard());
+                        Object image;
+                        try{
+                            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+                            ObjectInput in = new ObjectInputStream(bis);
+                            image = in.readObject();
+                        }
+                        catch (Exception e){
+                            image = null;
+                        }
+                        Billboard current = new Billboard();
+                        current.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+                        current.setCreator(rs.getString("creator"));
+                        current.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+                        current.setMessageColour(new Color(rs.getInt("messageColour")));
+                        current.setInformationColour(new Color(rs.getInt("informationColour")));
+                        current.setMessage(rs.getString("message"));
+                        current.setInformation(rs.getString("information"));
+                        current.setImageData((String) image);
+                        billboardList.add(current);
                     }
                 } catch (SQLException e){
                     return new Response(false, "There was an SQL error");
                 }
-                // The billboard list now has all of the returned billboards
-                return new Response(true, billboardList); // break;
+                // The billboard list now has all of the returned billboards - convert to an array and return
+                return new Response(true, billboardList.toArray(new Billboard[0]));
             }
-
             case GET_BILLBOARD_INFO:
-            {
+                // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
                 // this is triggered inside the BillboardList()); GUI
-                // The control panel send the server the Billboard Name
-                ArrayList<Billboard> billboards = new ArrayList<>();
-                try {
-                    ResultSet billboardsResult = database.getBillboards(((String[])req.getData())[0],((String[])req.getData())[1]);
-                    while (billboardsResult.next()){
-                        billboards.add(new Billboard(
-                                Color.decode(billboardsResult.getString("backgroundColour")),
-                                Color.decode(billboardsResult.getString("messageColour")),
-                                Color.decode(billboardsResult.getString("informationColour")),
-                                billboardsResult.getString("message"),
-                                billboardsResult.getString("information"),
-                                new ImageIcon(billboardsResult.getBytes("billboardImage")),
-                                null, // Todo: Get scheduled time from database
-                                billboardsResult.getInt("duration"),
-                                0, // Todo: Get repeat interval from database
-                                billboardsResult.getInt("billboard_id")
-                                ));
-                    }
-                } catch (SQLException e) {
-                    return new Response(false, "There was an SQL error");
-                }
-                return new Response(true, billboards);
-                //server responds with billboards list
-            }
+                // The control panel send the server the Billboard Name and valid session
+                // token e.g session = req.getSession();
+
+                //server responds with billboards contents
+
+
+                break;
             case CREATE_BILLBOARD:
+            {
+                assert authenticatedUser != null;
+                Billboard billboard;
+                try{
+                    billboard = (Billboard) req.getData();
+                }catch (Exception e)
+
+                {return new Response(false, "Invalid billboard object"); }
+
+                if(authenticatedUser.CanCreateBillboards)
+                {
+
+                } else return permissionDeniedResponse;
+
                 // triggered inside CreateBillboards() GUI
-                // user with "Create Billboards" permission
+                // user with "Create Billboards" permission // inside Gui
+
+
 
                 // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
-                // something like String billboardName = ((Billboard)req.getData().getName()).get(billboardName);
+                // something like String billboardName = req.getData().get(billboardName);
+                String billboardInfo = billboard.getInformation();
+
+
 
                 // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
 
                 // if billboard does exist
-                // determine whether the creator == session's user
+                // get list of billboards session user has created
                 // if billboardName in list make edit if not return error
 
                 // if billboardName does not exist create new billboard
 
                 // if billboardName exist and is currently scheduled edit can not be made return error
                 // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
-
+            }
                 break;
             case EDIT_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
@@ -264,15 +281,30 @@ public class ClientHandler extends Thread {
 
                 break;
             case LIST_USERS:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+            {
                 // request only happens if user has 'Edit Users' permission
-                // triggered inside EditUsers() GUI
+                assert authenticatedUser != null;
+                if (authenticatedUser.EditUsers){
+                    // triggered inside EditUsers() GUI
+                    try {
+                        List<String> usernames = new ArrayList<>();
+                        ResultSet rs = database.LookUpAllUserDetails();
+                        while (rs.next())
+                        {
+                            usernames.add(rs.getString("user_name"));
+                        }
+                        return new Response(true, usernames);
+                        // Server responds with list of usernames (CRA then says "and any other information your teams feels appropriate")
+                    } catch (SQLException e) {
+                        return new Response(false, "Lookup failed.");
+                    }
 
-                // Client sends server valid session token
-                // Server responds with list of usernames (CRA then says "and any other information your teams feels appropriate")
-
-                break;
+                }
+                else
+                {
+                    return permissionDeniedResponse;
+                }
+            }
             case CREATE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
@@ -342,13 +374,14 @@ public class ClientHandler extends Thread {
 
                 break;
             case LOGOUT:
-            {
-             sessionAuthentication = null; // Reset the session's authentication
-             return new Response(true, "Logout successful.");
-            }
+                // Client will send server valid session token
+
+                // server will expire session token and send back and acknowledgement
+                break;
         }
-        // If the request type doesn't match any of the types the server is made to handle
-        return new Response(false, String.format("%s is not a valid request type.", req.getRequestType().toString()));
+        // If the request is invalid:
+        return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
+        //throw new IllegalStateException("Invalid request type: " + req.getRequestType());
     }
 
     public boolean closeConnection() {
@@ -364,5 +397,15 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         }
         return closed;
+    }
+
+    @Override
+    public void sendOutput(String msg) {
+
+    }
+
+    @Override
+    public void retrieveInput() {
+
     }
 }

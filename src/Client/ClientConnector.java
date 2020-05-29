@@ -20,7 +20,7 @@ import java.util.Arrays;
  * @see SocketConnection
  */
 public class ClientConnector extends SocketConnection {
-    Session session; // Starts empty, stays empty on Viewers
+    public Session session; // Starts empty, stays empty on Viewers
     Socket socket;
     DataInputStream input;
     DataOutputStream output;
@@ -104,7 +104,8 @@ public class ClientConnector extends SocketConnection {
         // Read the response from the server
         try {
             ObjectInputStream ois = new ObjectInputStream(input);
-            res = (Response) ois.readObject();
+            res = (Response)ois.readObject();
+            System.out.println("Response: " + res);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

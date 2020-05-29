@@ -3,20 +3,38 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
+import SocketCommunication.Request;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.tools.Tool;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
+
+import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
@@ -24,38 +42,37 @@ import java.time.LocalDateTime;
  */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
-    protected JButton importButton;
-    protected JButton exportButton;
+    protected JPanel titlePanel;
+    protected JButton backButton;
     protected JLabel createBillboardsLabel;
     protected JPanel optionPanel;
+    protected JButton importButton;
+    protected JButton exportButton;
     protected JPanel createPanel;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
     protected JButton messageColourButton;
-    protected JLabel pictureLabel;
-    protected JFormattedTextField pictureFormattedTextField;
+    protected JButton pictureButton;
+    protected JLabel pictureURLLabel;
+    protected JFormattedTextField pictureURLFormattedTextField;
     protected JLabel informationLabel;
     protected JTextArea informationTextArea;
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton viewBillboardButton;
-    private JButton backButton;
-    private JPanel titlePanel;
 
-    protected Color backgroundColour;
-    protected String messageText;
-    protected Color messageColor;
-    protected String informationText;
-    protected Color informationColor;
-    protected String pictureText;
+    protected Billboard billboard;
 
     protected ColourChooser colourChooser = new ColourChooser();
+    protected JFrame previewFrame;
 
     /**
      *
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
+        billboard = new Billboard();
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -84,59 +101,66 @@ public class CreateBillboards {
                 chooser.setFileFilter(filter);
                 int returnVal = chooser.showOpenDialog(null);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File xmlFile = chooser.getSelectedFile();
+                    billboard = Billboard.getBillboardFromXML(xmlFile);
+
+                    messageTextArea.setText(billboard.getMessage());
+                    informationTextArea.setText(billboard.getInformation());
+
+                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
+
+
+                }
+            }
+        });
+
+        exportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                Document XMLRep = billboard.getXMLRepresentation();
+
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showSaveDialog(null);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File fileLocation = chooser.getSelectedFile();
+
                     try {
-                        File xmlFile = chooser.getSelectedFile();
-                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                        Document doc = dBuilder.parse(xmlFile);
-                        doc.getDocumentElement().normalize();
+                        // create the xml file
+                        //transform the DOM Object to an XML File
+                        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                        Transformer transformer = transformerFactory.newTransformer();
+                        DOMSource domSource = new DOMSource(XMLRep);
+                        StreamResult streamResult = new StreamResult(fileLocation);
 
-                        NodeList billboardNodes = doc.getElementsByTagName("billboard");
-                        if (billboardNodes.getLength() > 0) {
-                            if (billboardNodes.item(0).getAttributes().getLength() > 0) {
-                                backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
-                            }
-                        }
-
-                        NodeList messageNodes = doc.getElementsByTagName("message");
-                        if (messageNodes.getLength() > 0) {
-                            messageText = messageNodes.item(0).getTextContent();
-
-                            if (messageNodes.item(0).getAttributes().getLength() > 0) {
-                                messageColor = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
-                            }
-                        }
-
-                        NodeList informationNodes = doc.getElementsByTagName("information");
-                        if (informationNodes.getLength() > 0) {
-                            informationText = informationNodes.item(0).getTextContent();
-
-                            if (informationNodes.item(0).getAttributes().getLength() > 0) {
-                                informationColor = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
-                            }
-                        }
-
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                        transformer.transform(domSource, streamResult);
+                    } catch (TransformerConfigurationException ex) {
+                        ex.printStackTrace();
+                    } catch (TransformerException ex) {
+                        ex.printStackTrace();
                     }
                 }
+
+
             }
         });
 
         messageTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                messageText = messageTextArea.getText();
+                billboard.setMessage(messageTextArea.getText());
             }
         });
 
@@ -150,42 +174,77 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    messageColor = colourChooser.getColor();
+                    billboard.setMessageColour(colourChooser.getColor());
                 }
             }
         });
 
-        pictureFormattedTextField.getDocument().addDocumentListener(new DocumentListener() {
+        pictureButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Pictures", "bmp", "jpeg", "png");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showOpenDialog(null);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File pictureFile = chooser.getSelectedFile();
+                    try {
+                        billboard.setImageData(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes()).toString());
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        pictureURLFormattedTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
+                try {
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                } catch (MalformedURLException malformedURLException) {
+                    malformedURLException.printStackTrace();
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
+                try {
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                } catch (MalformedURLException malformedURLException) {
+                    malformedURLException.printStackTrace();
+                }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                pictureText = pictureFormattedTextField.getText();
+                try {
+                    billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                } catch (MalformedURLException malformedURLException) {
+                    malformedURLException.printStackTrace();
+                }
             }
         });
 
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                informationText = informationTextArea.getText();
+                billboard.setInformation(informationTextArea.getText());
             }
         });
 
@@ -199,7 +258,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    informationColor = colourChooser.getColor();
+                    billboard.setInformationColour(colourChooser.getColor());
                 }
             }
         });
@@ -214,7 +273,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
                 int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    backgroundColour = colourChooser.getColor();
+                    billboard.setBackgroundColour(colourChooser.getColor());
                 }
             }
         });
@@ -227,12 +286,51 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Billboard billboard = new Billboard(backgroundColour, messageColor, informationColor, messageText, informationText, new ImageIcon(pictureText), LocalDateTime.now(), 30, 5);
-                frame.setContentPane(new RenderedBillboard(billboard, new Dimension(900, 500)));
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
+                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
+                RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
+
+                previewFrame = new JFrame();
+                previewFrame.setSize(renderDimension);
+                previewFrame.setContentPane(renderedBillboard);
+                previewFrame.setVisible(true);
             }
         });
+    }
+
+    private void importXML(File xmlFile) {
+
+    }
+
+    private static String encodeFileToBase64Binary(File file) throws IOException {
+        byte[] bytes = loadFile(file);
+        byte[] encoded = Base64.getEncoder().encode(bytes);
+        String encodedString = new String(encoded, StandardCharsets.US_ASCII);
+
+        return encodedString;
+    }
+
+    private static byte[] loadFile(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
+
+        long length = file.length();
+        if (length > Integer.MAX_VALUE) {
+            // File is too large
+        }
+        byte[] bytes = new byte[(int)length];
+
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length
+                && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+            offset += numRead;
+        }
+
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file " + file.getName());
+        }
+
+        is.close();
+        return bytes;
     }
 }

@@ -1,5 +1,6 @@
 package BillboardSupport;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.text.AttributeSet;
@@ -7,6 +8,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Base64;
 
 public class RenderedBillboard extends JPanel {
 
@@ -41,7 +46,6 @@ public class RenderedBillboard extends JPanel {
      */
     public RenderedBillboard(Billboard board, Dimension renderDimensions) {
         super();
-        this.setSize(renderDimensions);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         //Initialise member objects
@@ -82,16 +86,28 @@ public class RenderedBillboard extends JPanel {
         messageContainer.setText(board.getMessage());
         informationContainer.setText(board.getInformation());
 
+        if(board.getImageURL() != null){
+            imageContainer.setIcon(getImageIconFromURL(board.getImageURL()));
+        } else if(board.getImageData() != null){
+            imageContainer.setIcon(getImageIconFromBase64(board.getImageData()));
+        }
+
         // Prevent the objects from being able to take focus
         messageContainer.setFocusable(false);
         informationContainer.setFocusable(false);
         imageContainer.setFocusable(false);
 
+        boolean hasImage = board.getImageURL() != null ^ board.getImageData() != null;
+
+        boolean hasInformation = board.getInformation() != null;
+
+        boolean hasMessage = board.getMessage() != null;
+
         // ----------------------------------
         // HANDLE RENDERING PROPORTIONS SETUP
         // ----------------------------------
         // ONLY message present...
-        if (board.getBillboardImage() == null && board.getInformation() == null && board.getMessage() != null) {
+        if (hasImage == false && hasInformation == false && hasMessage == true) {
 
             int     widthLimit = (int) (renderDimensions.getWidth()),
                     heightLimit = (int) (renderDimensions.getHeight());
@@ -108,13 +124,13 @@ public class RenderedBillboard extends JPanel {
         }
 
         // ONLY picture present
-        if (board.getBillboardImage() != null && board.getInformation() == null && board.getMessage() == null) {
+        if (hasImage == true && hasInformation == false && hasMessage == false) {
 
             int     widthLimit = (int) (renderDimensions.getWidth() * 0.5),
                     heightLimit = (int) (renderDimensions.getHeight() * 0.5 );
 
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), widthLimit, heightLimit));
             imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+            imageContainer.setIcon(getScaledImage((ImageIcon) imageContainer.getIcon(), widthLimit, heightLimit));
 
             addComponent(Box.createGlue());
             addComponent(imageContainer);
@@ -123,7 +139,7 @@ public class RenderedBillboard extends JPanel {
         }
 
         // ONLY information present
-        if (board.getBillboardImage() == null && board.getInformation() != null && board.getMessage() == null) {
+        if (hasImage == false && hasInformation == true && hasMessage == false) {
 
             // Text should be displayed filling only 75% screen width, 50% screen height
             int     textWidthLimit = (int) (renderDimensions.getWidth() * 0.75), // Only use 75% of the height
@@ -142,7 +158,7 @@ public class RenderedBillboard extends JPanel {
         }
 
         // Message AND picture present
-        if (board.getBillboardImage() != null && board.getInformation() == null && board.getMessage() != null) {
+        if (hasImage == true && hasInformation == false && hasMessage == true) {
 
             // Message on top 1/3 of screen, filling width
             int     messageWidthLimit = (int) (renderDimensions.getWidth()),
@@ -153,7 +169,7 @@ public class RenderedBillboard extends JPanel {
             messageContainer.setMaximumSize(new Dimension(messageWidthLimit, messageHeightLimit));
 
             // Picture filling bottom 2/3
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(),
+            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(),
                     (int) (renderDimensions.getWidth()),
                     (int) (renderDimensions.getHeight() / 3.0)));
 
@@ -166,7 +182,7 @@ public class RenderedBillboard extends JPanel {
         }
 
         // Message AND information present
-        if (board.getBillboardImage() == null && board.getInformation() != null && board.getMessage() != null) {
+        if (hasImage == false && hasInformation == true && hasMessage == true) {
 
             // 50% of height for each of the message and information - use the same values
             int     widthLimit = (int) (renderDimensions.getWidth()),
@@ -188,13 +204,13 @@ public class RenderedBillboard extends JPanel {
         }
 
         // Picture AND information present
-        if (board.getBillboardImage() != null && board.getInformation() != null && board.getMessage() == null) {
+        if (hasImage == true && hasInformation == true && hasMessage == false) {
 
             // Picture in top 2/3 of screen, centered
             int imageWidthLimit = (int) (renderDimensions.getWidth()),
                     imageHeightLimit = (int) (renderDimensions.getHeight() / 3.0);
 
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), imageWidthLimit, imageHeightLimit));
+            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
 
             imageContainer.setMaximumSize(new Dimension(imageWidthLimit, imageHeightLimit));
 
@@ -215,7 +231,7 @@ public class RenderedBillboard extends JPanel {
         }
 
         // Picture AND image AND information present
-        if (board.getBillboardImage() != null && board.getInformation() != null && board.getMessage() != null) {
+        if (hasImage == true && hasInformation == true && hasMessage == true) {
 
             // Both message and information must be in 1/3 of screen, centered, no more than 75% of screen width
             // So use the same values
@@ -229,7 +245,7 @@ public class RenderedBillboard extends JPanel {
             int     imageWidthLimit = (int) (renderDimensions.getWidth()),
                     imageHeightLimit = (int) (renderDimensions.getHeight()/3.0);
 
-            imageContainer.setIcon(getScaledImage(board.getBillboardImage(), imageWidthLimit, imageHeightLimit));
+            imageContainer.setIcon(getScaledImage((ImageIcon)imageContainer.getIcon(), imageWidthLimit, imageHeightLimit));
             imageContainer.setMaximumSize(new Dimension(imageWidthLimit,imageHeightLimit));
             //Information in bottom 1/3 of screen, centered, no more than 75% of screen width
 
@@ -245,11 +261,30 @@ public class RenderedBillboard extends JPanel {
             addComponent(Box.createGlue());
         }
 
-        // Un-renderable billboard - no data
-        if (board.getBillboardImage() == null && board.getInformation() == null && board.getMessage() == null) {
-            // TODO - Code to handle dud billboards appropriately
-            //throw new Exception("board billboard does not contain any data to render. Please check it was properly instantitated");
+    }
+
+    public static ImageIcon getImageIconFromURL(URL url) {
+
+        if(url == null) return null;
+
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(url);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        if(img != null) return new ImageIcon(img);
+        else return null;
+    }
+
+    public static ImageIcon getImageIconFromBase64(String imageString) {
+
+        if(imageString == null) return null;
+
+        byte[] decodedImage = Base64.getDecoder().decode(imageString.getBytes());
+
+        return new ImageIcon(decodedImage);
     }
 
     Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap){
@@ -290,7 +325,7 @@ public class RenderedBillboard extends JPanel {
 
                 // Unwrapped scaling - one line only
                 else {
-                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE) break;
+                    if (renderedStringWidth >= widthLimit * PADDING_PERCENTAGE || renderedStringHeight >= heightLimit * PADDING_PERCENTAGE) break;
                 }
             }
 
@@ -300,5 +335,7 @@ public class RenderedBillboard extends JPanel {
     void addComponent(Component c){
         this.add(c);
     }
+
+
 }
 
