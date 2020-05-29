@@ -1,5 +1,6 @@
 package ControlPanel;
 
+import BillboardSupport.Billboard;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
@@ -109,7 +110,8 @@ public class OptionMenu implements Runnable {
                 Response res = null;
                 try {
                     res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
-
+                    Billboard[] billboards = (Billboard[])res.getData();
+                    // Use the billboards array that was retrieved here
                 } catch (IOException eo) {
                     eo.printStackTrace();
                 }
