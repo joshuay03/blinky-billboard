@@ -6,7 +6,9 @@ import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
+import com.sun.source.tree.IfTree;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -158,7 +160,7 @@ public class ClientHandler extends Thread {
                     List<Billboard> billboards = database.getBillboards();
                     if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
                         // TODO: somehow check if a billboard is already scheduled in the DB
-                        if (billboard.isSheduled()) {
+                        if (billboard.isScheduled()) {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
@@ -188,8 +190,6 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
-                break;
-
             case DELETE_BILLBOARD:
                 try {
                     assert authenticatedUser != null;
@@ -198,7 +198,7 @@ public class ClientHandler extends Thread {
                         return new Response(true, "The billboard has successfully been deleted.");
                     }
                     else
-                        return new Response(false, "Not permitted to make this request.");
+                        return permissionDeniedResponse;
                 } catch (SQLException e) {
                     e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
@@ -239,18 +239,18 @@ public class ClientHandler extends Thread {
 
                 break;
             case REMOVE_SCHEDULED:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
+                try {
+                    assert authenticatedUser != null;
+                    if (authenticatedUser.CanEditAllBillboards()) {
+                        database.UnscheduleBillboard(req.getBillboardID());
+                        return new Response(true, "Billboard has been removed from the schedule.");
+                    } else {
+                        return permissionDeniedResponse;
+                    }
+                } catch(SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
+                    return new Response(false, "Billboard lookup failed.");
+                }
 
-                // this request will only happen is user has 'Schedule Billboards' permission
-                // triggered inside the ScheduleBillboards() GUI
-
-                //Client will send the valid session token, billboardName and scheduledTime of billboard that is to be deleted
-
-                // if billboardName does not exist or is not scheduled for sheduledTime return error
-
-                // if info is correct Server will remove the billboard from the schedule and send back an acknowledgement of success
-
-                break;
             case LIST_USERS:
             {
                 // request only happens if user has 'Edit Users' permission
@@ -281,12 +281,29 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
+                if(authenticatedUser.CanEditUsers()) {
+                    // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // TODO - Fix spec compliance
+                    User newUser = req.getUser();
 
-                // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // if username already exist send error
+                    if(database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false){
 
-                // if username already exist send error
+                    }
+                    else{
+                        // FIXME - BlinkyDB logic
 
-                // else Server will create user and send back acknowledgement of success
+                    }
+
+
+
+                    // else Server will create user and send back acknowledgement of success
+
+                } else {
+                    return permissionDeniedResponse;
+                }
+
+
 
                 break;
             case GET_USER_PERMISSION:
@@ -318,32 +335,39 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PASSWORD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+                Collator collator = Collator.getInstance(Locale.ENGLISH);
                 // Client will send server a username and hashedPassword
 
-                // if session user is trying to change own password Server will change password and send back acknowledgement of success
+                //If the user has the edit users permission, or if they are just trying to change their own password,
+                // they may....
+                if(authenticatedUser.CanEditUsers() == true || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0){
 
-                // else if session user is trying to change password of another user check permission = 'Edit User' == true then allow change
-                //and send back acknowledgement of success
+                    ResultSet userToChange = database.LookUpUserDetails(req.getUsername());
 
-                // else return false send error
+                    if(userToChange.next() != false){
+
+                    } else return new Response (false, "Could not find user");
+
+                } // else return false send error
+                else return permissionDeniedResponse;
+
+
                 break;
             case DELETE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
-                if (req.getSession().serverUser.CanEditUsers()) {
+                if(authenticatedUser.CanEditUsers()) {
 
                     // Client will send username of user to be deleted and valid session token
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
                     Collator collator = Collator.getInstance(Locale.ENGLISH);
-                    if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
+                    if(collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0){
                         return new Response(false, "User cannot delete their own account");
-                    } else {
+                    } else{
                         try {
                             database.DeleteUser(deletionCandidate);
                         } catch (SQLException e) {
@@ -357,11 +381,11 @@ public class ClientHandler extends Thread {
                 } else return new Response(false, permissionDeniedResponse);
                 break;
             case LOGOUT:
-                return new Response(true, "User cannot delete their own account");
 
 
-            // server will expire session token and send back and acknowledgement
-            break;
+
+                // server will expire session token and send back and acknowledgement
+                break;
         }
         // If the request is invalid:
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
