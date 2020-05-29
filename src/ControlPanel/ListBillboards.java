@@ -23,10 +23,9 @@ import static SocketCommunication.ServerRequest.LOGIN;
 public class ListBillboards {
     protected JList<Billboard> billboardList;
     protected JPanel listBillboardsPanel;
-    protected JLabel listLabel;
     protected JPanel listPanel;
-    protected JPanel titlePanel;
     protected JButton backButton;
+    private JLabel listBillboardsLabel;
     protected JFrame frame;
     protected  ClientConnector connector;
     DefaultListModel<Billboard> model = new DefaultListModel<>();
