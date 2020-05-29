@@ -334,16 +334,16 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
-                if(req.getSession().serverUser.CanEditUsers() == true) {
+                if (req.getSession().serverUser.CanEditUsers()) {
 
                     // Client will send username of user to be deleted and valid session token
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
                     Collator collator = Collator.getInstance(Locale.ENGLISH);
-                    if(collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0){
+                    if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
                         return new Response(false, "User cannot delete their own account");
-                    } else{
+                    } else {
                         try {
                             database.DeleteUser(deletionCandidate);
                         } catch (SQLException e) {
@@ -357,11 +357,11 @@ public class ClientHandler extends Thread {
                 } else return new Response(false, permissionDeniedResponse);
                 break;
             case LOGOUT:
+                return new Response(true, "User cannot delete their own account");
 
 
-
-                // server will expire session token and send back and acknowledgement
-                break;
+            // server will expire session token and send back and acknowledgement
+            break;
         }
         // If the request is invalid:
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
