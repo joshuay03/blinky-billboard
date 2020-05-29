@@ -87,22 +87,11 @@ class FunctionalityTest {
 
     @Test
     void SendLogOut(){
-
         // Attempt to log out
         Response res = respondTo.apply(Request.logoutReq(session));
-
-        try {
-            // Expire the session
-            session = (Session) res.getData();
-            // Verify logout
-            Token.validate(session.token);
-            // If the token validates
-            fail();
-        }
-        catch (InvalidTokenException | NullPointerException | ClassCastException e){
-            // If the response was unsucessful/token validation failed after logout
-            assertTrue(res.isStatus());
-        }
+        if (!res.isStatus()) fail();
+        // Verify logout by attempting to use the same session token to send an authenticated request
+        assertFalse(respondTo.apply(Request.listAllBillboardsReq(session)).isStatus());
     }
 
     @Test

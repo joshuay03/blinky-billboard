@@ -3,19 +3,20 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
+import Exceptions.InvalidTokenException;
 import SocketCommunication.Credentials;
-import SocketCommunication.Response;
 
 import javax.xml.transform.Result;
 import java.awt.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
@@ -519,5 +520,67 @@ public class blinkyDB {
                 "FROM Viewers;\n";
         PreparedStatement ViewersSelector = dbconn.prepareStatement(ViewersSelectorString);
         return ViewersSelector.executeQuery();
+    }
+
+    protected void BlacklistToken(byte[] token) throws SQLException {
+        Timestamp expiry;
+        byte[] code;
+        try {
+            Token tokenValidated = Token.validate(token);
+            expiry = tokenValidated.expiry;
+            code = tokenValidated.code;
+        } catch (InvalidTokenException e) {
+            e.printStackTrace();
+            return;
+        }
+        MessageDigest digest;
+        try {
+             digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return;
+        }
+        String WriteTokenToBlackListString = "INSERT INTO TokenBlacklist\n" +
+                "(tokenCode, expiry)\n" +
+                "VALUES(?, ?);\n";
+        String DeleteOldTokensString = "DELETE FROM TokenBlacklist\n" +
+                "WHERE expiry < NOW();\n";
+
+        PreparedStatement WriteTokenToBlackList = dbconn.prepareStatement(WriteTokenToBlackListString);
+        PreparedStatement PurgeOldTokens = dbconn.prepareStatement(DeleteOldTokensString);
+        dbconn.setAutoCommit(false);
+        try{
+            WriteTokenToBlackList.setBytes(1, code);
+            WriteTokenToBlackList.setTimestamp(2, expiry);
+            WriteTokenToBlackList.executeUpdate();
+            PurgeOldTokens.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+            throw e;
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    protected boolean IsTokenBlackListed(byte[] token){
+        String AttemptTokenLookup = "SELECT *\n" +
+                "FROM TokenBlacklist WHERE tokenCode = ?;\n";
+        //String AttemptTokenLookup2 = "SELECT * FROM TokenBlacklist;";
+        PreparedStatement TokenLookup = null;
+        try {
+            TokenLookup = dbconn.prepareStatement(AttemptTokenLookup);
+            TokenLookup.setBytes(1, Token.validate(token).code);
+        } catch (SQLException | InvalidTokenException e) {
+            e.printStackTrace();
+            return true;
+        }
+        assert TokenLookup != null;
+        try {
+            ResultSet rs = TokenLookup.executeQuery(); // Return whether there is a result or not
+            Boolean IsThereAResult = rs.next();
+            return IsThereAResult;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 }

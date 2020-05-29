@@ -7,7 +7,6 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -87,7 +86,7 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiryDate))
+                if (now.after(sessionAuthentication.expiry) || database.IsTokenBlackListed(req.getSession().token))
                 {
                     return new Response(false,"Token has expired.");
                 }
@@ -345,10 +344,17 @@ public class ClientHandler extends Thread {
 
                 break;
             case LOGOUT:
+            {
                 // Client will send server valid session token
-
-                // server will expire session token and send back and acknowledgement
-                break;
+                byte[] TokenToExpire = req.getSession().token;
+                try {
+                    // server will expire session token and send back and acknowledgement
+                    database.BlacklistToken(TokenToExpire);
+                    return new Response(true, "Log out successful");
+                } catch (SQLException e) {
+                    return new Response(false, "There was an SQL error");
+                }
+            }
         }
         // If the request is invalid:
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
