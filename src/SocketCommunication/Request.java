@@ -1,6 +1,7 @@
 package SocketCommunication;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.Schedule;
 import Client.ClientConnector;
 import Server.User;
 
@@ -146,7 +147,6 @@ public class Request implements Serializable {
         return removeSchReq;
     }
 
-    //FIXME - abstract scheduling information to a separate class so that this object can be sent alone
     /**
      * A method to generate a request for the server to add scheduling information to a Billboard
      * @param billboardWithSchedulingInformation The billboard, including scheduling information
@@ -156,7 +156,6 @@ public class Request implements Serializable {
     public static Request scheduleBillboard(Billboard billboardWithSchedulingInformation, Session session){
         Request schedReq = new Request(ServerRequest.REMOVE_SCHEDULED, session);
         schedReq.billboard = billboardWithSchedulingInformation;
-
         return schedReq;
     }
 

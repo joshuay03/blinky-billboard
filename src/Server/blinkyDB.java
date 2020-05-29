@@ -318,7 +318,7 @@ public class blinkyDB {
      * @param user User object to update the details of
      * @throws SQLException when the update fails
      */
-    protected void UpdateUserDetails(User user) throws SQLException {
+    public void UpdateUserDetails(User user) throws SQLException {
         char[] permissions = new char[4];
         if (user.CanCreateBillboards()) permissions[0] = 'B';
         if (user.CanEditAllBillboards()) permissions[1] = 'E';
@@ -356,6 +356,7 @@ public class blinkyDB {
                 "WHERE user_name='?';\n";
 
         PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
+
         dbconn.setAutoCommit(false);
         try{
             UserDeleter.setString(1, username);
@@ -405,6 +406,48 @@ public class blinkyDB {
         try{
             ViewerDeleter.setInt(1, id);
             ViewerDeleter.executeUpdate();
+            dbconn.commit();
+        }
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    public void UnscheduleBillboard(int id) throws SQLException {
+        String SchedulesDeletionString = "DELETE FROM blinkyBillboard.Scheduling\n" +
+                "billboard_id=?;\n";
+
+        PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
+        dbconn.setAutoCommit(false);
+        try{
+            SchedulesDeleter.setInt(1, id);
+            SchedulesDeleter.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    /**
+     * Deletes a billboard and all schedules associated with it
+     * @param id The billboard ID to delete
+     * @throws SQLException If the deletion fails
+     */
+    public void DeleteBillboard(int id) throws SQLException {
+        String BillboardDeletionString = "DELETE FROM blinkyBillboard.Billboards\n" +
+                "WHERE billboard_id=?;\n";
+        String SchedulesDeletionString = "DELETE FROM blinkyBillboard.Scheduling\n" +
+                "billboard_id=?;\n";
+        PreparedStatement BillboardDeleter = dbconn.prepareStatement(BillboardDeletionString);
+        PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
+        dbconn.setAutoCommit(false);
+        try{
+            BillboardDeleter.setInt(1, id);
+            SchedulesDeleter.setInt(1, id);
+            BillboardDeleter.executeUpdate();
+            SchedulesDeleter.executeUpdate();
             dbconn.commit();
         }
         catch (SQLException e){
