@@ -112,6 +112,12 @@ public class OptionMenu implements Runnable {
                     res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
                     Billboard[] billboards = (Billboard[])res.getData();
                     // Use the billboards array that was retrieved here
+
+                    frame.setContentPane(new ListBillboards(frame, connector).listBillboardsPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+
                 } catch (IOException eo) {
                     eo.printStackTrace();
                 }
