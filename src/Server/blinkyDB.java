@@ -224,10 +224,10 @@ public class blinkyDB {
      */
     protected void UpdateUserDetails(User user) throws SQLException {
         char[] permissions = new char[4];
-        if (user.CanCreateBillboards) permissions[0] = 'B';
-        if (user.EditAllBillBoards) permissions[1] = 'E';
-        if (user.ScheduleBillboards) permissions[2] = 'S';
-        if (user.EditUsers) permissions[3] = 'U';
+        if (user.CanCreateBillboards()) permissions[0] = 'B';
+        if (user.CanEditAllBillboards()) permissions[1] = 'E';
+        if (user.CanScheduleBillboards()) permissions[2] = 'S';
+        if (user.CanEditUsers()) permissions[3] = 'U';
 
         String userUpdateString = "UPDATE Users\n" +
                 "SET user_permissions=?, password_hash=?, salt=?\n" +

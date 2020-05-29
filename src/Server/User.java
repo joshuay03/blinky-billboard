@@ -15,10 +15,26 @@ public class User {
         return saltedCredentials;
     }
     public byte[] salt;
-    public boolean CanCreateBillboards;
-    public boolean EditAllBillBoards;
-    public boolean ScheduleBillboards;
-    public boolean EditUsers;
+    private boolean CanCreateBillboards;
+    private boolean EditAllBillBoards;
+    private boolean ScheduleBillboards;
+    private boolean EditUsers;
+
+    public boolean CanCreateBillboards(){
+        return CanCreateBillboards;
+    }
+
+    public boolean CanEditAllBillboards(){
+        return EditAllBillBoards;
+    }
+
+    public boolean CanScheduleBillboards(){
+        return CanCreateBillboards;
+    }
+
+    public boolean CanEditUsers(){
+        return EditUsers;
+    }
 
     /**
      * Creates a new User object based on a username from the supplied database.

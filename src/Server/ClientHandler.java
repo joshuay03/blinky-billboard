@@ -178,7 +178,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
 
                 {return new Response(false, "Invalid billboard object"); }
 
-                if(authenticatedUser.CanCreateBillboards)
+                if(authenticatedUser.CanCreateBillboards())
                 {
 
                 } else return permissionDeniedResponse;
@@ -284,7 +284,7 @@ public class ClientHandler extends Thread implements SocketCommunication {
             {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
-                if (authenticatedUser.EditUsers){
+                if (authenticatedUser.CanEditUsers()){
                     // triggered inside EditUsers() GUI
                     try {
                         List<String> usernames = new ArrayList<>();

@@ -22,14 +22,14 @@ public class Session implements Serializable {
         // The session should only be successfully created if Authentication succeeds
         if (!AuthenticationHandler.Authenticate(credentials, database))
         throw new AuthenticationFailedException(credentials.getUsername());
-        else{
+        else {
             User serverUser = new User(credentials.getUsername(), database);
             this.token = Token.Generate(credentials.getUsername());
             this.username = serverUser.getSaltedCredentials().getUsername();
-            this.canCreateBillboards = serverUser.CanCreateBillboards;
-            this.editAllBillboards = serverUser.EditAllBillBoards;
-            this.scheduleBillboards = serverUser.ScheduleBillboards;
-            this.editUsers = serverUser.EditUsers;
+            this.canCreateBillboards = serverUser.CanCreateBillboards();
+            this.editAllBillboards = serverUser.CanEditAllBillboards();
+            this.scheduleBillboards = serverUser.CanScheduleBillboards();
+            this.editUsers = serverUser.CanEditUsers();
         }
     }
 }
