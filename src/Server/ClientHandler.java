@@ -13,10 +13,12 @@ import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
@@ -332,18 +334,31 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
+                if(req.getSession().serverUser.CanEditUsers() == true) {
 
-                // Client will send username of user to be deleted and valid session token
+                    // Client will send username of user to be deleted and valid session token
+                    String deletionCandidate = req.getUsername();
+                    // if username != to username of session user (no user can delete themselves)
+                    // Server will delete the user and send back acknowledgement of success
+                    Collator collator = Collator.getInstance(Locale.ENGLISH);
+                    if(collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0){
+                        return new Response(false, "User cannot delete their own account");
+                    } else{
+                        try {
+                            database.DeleteUser(deletionCandidate);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
-                // if username != to username of session user (no user can delete themselves)
-                // Server will delete the user and send back acknowledgement of success
+                    // TODO if username deleted = creator of a billboard, billboard will no longer have owner registered in DB
+                    // CRA says for team to decide what will happen in this circumstance
 
-                // if username deleted = creator of a billboard, billboard will no longer have owner registered in DB
-                // CRA says for team to decide what will happen in this circumstance
-
+                } else return new Response(false, permissionDeniedResponse);
                 break;
             case LOGOUT:
-                // Client will send server valid session token
+
+
 
                 // server will expire session token and send back and acknowledgement
                 break;
