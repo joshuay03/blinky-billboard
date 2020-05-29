@@ -194,6 +194,36 @@ class FunctionalityTest {
         assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
     }
 
+    @Test
+    void userChangePassword(){
+
+    }
+
+    @Test
+    void adminChangePassword(){
+
+    }
+
+    @Test
+    void deleteUser(){
+
+    }
+
+    @Test // Special case - admins cannot delete themselves
+    void adminDeleteSelf(){
+
+    }
+
+    @Test
+    void changeUserPermissions(){
+
+    }
+
+    @Test // A special case- the admin must not be able to remove edit users perm. from self
+    void adminRemoveOwnEditUserPermission(){
+
+    }
+
     @AfterAll()
     static void Reset_Schema() throws IOException, SQLException {
         new blinkyDB(true);
