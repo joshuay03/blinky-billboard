@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Locale;
 
-//TODO - Implement serializable
 public class Billboard implements Serializable {
 
     //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
@@ -240,12 +239,10 @@ public class Billboard implements Serializable {
                 }
             }
 
-        } catch (ParserConfigurationException e) {
+        } catch (ParserConfigurationException | IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
             System.out.println("That does not appear to be valid billboard data!");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return billboard;
     }
