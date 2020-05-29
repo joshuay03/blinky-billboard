@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Date;
 
 
 public class Request implements Serializable {
@@ -104,7 +105,9 @@ public class Request implements Serializable {
     }
 
     /**
-     * A method to generate a request for the server to edit a particular Billboard. Note well, this request will have
+     * A method to generate a request for the server to edit a particular Billboard. ALSO NOTE - this method can be used to schedule Billboards
+     *
+     * Note well, this request will have
      * the effect of COMPLETELY REPLACING the billboard with matching billboardID. Therefore, you must ensure you send
      * a Billboard which reflects the intended result (and not merely the intended changes to the Billboard)
      * @param billboardID The ID of the Billboard to edit
@@ -143,6 +146,20 @@ public class Request implements Serializable {
         return removeSchReq;
     }
 
+    //FIXME - abstract scheduling information to a separate class so that this object can be sent alone
+    /**
+     * A method to generate a request for the server to add scheduling information to a Billboard
+     * @param billboardWithSchedulingInformation The billboard, including scheduling information
+     * @param session A Session object for an authenticated user
+     * @return Request object to be sent to the server
+     */
+    public static Request scheduleBillboard(Billboard billboardWithSchedulingInformation, Session session){
+        Request schedReq = new Request(ServerRequest.REMOVE_SCHEDULED, session);
+        schedReq.billboard = billboardWithSchedulingInformation;
+
+        return schedReq;
+    }
+
     /**
      * A method to generate a request for the server to provide a list of all registered users
      * @param session A session object for an authenticated user
@@ -170,7 +187,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return A request to be sent to the server
      */
-    public Request getUserPermissionsReq(String username, Session session){
+    public static Request getUserPermissionsReq(String username, Session session){
         Request permsReq = new Request(ServerRequest.GET_USER_PERMISSION, session);
         permsReq.username = username;
         return permsReq;
@@ -184,7 +201,7 @@ public class Request implements Serializable {
      * @param session Session object for an authenticated user
      * @return Request to be sent to the server
      */
-    public Request setUserPermissionsReq(User user,  Session session){
+    public static Request setUserPermissionsReq(User user,  Session session){
         Request setPermsReq = new Request(ServerRequest.SET_USER_PERMISSION, session);
         setPermsReq.user = user;
         return setPermsReq;
@@ -198,7 +215,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return Request to be sent to the server
      */
-    public Request setPasswordReq(Credentials proposedCredentials, Session session){
+    public static Request setPasswordReq(Credentials proposedCredentials, Session session){
         Request setPassReq = new Request(ServerRequest.SET_USER_PASSWORD, session);
         setPassReq.credentials = proposedCredentials;
         return setPassReq;
@@ -210,7 +227,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return Request to be sent to the server
      */
-    public Request deleteUserReq(String username, Session session){
+    public static Request deleteUserReq(String username, Session session){
         Request delReq = new Request(ServerRequest.DELETE_USER, session);
         delReq.username = username;
         return delReq;
@@ -221,7 +238,7 @@ public class Request implements Serializable {
      * @param session The session to be cancelled
      * @return Request to be sent to the server
      */
-    public Request logoutReq(Session session){
+    public static Request logoutReq(Session session){
         return new Request(ServerRequest.LOGOUT, session);
     }
 
