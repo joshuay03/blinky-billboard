@@ -133,13 +133,13 @@ public class Server extends SocketConnection {
 
             server.serverIsOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + server.serverIsOpen);
+
             if (server.serverIsOpen)
                 System.out.println("Currently operating on port: " + server.getPort());
             else
                 System.out.println("Try starting the server again...");
 
             while (server.serverIsOpen) {
-                //serverOpen = server.isServerAliveUtil();
                 server.createClientThread();
             }
         }
