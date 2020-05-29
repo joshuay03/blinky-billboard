@@ -4,6 +4,7 @@ import Client.ClientConnector;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,9 +15,13 @@ import java.awt.event.ActionListener;
 public class ScheduleBillboards {
     protected JPanel scheduleBillboardsPanel;
     protected JPanel schedulePanel;
+    protected JLabel scheduledDateLabel;
     protected JTable scheduleTable;
-    private JPanel titlePanel;
-    private JButton backButton;
+    protected JPanel titlePanel;
+    protected JButton backButton;
+    protected JButton scheduleButton;
+
+    protected JFrame scheduleFrame;
 
     /**
      *
@@ -35,6 +40,15 @@ public class ScheduleBillboards {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+            }
+        });
+
+        scheduleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scheduleFrame.setContentPane(new Schedule(scheduleFrame, connector).schedulePanel);
+                scheduleFrame.pack();
+                scheduleFrame.setVisible(true);
             }
         });
     }
@@ -72,5 +86,9 @@ public class ScheduleBillboards {
         };
         DefaultTableModel model = new DefaultTableModel(data, columns);
         scheduleTable = new JTable(model);
+
+        scheduleFrame = new JFrame("Schedule a Billboard");
+        scheduleFrame.setPreferredSize(new Dimension(600, 300));
     }
 }
+
