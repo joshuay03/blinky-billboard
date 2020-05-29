@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 
 /**
  * A class to represent a "Schedule Billboards" page which is bound to ScheduleBillboards.form
- * @author Joshua Young
  */
 public class ScheduleBillboards {
     protected JPanel scheduleBillboardsPanel;

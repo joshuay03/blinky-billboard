@@ -12,7 +12,6 @@ import static SocketCommunication.ServerRequest.LOGIN;
 
 /**
  * A class to represent a "Login" page which is bound to Login.form
- * @author Joshua Young
  */
 public class Login {
     protected JPanel loginPanel;

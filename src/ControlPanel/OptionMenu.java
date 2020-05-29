@@ -16,7 +16,6 @@ import static SocketCommunication.ServerRequest.*;
 
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
- * @author Joshua Young
  */
 public class OptionMenu implements Runnable {
     protected JPanel optionMenuPanel;

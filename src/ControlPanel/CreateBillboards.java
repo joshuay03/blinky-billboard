@@ -38,7 +38,6 @@ import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
- * @author Joshua Young
  */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
