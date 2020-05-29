@@ -76,6 +76,16 @@ public class User implements Serializable {
         this.salt = user.salt;
     }
 
+    // Creates a user object without registering it. Only for the request builder to use. Do not use anywhere else.
+    // Can break everything if used anywhere else.
+    public User(Credentials credentials, boolean CreateBillboards, boolean EditAllBillBoards, boolean ScheduleBillboards, boolean EditUsers){
+        this.saltedCredentials = credentials;
+        this.CanCreateBillboards = CreateBillboards;
+        this.EditAllBillBoards = EditAllBillBoards;
+        this.ScheduleBillboards = ScheduleBillboards;
+        this.EditUsers = EditUsers;
+    }
+
     public Credentials getSaltedCredentials() {
         return saltedCredentials;
     }

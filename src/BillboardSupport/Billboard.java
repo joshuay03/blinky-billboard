@@ -149,6 +149,10 @@ public class Billboard implements Serializable {
         return errorBillboard;
     }
 
+    public boolean isScheduled() {
+        return schedule != null;
+    }
+
     public int getBillboardDatabaseKey() {
         return billboardDatabaseKey;
     }

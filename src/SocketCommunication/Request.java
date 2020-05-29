@@ -2,6 +2,8 @@ package SocketCommunication;
 
 import BillboardSupport.Billboard;
 import Client.ClientConnector;
+import ControlPanel.EditUsers;
+import ControlPanel.ScheduleBillboards;
 import Server.User;
 
 import java.io.ByteArrayOutputStream;
@@ -150,16 +152,10 @@ public class Request implements Serializable {
         return new Request(ServerRequest.LIST_USERS, session);
     }
 
-    /**
-     * A method to generate a request for the server to create a new user
-     *
-     * @param newUser A User object with credentials and desired permissions configured
-     * @param session A session object for an authenticated user
-     * @return A request object to be sent to the server
-     */
-    public static Request createUserReq(User newUser, Session session) {
+
+    public static Request createUserReq(Credentials credentials, boolean CreateBillboards, boolean ScheduleBillboards, boolean EditAllBillboards, boolean EditUsers, Session session) {
         Request newUserReq = new Request(ServerRequest.CREATE_USER, session);
-        newUserReq.user = newUser;
+        newUserReq.user = new User(credentials, CreateBillboards, EditAllBillboards, ScheduleBillboards, EditUsers);
         return newUserReq;
     }
 
