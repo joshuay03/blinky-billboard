@@ -5,20 +5,18 @@ import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
 import Exceptions.BillboardNotFoundException;
 import SocketCommunication.Credentials;
-import SocketCommunication.Response;
 
-import javax.xml.transform.Result;
 import java.awt.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,26 +26,27 @@ public class blinkyDB {
 
     /**
      * Database object constructor
-     * @throws IOException If db.props isn't found
+     *
+     * @throws IOException  If db.props isn't found
      * @throws SQLException If there's a problem connecting to the database
      */
     public blinkyDB(Boolean dropSchema, String overrideSchemaName) throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
         if (overrideSchemaName != null) props = new DBProps(overrideSchemaName); // Read db.props
         else props = new DBProps();
         // Ensure the schema exists
-        Connection init_schema = DriverManager.getConnection("jdbc:mariadb://"+props.url, props.username, props.password);
+        Connection init_schema = DriverManager.getConnection("jdbc:mariadb://" + props.url, props.username, props.password);
         if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
         init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
         init_schema.close();
         // Start a database connection
-        dbconn = DriverManager.getConnection("jdbc:mariadb://"+props.url+"/"+props.schema, props.username, props.password);
+        dbconn = DriverManager.getConnection("jdbc:mariadb://" + props.url + "/" + props.schema, props.username, props.password);
         // Try to initialise based on sql file
         Path sqlInitFile = Paths.get(new File("blinkybillboard.sql").getPath());
         String[] batch = new String(Files.readAllBytes(sqlInitFile)).split("(?<=;)");
-            // Execute all statements in the array
-        for (String toExec:batch) {
+        // Execute all statements in the array
+        for (String toExec : batch) {
             if (!toExec.trim().isEmpty()) // (don't execute empty statements)
-            dbconn.createStatement().executeQuery(toExec);
+                dbconn.createStatement().executeQuery(toExec);
         }
     }
 
@@ -63,8 +62,7 @@ public class blinkyDB {
                 "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
         dbconn.setAutoCommit(false);
         getBillboards = dbconn.prepareStatement(billboardLookUpString);
-        if (billboardLookUpString.contains("?"))
-        {
+        if (billboardLookUpString.contains("?")) {
             getBillboards.setString(1, searchType);
             getBillboards.setString(2, searchQuery);
         }
@@ -72,15 +70,14 @@ public class blinkyDB {
         ResultSet rs = getBillboards.executeQuery();
         List<Billboard> BillboardList = new ArrayList<>();
 
-        while (rs.next()){
+        while (rs.next()) {
             // For each returned billboard from the database
             Object image;
-            try{
+            try {
                 ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
                 ObjectInput in = new ObjectInputStream(bis);
                 image = in.readObject();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 image = null;
             }
             Billboard current = new Billboard();
@@ -142,8 +139,9 @@ public class blinkyDB {
         dbconn.setAutoCommit(false);
         ViewerInserter.setString(1, socket);
         ViewerInserter.executeUpdate();
-        try{dbconn.commit();}
-        catch (SQLException e){
+        try {
+            dbconn.commit();
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -190,8 +188,9 @@ public class blinkyDB {
 
     /**
      * Allows writing a billboard into the database
+     *
      * @param billboard_in The billboard to write to the database
-     * @param creator The username of the billboard's creator
+     * @param creator      The username of the billboard's creator
      * @throws SQLException If the creation fails
      */
     public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
@@ -208,15 +207,17 @@ public class blinkyDB {
         try {
             new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
             SerialisedImage = bos.toByteArray();
-        } catch (IOException e) { SerialisedImage = new byte[0]; }
+        } catch (IOException e) {
+            SerialisedImage = new byte[0];
+        }
         PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
         try {
             insertBillboard.setString(1, creator);
-            insertBillboard.setInt(2, ((Color)getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-            insertBillboard.setInt(3, ((Color)getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-            insertBillboard.setInt(4, ((Color)getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-            insertBillboard.setString(5, ((String)getPropertySafely.apply(Billboard::getMessage)));
-            insertBillboard.setString(6, ((String)getPropertySafely.apply(Billboard::getInformation)));
+            insertBillboard.setInt(2, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+            insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+            insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+            insertBillboard.setString(5, ((String) getPropertySafely.apply(Billboard::getMessage)));
+            insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getInformation)));
             insertBillboard.setBytes(7, SerialisedImage);
             insertBillboard.executeUpdate();
             dbconn.commit();
@@ -228,6 +229,7 @@ public class blinkyDB {
 
     /**
      * A method for the User constructor to read user data from the database
+     *
      * @param username Username
      * @return The details of said user
      * @throws SQLException If the user lookup fails
@@ -258,6 +260,7 @@ public class blinkyDB {
 
     /**
      * Get all schedules from the specified start time onwards
+     *
      * @param time The earliest start time to get schedules of
      * @return The schedules
      * @throws SQLException If the lookup fails
@@ -271,21 +274,23 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
         ResultSet rs = ScheduleLookUp.executeQuery();
         List<Schedule> ScheduleList = new ArrayList<>();
-        while (rs.next()){
+        while (rs.next()) {
             try {
                 Timestamp startTime = Timestamp.from(rs.getTime("start_time").toInstant());
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 int billboardID = rs.getInt("billboard_id");
                 ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            catch (SQLException e){e.printStackTrace();}
         }
         return ScheduleList;
     }
 
     /**
      * Put in billboard ID - get schedule (including future schedules)
+     *
      * @param id The billboard ID
      * @return The schedule of that billboard
      * @throws SQLException if the lookup fails
@@ -299,23 +304,25 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
         ResultSet rs = scheduleLookUpForBillboard.executeQuery();
         List<Schedule> ScheduleList = new ArrayList<>();
-        while (rs.next()){
+        while (rs.next()) {
             try {
                 Timestamp startTime = rs.getTimestamp("start_time");
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 int billboardID = rs.getInt("billboard_id");
                 ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            catch (SQLException e){e.printStackTrace();}
         }
         return ScheduleList.get(0);
     }
 
     /**
      * Takes a billboard, and assigns a given schedule to it
+     *
      * @param billboard The billboard
-     * @param schedule The schedule to assign to the billboard
+     * @param schedule  The schedule to assign to the billboard
      */
     public void ScheduleBillboard(Billboard billboard, Schedule schedule) throws SQLException {
         String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
@@ -324,7 +331,7 @@ public class blinkyDB {
 
         PreparedStatement CreateSchedule;
         dbconn.setAutoCommit(false);
-        try{
+        try {
             CreateSchedule = dbconn.prepareStatement(SchedulingString);
 
             CreateSchedule.setInt(1, billboard.getBillboardDatabaseKey());
@@ -347,11 +354,12 @@ public class blinkyDB {
 
     /**
      * This method takes new user details and adds them to the database.
-     * @param credentials The new user's credentials
+     *
+     * @param credentials         The new user's credentials
      * @param CanCreateBillboards permission
-     * @param EditAllBillBoards permission
-     * @param ScheduleBillboards permission
-     * @param EditUsers permission
+     * @param EditAllBillBoards   permission
+     * @param ScheduleBillboards  permission
+     * @param EditUsers           permission
      * @throws SQLException // If the insertion fails, such as in the case when such a user already exists in the database.
      */
     protected void RegisterUserInDatabase(Credentials credentials, boolean CanCreateBillboards, boolean EditAllBillBoards, boolean ScheduleBillboards, boolean EditUsers) throws SQLException {
@@ -379,8 +387,7 @@ public class blinkyDB {
 
             UserInserter.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             dbconn.rollback(); // Try to rollback
             throw e;
         }
@@ -389,6 +396,7 @@ public class blinkyDB {
 
     /**
      * Updates user details
+     *
      * @param user User object to update the details of
      * @throws SQLException when the update fails
      */
@@ -405,7 +413,7 @@ public class blinkyDB {
 
         dbconn.setAutoCommit(false);
         PreparedStatement updateUser = dbconn.prepareStatement(userUpdateString);
-        try{
+        try {
             updateUser.setString(1, new String(permissions));
             updateUser.setBytes(2, user.getSaltedCredentials().getPasswordHash());
             updateUser.setBytes(3, user.salt);
@@ -413,8 +421,7 @@ public class blinkyDB {
 
             updateUser.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -422,6 +429,7 @@ public class blinkyDB {
 
     /**
      * Deletes users from the database
+     *
      * @param username The username to delete
      * @throws SQLException If the deletion fails
      */
@@ -432,13 +440,12 @@ public class blinkyDB {
         PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
 
         dbconn.setAutoCommit(false);
-        try{
+        try {
             UserDeleter.setString(1, username);
 
             UserDeleter.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -446,6 +453,7 @@ public class blinkyDB {
 
     /**
      * Register a viewer in the database
+     *
      * @param Socket The viewer's socket (IP + port)
      * @throws SQLException If the registration fails
      */
@@ -459,8 +467,7 @@ public class blinkyDB {
 
             ViewerInserter.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -468,6 +475,7 @@ public class blinkyDB {
 
     /**
      * Remove a viewer from the database
+     *
      * @param id The id of the viewer to delete
      * @throws SQLException If the deletion fails
      */
@@ -477,12 +485,11 @@ public class blinkyDB {
         PreparedStatement ViewerDeleter = dbconn.prepareStatement(ViewerDeleterString);
 
         dbconn.setAutoCommit(false);
-        try{
+        try {
             ViewerDeleter.setInt(1, id);
             ViewerDeleter.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -490,6 +497,7 @@ public class blinkyDB {
 
     /**
      * Deletes schedules for a given billboard ID
+     *
      * @param id Billboard ID
      * @throws SQLException If the deletion fails
      */
@@ -499,7 +507,7 @@ public class blinkyDB {
 
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
-        try{
+        try {
             SchedulesDeleter.setInt(1, id);
             SchedulesDeleter.executeUpdate();
             dbconn.commit();
@@ -511,6 +519,7 @@ public class blinkyDB {
 
     /**
      * Deletes a billboard and all schedules associated with it
+     *
      * @param id The billboard ID to delete
      * @throws SQLException If the deletion fails
      */
@@ -522,14 +531,13 @@ public class blinkyDB {
         PreparedStatement BillboardDeleter = dbconn.prepareStatement(BillboardDeletionString);
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
-        try{
+        try {
             BillboardDeleter.setInt(1, id);
             SchedulesDeleter.setInt(1, id);
             BillboardDeleter.executeUpdate();
             SchedulesDeleter.executeUpdate();
             dbconn.commit();
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
@@ -537,6 +545,7 @@ public class blinkyDB {
 
     /**
      * Get all viewers with their sockets
+     *
      * @return The viewers
      * @throws SQLException If the lookup fails
      */

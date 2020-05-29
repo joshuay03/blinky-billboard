@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 /**
  * A class which represents a control panel which connects to the server
+ *
  * @author Joshua Young
  */
 public class ControlPanel extends ClientConnector implements Runnable {
@@ -24,6 +25,7 @@ public class ControlPanel extends ClientConnector implements Runnable {
     /**
      * Constructs a control panel which uses the information in the properties file to establish a connection with the
      * server
+     *
      * @param propFile the properties file which contains the IP and Port of the server
      */
     public ControlPanel(String propFile) {
@@ -34,24 +36,8 @@ public class ControlPanel extends ClientConnector implements Runnable {
     }
 
     /**
-     * Initialises a socket connection
-     * @throws IOException If the socket cannot start
-     */
-    public void start() throws IOException {
-        super.start();
-
-        try {
-            socket = new Socket(getIP(), getPort());
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
-        }
-        catch(Exception e) {
-            System.out.println("The port " + getPort() + " is currently already in use.");
-        }
-    }
-
-    /**
      * Creates a new control control panel instance
+     *
      * @param args unused
      */
     public static void main(String[] args) {
@@ -67,9 +53,25 @@ public class ControlPanel extends ClientConnector implements Runnable {
             while (controlPanelOpen) {
                 String outputData = scanner.nextLine();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Initialises a socket connection
+     *
+     * @throws IOException If the socket cannot start
+     */
+    public void start() throws IOException {
+        super.start();
+
+        try {
+            socket = new Socket(getIP(), getPort());
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
+        } catch (Exception e) {
+            System.out.println("The port " + getPort() + " is currently already in use.");
         }
     }
 

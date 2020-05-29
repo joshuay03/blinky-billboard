@@ -17,6 +17,7 @@ public class SocketConnection {
     /**
      * A helper method to get and return the current port which
      * the socket is currently operating on.
+     *
      * @return the port which the socket is operating on as in integer value.
      */
     public int getPort() {
@@ -29,6 +30,7 @@ public class SocketConnection {
 
     /**
      * Retrieve the port number from the given properties file.
+     *
      * @throws IOException
      */
     private void retrievePort() throws IOException {
@@ -37,12 +39,11 @@ public class SocketConnection {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String[] arr;
             String line;
-            while((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 if (line.startsWith("port:")) {
                     arr = line.split("port:", 0);
                     port = arr[1].trim();
-                }
-                else if (line.startsWith("IP:")) {
+                } else if (line.startsWith("IP:")) {
                     arr = line.split("IP:", 0);
                     IP = arr[1].trim();
                 }
@@ -50,8 +51,7 @@ public class SocketConnection {
             if (port == null) {
                 System.out.println("Was not able to obtain the port number from the given properties file.");
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("The properties file you have entered does not exist.");
         }
     }
@@ -60,6 +60,7 @@ public class SocketConnection {
      * A method to initialise the socket connection.
      * Will most likely be overriden as functionality for this method is dependent
      * on what type of socket is used and how it will be used.
+     *
      * @throws IOException
      */
     public void start() throws IOException {
@@ -71,6 +72,7 @@ public class SocketConnection {
      * A method to close the socket connection.
      * Will most likely be overriden as functionality for this method is dependent
      * on what type of socket is used and how it will be used.
+     *
      * @throws IOException
      */
     public void close() throws IOException {

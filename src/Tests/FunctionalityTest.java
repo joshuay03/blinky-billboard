@@ -18,20 +18,23 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.awt.*;
-import java.io.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
-import static SocketCommunication.ServerRequest.*;
+import static SocketCommunication.ServerRequest.LOGIN;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * A suite of tests to ensure that permissions are being handled according to specification
  */
 class FunctionalityTest {
+    static final int VALID_BILLBOARD = 0,
+            VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER = 1,
+            CURRENTLY_SCHEDULED_BILLBOARD = 2,
+            INVALID_BILLBOARD = 999;
     Session session;
     Session noperms_session;
     Function<Request, Response> respondTo;
@@ -48,7 +51,8 @@ class FunctionalityTest {
                 user.setEditAllBillBoards(true, db);
                 user.setEditUsers(true, db);
                 user.setScheduleBillboards(true, db);
-            } catch (NoSuchUserException ignored) {}
+            } catch (NoSuchUserException ignored) {
+            }
         }
         try {
             new User(new Credentials("Lira", "SeaMonkey123"), false, false, false, false, db);
@@ -59,7 +63,8 @@ class FunctionalityTest {
                 nopermsuser.setEditAllBillBoards(false, db);
                 nopermsuser.setEditUsers(false, db);
                 nopermsuser.setScheduleBillboards(false, db);
-            } catch (NoSuchUserException ignored) {}
+            } catch (NoSuchUserException ignored) {
+            }
         }
         // Write other mock data
         db.createBillboard(DummyBillboards.messageAndInformationBillboard(), "Lira");
@@ -68,8 +73,14 @@ class FunctionalityTest {
         db.CreateViewer("localhost:5506");
     }
 
-    @BeforeEach @Test
-    void setUpAndLogin() throws SQLException, IOException{
+    @AfterAll()
+    static void Reset_Schema() throws IOException, SQLException {
+        new blinkyDB(true);
+    }
+
+    @BeforeEach
+    @Test
+    void setUpAndLogin() throws SQLException, IOException {
         Function<Credentials, Request> MakeLoginRequest = (Credentials credentials) -> new Request(LOGIN, credentials, null);
         respondTo = new ClientHandler(null, null, null, new blinkyDB())::handleInboundRequest;
         // Create and send a login request
@@ -77,16 +88,15 @@ class FunctionalityTest {
                 new Credentials("Lira", "SeaMonkey123"))).getData();
         Credentials credentials = new Credentials("Liran", "SeaMonkey123");
         Response res = respondTo.apply(MakeLoginRequest.apply(credentials));
-        if (res.isStatus()){
+        if (res.isStatus()) {
             // Set the session token
             session = (Session) res.getData();
             assertTrue(res.isStatus());
-        }
-        else fail();
+        } else fail();
     }
 
     @Test
-    void SendLogOut(){
+    void SendLogOut() {
 
         // Attempt to log out
         Response res = respondTo.apply(Request.logoutReq(session));
@@ -98,50 +108,43 @@ class FunctionalityTest {
             Token.validate(session.token);
             // If the token validates
             fail();
-        }
-        catch (InvalidTokenException | NullPointerException | ClassCastException e){
+        } catch (InvalidTokenException | NullPointerException | ClassCastException e) {
             // If the response was unsucessful/token validation failed after logout
             assertTrue(res.isStatus());
         }
     }
 
     @Test
-    void ViewerCurrentlyScheduled(){
+    void ViewerCurrentlyScheduled() {
         Request ScheduledBillboardRequest = Request.scheduledBillboardReq();
 
         // Retrieve billboard from request
         Response res = respondTo.apply(ScheduledBillboardRequest);
-        try{
+        try {
             @SuppressWarnings("unused") Billboard ScheduledBillboard = (Billboard) res.getData(); // Statement is necessary to verify that a valid billboard was received
             assertTrue(res.isStatus());
-        }
-        catch (NullPointerException e){
+        } catch (NullPointerException e) {
             // If response wasn't a valid billboard
             fail();
         }
     }
 
     @Test
-    void GetBillboards(){
+    void GetBillboards() {
         Request BillboardsRequest = Request.listAllBillboardsReq(session);
 
         Response res = respondTo.apply(BillboardsRequest);
 
-        try{
+        try {
             @SuppressWarnings({"unused", "unchecked"}) List<Billboard> billboards = (List<Billboard>) res.getData();
             assertTrue(res.isStatus());
-        }
-        catch (NullPointerException e){
+        } catch (NullPointerException e) {
             fail();
         }
     }
 
-    static final int    VALID_BILLBOARD = 0,
-                        VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER = 1,
-                        CURRENTLY_SCHEDULED_BILLBOARD = 2,
-                        INVALID_BILLBOARD = 999;
     @Test
-    void Delete_Billboard(){
+    void Delete_Billboard() {
 
         Response authedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, session));
         Response unAuthedRes = respondTo.apply(Request.deleteBillboardReq(VALID_BILLBOARD, noperms_session));
@@ -150,7 +153,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void Create_BillBoard(){
+    void Create_BillBoard() {
 
         Response authedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), session));
         Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session);
@@ -158,8 +161,21 @@ class FunctionalityTest {
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
 
+    //FIXME - underlying function needs to be amended
+    /* DEPRECATED TEST - unnecessary for spec compliance
     @Test
-    void Edit_Billboard(){
+    void Get_Billboards(){
+        Function<String, Function<String, Request>> SearchBillboards = (String searchType) -> (String searchQuery) -> new Request(GET_BILLBOARD_INFO, new String[]{searchType, searchQuery}, session);
+        Response creatorSearchRes = respondTo.apply(Request.getBillboardInfoReq())
+        Response creatorSearchRes = respondTo.apply(SearchBillboards.apply("billboard_id").apply("0"));
+        Response durationSearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("10"));
+        Response emptySearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("100000000"));
+
+        assertTrue(creatorSearchRes.isStatus() && durationSearchRes.isStatus() && emptySearchRes.isStatus() && ((List<Billboard>) emptySearchRes.getData()).isEmpty());
+    }*/
+
+    @Test
+    void Edit_Billboard() {
         Billboard mock = DummyBillboards.messagePictureAndInformationBillboard();
 
         // User with edit billboards permission attempts to edit a billboard which exists
@@ -177,27 +193,14 @@ class FunctionalityTest {
         assertTrue(authedRes.isStatus() && unAuthedSameCreatorRes.isStatus() && !unAuthedSameCreatorScheduledRes.isStatus() && !nonExistentBillboardRes.isStatus() && !unAuthedDifferentCreatorRes.isStatus());
     }
 
-    //FIXME - underlying function needs to be amended
-    /* DEPRECATED TEST - unnecessary for spec compliance
-    @Test
-    void Get_Billboards(){
-        Function<String, Function<String, Request>> SearchBillboards = (String searchType) -> (String searchQuery) -> new Request(GET_BILLBOARD_INFO, new String[]{searchType, searchQuery}, session);
-        Response creatorSearchRes = respondTo.apply(Request.getBillboardInfoReq())
-        Response creatorSearchRes = respondTo.apply(SearchBillboards.apply("billboard_id").apply("0"));
-        Response durationSearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("10"));
-        Response emptySearchRes = respondTo.apply(SearchBillboards.apply("duration").apply("100000000"));
-
-        assertTrue(creatorSearchRes.isStatus() && durationSearchRes.isStatus() && emptySearchRes.isStatus() && ((List<Billboard>) emptySearchRes.getData()).isEmpty());
-    }*/
-
     //TODO implement spec-compliant test
     @Test
-    void Get_Billboards(){
+    void Get_Billboards() {
 
     }
 
     @Test
-    void Schedule_Billboard(){
+    void Schedule_Billboard() {
         Billboard mock = DummyBillboards.messageAndPictureBillboard();
         // Set a schedule for the billboard
 
@@ -208,7 +211,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void Remove_Scheduled(){
+    void Remove_Scheduled() {
 
         Response scheduleRes = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD));
         Response scheduleResNoPerms = respondTo.apply(Request.removeScheduledBillboardReq(VALID_BILLBOARD, noperms_session));
@@ -217,7 +220,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void userChangePassword(){
+    void userChangePassword() {
         Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
         Credentials altUserCredentials = session.serverUser.getSaltedCredentials();
 
@@ -234,7 +237,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void adminChangePassword(){
+    void adminChangePassword() {
         Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
@@ -248,7 +251,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void deleteUser(){
+    void deleteUser() {
         Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
@@ -271,25 +274,21 @@ class FunctionalityTest {
 
         assertTrue(!adminDeleteSelf.isStatus());
     }
+
     @Test
-    void changeUserPermissions(){
+    void changeUserPermissions() {
 
         assertTrue(!adminDeleteSelf.isStatus());
     }
 
     // A special case- the admin must not be able to remove edit users perm. from self ...
     @Test
-    void adminRemoveOwnEditUserPermission(){
+    void adminRemoveOwnEditUserPermission() {
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
         //... should fail
-        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session));
+        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session))
 
         assertTrue(!adminDeleteSelf.isStatus());
-    }
-
-    @AfterAll()
-    static void Reset_Schema() throws IOException, SQLException {
-        new blinkyDB(true);
     }
 }

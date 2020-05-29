@@ -18,18 +18,18 @@ public class Token implements Serializable {
     String username;
     Timestamp expiryDate;
 
-    private Token(String username, Timestamp expiry){
+    private Token(String username, Timestamp expiry) {
         this.expiryDate = expiry;
         this.username = username;
     }
 
-    Token(String username){
+    Token(String username) {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
         this.expiryDate = Timestamp.valueOf(tomorrow); // Generate an expiry date
         this.username = username;
     }
 
-    private static SecretKey getKey(String filePath){
+    private static SecretKey getKey(String filePath) {
         // Read the secretKey from a file and create an AES key based on it
         String encodedKey;
         try {
@@ -51,6 +51,7 @@ public class Token implements Serializable {
 
     /**
      * Takes a username and generates a token for it
+     *
      * @param username The username to generate a token for
      * @return The token
      */
@@ -60,7 +61,7 @@ public class Token implements Serializable {
         // Pad the username up to the maximum length with newlines (since they can't be in the username)
         String paddedUsername = Optional.of(MaxUserNameLength - username.length())
                 .filter(i -> i > 0)
-                .map(i-> String.format("%" + i + "s", "").replace(" ", String.valueOf('\n')) + username)
+                .map(i -> String.format("%" + i + "s", "").replace(" ", String.valueOf('\n')) + username)
                 .orElse(username);
         // Generate a new token object
         Token unencrypted = new Token(paddedUsername);
@@ -71,7 +72,7 @@ public class Token implements Serializable {
             oos = new ObjectOutputStream(serialiser);
             oos.writeObject(unencrypted);
             oos.flush();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         byte[] unencryptedSerialised = serialiser.toByteArray();
@@ -100,6 +101,7 @@ public class Token implements Serializable {
 
     /**
      * Takes a token and returns a readable object, provided that the token is valid
+     *
      * @param encryptedToken The token to validate and read the details of
      * @return The token's details
      * @throws InvalidTokenException If the provided token is invalid
@@ -135,10 +137,10 @@ public class Token implements Serializable {
         Token token = null;
         try {
             assert ois != null;
-            token = (Token)ois.readObject();
+            token = (Token) ois.readObject();
         } catch (IOException | ClassNotFoundException e) { // These exceptions should never be thrown
             e.printStackTrace();
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             // If the token is invalid, then reading the object from the decrypted token will fail.
             throw new InvalidTokenException(encryptedToken);
         }

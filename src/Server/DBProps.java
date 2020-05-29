@@ -1,6 +1,7 @@
 package Server;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
 
 public class DBProps {
@@ -16,7 +17,7 @@ public class DBProps {
         this.url = props.getProperty("url");
         this.username = props.getProperty("username");
         this.password = props.getProperty("password");
-        if(overrideSchema != null) this.schema = overrideSchema;
+        if (overrideSchema != null) this.schema = overrideSchema;
         else this.schema = props.getProperty("schema");
     }
 

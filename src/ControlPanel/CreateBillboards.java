@@ -3,18 +3,12 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
-import SocketCommunication.Request;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.tools.Tool;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -24,20 +18,18 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
-
-import static SocketCommunication.ServerRequest.CREATE_BILLBOARD;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
+ *
  * @author Joshua Young
  */
 public class CreateBillboards {
@@ -67,7 +59,6 @@ public class CreateBillboards {
     protected JFrame previewFrame;
 
     /**
-     *
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
@@ -107,7 +98,8 @@ public class CreateBillboards {
                     messageTextArea.setText(billboard.getMessage());
                     informationTextArea.setText(billboard.getInformation());
 
-                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
+                    if (billboard.getImageURL() != null)
+                        pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
 
 
                 }
@@ -286,8 +278,8 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
-                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
+                Dimension renderDimension = new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2,
+                        (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2);
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
                 previewFrame = new JFrame();
@@ -296,10 +288,6 @@ public class CreateBillboards {
                 previewFrame.setVisible(true);
             }
         });
-    }
-
-    private void importXML(File xmlFile) {
-
     }
 
     private static String encodeFileToBase64Binary(File file) throws IOException {
@@ -317,12 +305,12 @@ public class CreateBillboards {
         if (length > Integer.MAX_VALUE) {
             // File is too large
         }
-        byte[] bytes = new byte[(int)length];
+        byte[] bytes = new byte[(int) length];
 
         int offset = 0;
         int numRead = 0;
         while (offset < bytes.length
-                && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
             offset += numRead;
         }
 
@@ -332,5 +320,9 @@ public class CreateBillboards {
 
         is.close();
         return bytes;
+    }
+
+    private void importXML(File xmlFile) {
+
     }
 }

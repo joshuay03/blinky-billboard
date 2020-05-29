@@ -1,10 +1,6 @@
 package BillboardSupport;
 
-import com.sun.source.tree.NewArrayTree;
-
-import javax.swing.*;
 import java.awt.*;
-import java.beans.JavaBean;
 import java.net.URL;
 
 /**
@@ -42,7 +38,7 @@ public class DummyBillboards {
         return b;
     }
 
-    public static Billboard informationOnlyBillboard(){
+    public static Billboard informationOnlyBillboard() {
         Billboard b = new Billboard();
 
         b.setInformation("Billboard with an information tag and nothing else. Note that the text is word-wrapped. The quick brown fox jumped over the lazy dogs.");
@@ -51,7 +47,7 @@ public class DummyBillboards {
 
     }
 
-    public static Billboard messageAndPictureBillboard(){
+    public static Billboard messageAndPictureBillboard() {
         Billboard b = new Billboard();
 
         b.setMessage("Billboard with message and picture with data attribute");
@@ -60,7 +56,7 @@ public class DummyBillboards {
         return b;
     }
 
-    public static Billboard messageAndInformationBillboard(){
+    public static Billboard messageAndInformationBillboard() {
         Billboard b = new Billboard();
 
         b.setMessage("Billboard with message and info");
@@ -69,7 +65,7 @@ public class DummyBillboards {
         return b;
     }
 
-    public static Billboard pictureAndInformationBillboard(){
+    public static Billboard pictureAndInformationBillboard() {
         Billboard b = new Billboard();
 
         b.setInformation("Billboard with message and picture with data attribute");
@@ -78,12 +74,12 @@ public class DummyBillboards {
         return b;
     }
 
-    public static Billboard messagePictureAndInformationBillboard(){
+    public static Billboard messagePictureAndInformationBillboard() {
         Billboard b = new Billboard();
 
         b.setInformation("This billboard has a message tag, a picture tag (linking to a URL with a GIF image) and an information tag. The picture is drawn in the centre and the message and information text are centred in the space between the top of the image and the top of the page, and the space between the bottom of the image and the bottom of the page, respectively.");
         b.setMessage("Billboard with message, GIF and information");
-        try{
+        try {
             b.setImageURL(new URL("https://cloudstor.aarnet.edu.au/plus/s/A26R8MYAplgjUhL/download"));
         } catch (Exception e) {
             e.printStackTrace();

@@ -9,10 +9,14 @@ public class Triple<T0, T1, T2> implements List {
     public final T2 t2;
     private final Triple<T0, T1, T2> root;
 
-    public Triple(T0 first, T1 second, T2 third){
+    public Triple(T0 first, T1 second, T2 third) {
         this.root = this;
-        assert first != null; assert second != null; assert third != null;
-        this.t0 = first; this.t1 = second; this.t2 = third;
+        assert first != null;
+        assert second != null;
+        assert third != null;
+        this.t0 = first;
+        this.t1 = second;
+        this.t2 = third;
     }
 
     @Override
@@ -27,13 +31,14 @@ public class Triple<T0, T1, T2> implements List {
 
     @Override
     public boolean contains(Object o) {
-        return(t0.equals(o) || t1.equals(o) || t2.equals(o));
+        return (t0.equals(o) || t1.equals(o) || t2.equals(o));
     }
 
     @Override
     public Iterator iterator() {
         return new Iterator() {
             int current = 0;
+
             @Override
             public boolean hasNext() {
                 return (current < 2);
@@ -41,9 +46,11 @@ public class Triple<T0, T1, T2> implements List {
 
             @Override
             public Object next() {
-                if (current == 0) {return t1;}
-                else if (current == 1) {return t2;}
-                else throw new NoSuchElementException();
+                if (current == 0) {
+                    return t1;
+                } else if (current == 1) {
+                    return t2;
+                } else throw new NoSuchElementException();
             }
         };
     }
@@ -57,10 +64,11 @@ public class Triple<T0, T1, T2> implements List {
 
     @Override
     public Object[] toArray(Object[] objects) {
-        try{
+        try {
             return objects.getClass().cast(this.toArray());
+        } catch (NullPointerException e) {
+            return null;
         }
-        catch (NullPointerException e){return null;}
     }
 
     @Override
@@ -159,7 +167,7 @@ public class Triple<T0, T1, T2> implements List {
 
             @Override
             public int previousIndex() {
-                return (current -1) % root.size();
+                return (current - 1) % root.size();
             }
 
             @Override
@@ -196,7 +204,7 @@ public class Triple<T0, T1, T2> implements List {
 
     @Override
     public boolean containsAll(Collection collection) {
-        if (collection.size() >= 3){
+        if (collection.size() >= 3) {
             return collection.contains(this.t0) && collection.contains(this.t1) && collection.contains(this.t2);
         }
         return false;

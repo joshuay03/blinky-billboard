@@ -8,7 +8,6 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
-import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -24,10 +23,19 @@ import java.util.Locale;
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
+
 /**
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
+    private final int BILLBOARD_ID = 0,
+            CREATOR = 1,
+            BACKGROUND_COLOUR = 2,
+            MESSAGE_COLOUR = 3,
+            INFORMATION_COLOUR = 4,
+            MESSAGE = 5,
+            INFORMATION = 6,
+            IMAGE = 7;
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -50,19 +58,15 @@ public class ClientHandler extends Thread {
                 ObjectOutputStream outputWriter = new ObjectOutputStream(output);
                 try {
                     // Cast the data into a request object to find out what the client wants
-                    Request req = (Request)inputObject.readObject();
+                    Request req = (Request) inputObject.readObject();
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
                     outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
-                }
-                catch (IllegalStateException e){
+                } catch (IllegalStateException e) {
                     outputWriter.writeObject(new Response(false, e.getMessage())); // Send a response to the client, informing it that an invalid request has been sent
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 closed = closeConnection();
                 System.out.println("Connection closed");
             }
@@ -91,43 +95,47 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiryDate))
-                {
-                    return new Response(false,"Token has expired.");
+                if (now.after(sessionAuthentication.expiryDate)) {
+                    return new Response(false, "Token has expired.");
                 }
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
             }
         }
+
+        Collator collator = Collator.getInstance(Locale.ENGLISH);
+
+        // *************************************************************************************
+        // LOGIC SWITCHING
+        // *************************************************************************************
+        //<editor-fold desc="REQUEST TYPE SWITCHING">
         // Example handle login
-        switch(req.getRequestType()) {
-            case VIEWER_CURRENTLY_SCHEDULED:
-            {
+        switch (req.getRequestType()) {
+            case VIEWER_CURRENTLY_SCHEDULED: {
                 return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
-            case LOGIN:
-            {
+            case LOGIN: {
                 // EXAMPLE how to use the request given from the client
                 Credentials credentials;
-                try{
+                try {
                     credentials = req.getCredentials();
-                }catch (Exception e)
-                {return new Response(false, "Missing username or password");}
+                } catch (Exception e) {
+                    return new Response(false, "Missing username or password");
+                }
                 try {
                     return new Response(true, new Session(credentials, database));
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
-                    return new Response( false, "Cannot create session.");
+                    return new Response(false, "Cannot create session.");
                 }
             }
-            case LIST_BILLBOARDS:
-            {
+            case LIST_BILLBOARDS: {
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
                 List<Billboard> billboardList;
-                try{
+                try {
                     billboardList = database.getBillboards();
 
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
                 }
                 // The billboard list now has all of the returned billboards - convert to an array and return
@@ -137,15 +145,16 @@ public class ClientHandler extends Thread {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
 
                 // this is triggered inside the BillboardList()); GUI
-
                 // The control panel send the server the Billboard Name and valid session
+                int billboardID = req.getBillboardID();
 
-                // token e.g session = req.getSession();
+                List<Billboard> results = database.getBillboards(Integer.toString(billboardID), "billboard_id");
 
                 //server responds with billboards contents
+                if (results != null) return new Response(true, results.get(0));
+                else return new Response(false, "Could not find Billboard with that ID");
 
 
-                break;
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
@@ -181,7 +190,7 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
-                break;
+            break;
             case EDIT_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
@@ -193,24 +202,20 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
-                break;
-
             case DELETE_BILLBOARD:
                 try {
                     assert authenticatedUser != null;
-                    if(authenticatedUser.CanEditAllBillboards()) {
+                    if (authenticatedUser.CanEditAllBillboards()) {
                         database.DeleteBillboard(req.getBillboardID());
                         return new Response(true, "The billboard has successfully been deleted.");
-                    }
-                    else
-                        return new Response(false, "Not permitted to make this request.");
+                    } else
+                        return permissionDeniedResponse;
                 } catch (SQLException e) {
                     e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
                 }
 
             case VIEW_SCHEDULED_BILLBOARD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
@@ -244,29 +249,27 @@ public class ClientHandler extends Thread {
 
                 break;
             case REMOVE_SCHEDULED:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
+                try {
+                    assert authenticatedUser != null;
+                    if (authenticatedUser.CanEditAllBillboards()) {
+                        database.UnscheduleBillboard(req.getBillboardID());
+                        return new Response(true, "Billboard has been removed from the schedule.");
+                    } else {
+                        return permissionDeniedResponse;
+                    }
+                } catch (SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
+                    return new Response(false, "Billboard lookup failed.");
+                }
 
-                // this request will only happen is user has 'Schedule Billboards' permission
-                // triggered inside the ScheduleBillboards() GUI
-
-                //Client will send the valid session token, billboardName and scheduledTime of billboard that is to be deleted
-
-                // if billboardName does not exist or is not scheduled for sheduledTime return error
-
-                // if info is correct Server will remove the billboard from the schedule and send back an acknowledgement of success
-
-                break;
-            case LIST_USERS:
-            {
+            case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
-                if (authenticatedUser.CanEditUsers()){
+                if (authenticatedUser.CanEditUsers()) {
                     // triggered inside EditUsers() GUI
                     try {
                         List<String> usernames = new ArrayList<>();
                         ResultSet rs = database.LookUpAllUserDetails();
-                        while (rs.next())
-                        {
+                        while (rs.next()) {
                             usernames.add(rs.getString("user_name"));
                         }
                         return new Response(true, usernames);
@@ -275,9 +278,7 @@ public class ClientHandler extends Thread {
                         return new Response(false, "Lookup failed.");
                     }
 
-                }
-                else
-                {
+                } else {
                     return permissionDeniedResponse;
                 }
             }
@@ -286,12 +287,26 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
+                if (authenticatedUser.CanEditUsers()) {
+                    // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // TODO - Fix spec compliance
+                    User newUser = req.getUser();
 
-                // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // if username already exist send error
+                    if (database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false) {
 
-                // if username already exist send error
+                    } else {
+                        // FIXME - BlinkyDB logic
 
-                // else Server will create user and send back acknowledgement of success
+                    }
+
+
+                    // else Server will create user and send back acknowledgement of success
+
+                } else {
+                    return permissionDeniedResponse;
+                }
+
 
                 break;
             case GET_USER_PERMISSION:
@@ -307,10 +322,42 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PERMISSION:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
+                if (authenticatedUser.CanEditUsers() == true) {
+
+                    //FIXME - should only be passing credentials object through on this one
+                    try {
+                        User userToModify = new User(req.getUsername(), database);
+
+                        boolean canEditUsers = userToModify.CanEditUsers();
+
+                        boolean canEditAllBillboards = userToModify.CanEditAllBillboards();
+
+                        boolean canScheduleBillboards = userToModify.CanScheduleBillboards();
+
+                        boolean canCreateBillboards = userToModify.CanCreateBillboards();
+
+                        userToModify.setEditAllBillBoards(canEditAllBillboards);
+                        userToModify.setScheduleBillboards(canScheduleBillboards);
+                        userToModify.setCanCreateBillboards(canCreateBillboards);
+
+                        // Special case - can't remove own admin permissions
+                        // FIXME - need to implement a nuanced response which explains that the rest of the perms changes were successful
+                        if (collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) != 0) {
+                            userToModify.setEditUsers(canEditUsers);
+                        }
+
+
+                        database.UpdateUserDetails(userToModify);
+
+
+                    } catch (NoSuchUserException e) {
+                        e.printStackTrace();
+                    }
+
+                } else return permissionDeniedResponse;
 
                 // Client will send server username(user whose permissions are to be changed),
                 // list of permissions, and valid session token
@@ -323,32 +370,45 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PASSWORD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
 
-                // Client will send server a username and hashedPassword
 
-                // if session user is trying to change own password Server will change password and send back acknowledgement of success
+                //If the user has the edit users permission, or if they are just trying to change their own password,
+                // they may....
+                if (authenticatedUser.CanEditUsers() == true || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
 
-                // else if session user is trying to change password of another user check permission = 'Edit User' == true then allow change
-                //and send back acknowledgement of success
+                    User userToChange = null;
 
-                // else return false send error
+                    try {
+                        userToChange = new User(req.getUsername(), database);
+                    } catch (NoSuchUserException e) {
+                        return new Response(false, "Could not find user");
+                    }
+
+                    if (userToChange != null) {
+                        userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
+                        database.UpdateUserDetails(userToChange);
+                    }
+
+                } // else return false send error
+                else return permissionDeniedResponse;
+
+
                 break;
             case DELETE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
-                if(req.getSession().serverUser.CanEditUsers() == true) {
+                if (authenticatedUser.CanEditUsers()) {
 
                     // Client will send username of user to be deleted and valid session token
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
                     Collator collator = Collator.getInstance(Locale.ENGLISH);
-                    if(collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0){
+                    if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
                         return new Response(false, "User cannot delete their own account");
-                    } else{
+                    } else {
                         try {
                             database.DeleteUser(deletionCandidate);
                         } catch (SQLException e) {
@@ -364,7 +424,6 @@ public class ClientHandler extends Thread {
             case LOGOUT:
 
 
-
                 // server will expire session token and send back and acknowledgement
                 break;
         }
@@ -372,6 +431,8 @@ public class ClientHandler extends Thread {
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
         //throw new IllegalStateException("Invalid request type: " + req.getRequestType());
     }
+
+    //</editor-fold>
 
     public boolean closeConnection() {
         boolean closed = false; // For testing purposes only
@@ -381,8 +442,7 @@ public class ClientHandler extends Thread {
             input.close();
             output.close();
             closed = true;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return closed;

@@ -1,4 +1,5 @@
 package SocketCommunication;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -6,14 +7,6 @@ import java.io.Serializable;
 
 
 public class Response implements Serializable {
-    public boolean isStatus() {
-        return status;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
     // pass/fail
     private boolean status;
     // generic data object for passing data back to client
@@ -24,7 +17,15 @@ public class Response implements Serializable {
         this.status = status;
     }
 
-    public byte[] serialise(){
+    public boolean isStatus() {
+        return status;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public byte[] serialise() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             ObjectOutputStream os = new ObjectOutputStream(bos);
