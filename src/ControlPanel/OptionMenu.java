@@ -107,9 +107,9 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Response res = null;
+                Response res;
                 try {
-                    res = Request.scheduledBillboardReq().Send(connector);
+                    res = Request.listAllBillboardsReq(connector.session).Send(connector);
                     Billboard[] billboards = (Billboard[])res.getData();
                     // Use the billboards array that was retrieved here
                 } catch (IOException eo) {

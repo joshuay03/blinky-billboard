@@ -5,11 +5,9 @@ import BillboardSupport.DummyBillboards;
 import SocketCommunication.Credentials;
 import SocketCommunication.Response;
 
+import javax.xml.transform.Result;
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -17,9 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 
 public class blinkyDB {
@@ -56,7 +53,7 @@ public class blinkyDB {
         this.props = newDB.props;
     }
 
-    public ResultSet getBillboards(String searchQuery, String searchType) throws SQLException {
+    public List<Billboard> getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
                 "select * from Billboards where ? like \"%?%\"" : "select * from Billboards";
@@ -68,10 +65,35 @@ public class blinkyDB {
             getBillboards.setString(2, searchQuery);
         }
         dbconn.setAutoCommit(true);
-        return getBillboards.executeQuery();
+        ResultSet rs = getBillboards.executeQuery();
+        List<Billboard> BillboardList = new ArrayList<>();
+
+        while (rs.next()){
+            // For each returned billboard from the database
+            Object image;
+            try{
+                ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+                ObjectInput in = new ObjectInputStream(bis);
+                image = in.readObject();
+            }
+            catch (Exception e){
+                image = null;
+            }
+            Billboard current = new Billboard();
+            current.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+            current.setCreator(rs.getString("creator"));
+            current.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+            current.setMessageColour(new Color(rs.getInt("messageColour")));
+            current.setInformationColour(new Color(rs.getInt("informationColour")));
+            current.setMessage(rs.getString("message"));
+            current.setInformation(rs.getString("information"));
+            current.setImageData((String) image);
+            BillboardList.add(current);
+        }
+        return BillboardList;
     }
 
-    public ResultSet getBillboards() throws SQLException {
+    public List<Billboard> getBillboards() throws SQLException {
         return this.getBillboards(null, null);
     }
 
@@ -90,6 +112,12 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
     }
 
+    /**
+     * Allows writing a billboard into the database
+     * @param billboard_in The billboard to write to the database
+     * @param creator The username of the billboard's creator
+     * @throws SQLException If the creation fails
+     */
     public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
         assert creator != null;
         // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
@@ -123,23 +151,10 @@ public class blinkyDB {
     }
 
     /**
-     * Custom lookup function for server admins - capable of retrieving any data within the database.
-     * @param tableName Name of table in which the lookup should be performed
-     * @param columnFilter Name of column to filter by
-     * @param valueFilter Value to filter by - supports *
-     * @return The result of the query
-     * @throws SQLException If there's an error in the query
-     */
-    protected ResultSet AdminLookUp(String tableName, String columnFilter, String valueFilter) throws SQLException {
-        final String sqlfilter = (!valueFilter.equals("*")) ? String.format("where %s = %s", columnFilter, valueFilter) : "";
-        return dbconn.createStatement().executeQuery(String.format("select * from %s %s", tableName, sqlfilter));
-    }
-
-    /**
      * A method for the User constructor to read user data from the database
      * @param username Username
      * @return The details of said user
-     * @throws SQLException If there are no users with the given username
+     * @throws SQLException If the user lookup fails
      */
     protected ResultSet LookUpUserDetails(String username) throws SQLException {
         PreparedStatement UserLookUp; // Create the prepared statement object
@@ -165,14 +180,33 @@ public class blinkyDB {
         return UserLookUp.executeQuery(); // Run the query
     }
 
-    public ResultSet getSchedules(LocalDateTime time) throws SQLException {
-        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
+    /**
+     * Get all schedules from the specified start time onwards
+     * @param time The earliest start time to get schedules of
+     * @param id The billboard ID to get schedules for
+     * @return The schedules
+     * @throws SQLException If the lookup fails
+     */
+    public ResultSet getSchedules(LocalDateTime time, int id) throws SQLException {
+        String filterString = id == -1 ? "" : "AND billboard_id = ?";
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?" + filterString;
         PreparedStatement ScheduleLookUp;
         dbconn.setAutoCommit(false);
         ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);
         ScheduleLookUp.setTimestamp(1, Timestamp.valueOf(time));
+        if (filterString.contains("?")) ScheduleLookUp.setInt(2, id);
         dbconn.setAutoCommit(true);
         return ScheduleLookUp.executeQuery();
+    }
+
+    /**
+     * Get all schedules from the specified start time onwards
+     * @param time The earliest start time to get schedules of
+     * @return The schedules
+     * @throws SQLException If the lookup fails
+     */
+    public ResultSet getSchedules(LocalDateTime time) throws SQLException {
+        return getSchedules(time, -1);
     }
 
     /**
@@ -245,15 +279,64 @@ public class blinkyDB {
             dbconn.commit();
         }
         catch (SQLException e){
-            try{
-                dbconn.rollback();
-                throw e;
-            }
-            catch (SQLException excep){
-                System.out.println(String.format("Rollback failed - %s", excep.getMessage()));
-                throw excep;
-            }
+            dbconn.rollback();
         }
         dbconn.setAutoCommit(true);
+    }
+
+    /**
+     * Register a viewer in the database
+     * @param Socket The viewer's socket (IP + port)
+     * @throws SQLException If the registration fails
+     */
+    protected void RegisterViewer(String Socket) throws SQLException {
+        String ViewerInserterString = "INSERT INTO Viewers (socket) VALUES(?);";
+        PreparedStatement ViewerInserter = dbconn.prepareStatement(ViewerInserterString);
+
+        dbconn.setAutoCommit(false);
+        try {
+            ViewerInserter.setString(1, Socket);
+
+            ViewerInserter.executeUpdate();
+            dbconn.commit();
+        }
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    /**
+     * Remove a viewer from the database
+     * @param id The id of the viewer to delete
+     * @throws SQLException If the deletion fails
+     */
+    protected void UnRegisterViewer(int id) throws SQLException {
+        String ViewerDeleterString = "DELETE FROM Viewers\n" +
+                "WHERE viewer_id=?;\n";
+        PreparedStatement ViewerDeleter = dbconn.prepareStatement(ViewerDeleterString);
+
+        dbconn.setAutoCommit(false);
+        try{
+            ViewerDeleter.setInt(1, id);
+            ViewerDeleter.executeUpdate();
+            dbconn.commit();
+        }
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    /**
+     * Get all viewers with their sockets
+     * @return The viewers
+     * @throws SQLException If the lookup fails
+     */
+    protected ResultSet GetViewers() throws SQLException {
+        String ViewersSelectorString = "SELECT viewer_id, socket\n" +
+                "FROM Viewers;\n";
+        PreparedStatement ViewersSelector = dbconn.prepareStatement(ViewersSelectorString);
+        return ViewersSelector.executeQuery();
     }
 }
