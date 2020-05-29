@@ -70,14 +70,15 @@ public class ClientHandler extends Thread {
 
     /**
      * A function which takes a request and returns a response object, to be sent back
+     *
      * @param req The request to handle
      * @return A response
      */
-    public Response handleInboundRequest(Request req) {
+    public Response handleInboundRequest(Request req) throws SQLException {
         final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
-        if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
+        if (!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
                 Token sessionAuthentication = Token.validate(req.getSession().token);
@@ -144,42 +145,36 @@ public class ClientHandler extends Thread {
 
 
                 break;
-            case CREATE_BILLBOARD:
-            {
+            case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
-                try{
+                try {
                     billboard = req.getBillboard();
-                }catch (Exception e)
+                } catch (Exception e) {
+                    return new Response(false, "Invalid billboard object");
+                }
 
-                {return new Response(false, "Invalid billboard object"); }
-
-                if(authenticatedUser.CanCreateBillboards())
-                {
-
-                } else return permissionDeniedResponse;
-
-                // triggered inside CreateBillboards() GUI
-                // user with "Create Billboards" permission // inside Gui
-
-
-
-                // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
-                // something like String billboardName = req.getData().get(billboardName);
-                String billboardInfo = billboard.getInformation();
-
-
-
-                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
-
-                // if billboard does exist
-                // get list of billboards session user has created
-                // if billboardName in list make edit if not return error
-
-                // if billboardName does not exist create new billboard
-
-                // if billboardName exist and is currently scheduled edit can not be made return error
-                // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
+                if (authenticatedUser.CanCreateBillboards()) {
+                    List<Billboard> billboards = database.getBillboards();
+                    if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
+                        // TODO: somehow check if a billboard is already scheduled in the DB
+                        if (billboard.isSheduled()) {
+                            if (authenticatedUser.CanEditAllBillboards()) {
+                                //replace billboard in db with billboard from request
+                                // TODO: make editBillboard()
+                                database.editBillboard(billboard, "test_user");
+                            } else {
+                                return new Response(false, "Invalid billboard edit permissions.");
+                            }
+                        } else {
+                            //TODO: need to be able to get authenticatedUser.username
+                            database.createBillboard(billboard, "test_user");
+                            return new Response(true, "Success");
+                        }
+                    }
+                } else {
+                    return permissionDeniedResponse;
+                }
             }
                 break;
             case EDIT_BILLBOARD:
