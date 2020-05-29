@@ -145,48 +145,25 @@ public class ClientHandler extends Thread {
                 if (authenticatedUser.CanCreateBillboards()) {
                         List<Billboard> billboards = database.getBillboards();
                         if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
-                            billboard
+                            // TODO: somehow check if a bilboard is already scheduled in the DB
+                            if (billboard.isSheduled()) {
+                                if (authenticatedUser.CanEditAllBillboards()) {
+                                    //replace billboard in db with billboard from request
+                                    // TODO: make editBillboard()
+                                    database.editBillboard(billboard, "test_user");
+                                } else {
+                                    return new Response(false, "Invalid billboard edit permissions.");
+                                }
+                            } else {
+                                //TODO: need to be able to get authenticatedUser.username
+                                database.createBillboard(billboard, "test_user");
+                                return new Response(true, "Success");
+                            }
+
                         }
-
-
-
-                    // if id doesn't exist create it
-
-                    // if id does exist replace it with new billboard object create billboard perms
-
-                    // if has create billboard permissions can only replace if not scheduled
-
-
-                    try {
-                        database.createBillboard(billboard, "Test_User");
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        return new Response(false, "Invalid billboard object");
-                    }
-
-                    return new Response(true, "Billboard created.");
-
                 } else {
                     return permissionDeniedResponse;
                 }
-
-                // triggered inside CreateBillboards() GUI
-                // user with "Create Billboards" permission // inside Gui
-
-
-                // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
-
-
-                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
-
-                // if billboard does exist
-                // get list of billboards session user has created
-                // if billboardName in list make edit if not return error
-
-                // if billboardName does not exist create new billboard
-
-                // if billboardName exist and is currently scheduled edit can not be made return error
-                // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
             }
             break;
             case EDIT_BILLBOARD:
