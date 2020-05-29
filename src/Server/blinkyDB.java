@@ -55,6 +55,13 @@ public class blinkyDB {
         this.props = newDB.props;
     }
 
+    /**
+     * Gets billboards from the database based on a search query
+     * @param searchQuery The query
+     * @param searchType The column to search through
+     * @return The billboards found
+     * @throws SQLException If the lookup failed
+     */
     public List<Billboard> getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
@@ -97,6 +104,38 @@ public class blinkyDB {
 
     public List<Billboard> getBillboards() throws SQLException {
         return this.getBillboards(null, null);
+    }
+
+    public Billboard getBillboard(int id) throws SQLException {
+        PreparedStatement getBillboard;
+        final String billboardLookUpString = "select * from Billboards where billboard_id = ?";
+        dbconn.setAutoCommit(false);
+        getBillboard = dbconn.prepareStatement(billboardLookUpString);
+        getBillboard.setInt(1, id);
+        dbconn.setAutoCommit(true);
+        ResultSet rs = getBillboard.executeQuery();
+
+        // Form a billboard from the returned resultset
+        Object image;
+        try{
+            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+            ObjectInput in = new ObjectInputStream(bis);
+            image = in.readObject();
+            }
+        catch (Exception e){
+            image = null;
+        }
+        rs.first();
+        Billboard billboard = new Billboard();
+        billboard.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+        billboard.setCreator(rs.getString("creator"));
+        billboard.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+        billboard.setMessageColour(new Color(rs.getInt("messageColour")));
+        billboard.setInformationColour(new Color(rs.getInt("informationColour")));
+        billboard.setMessage(rs.getString("message"));
+        billboard.setInformation(rs.getString("information"));
+        billboard.setImageData((String) image);
+        return billboard;
     }
 
     public void CreateViewer(String socket) throws SQLException {
