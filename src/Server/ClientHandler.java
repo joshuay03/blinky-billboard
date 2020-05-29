@@ -131,8 +131,11 @@ public class ClientHandler extends Thread {
             }
             case GET_BILLBOARD_INFO:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
+
                 // this is triggered inside the BillboardList()); GUI
+
                 // The control panel send the server the Billboard Name and valid session
+
                 // token e.g session = req.getSession();
 
                 //server responds with billboards contents
@@ -189,21 +192,16 @@ public class ClientHandler extends Thread {
                 // if edit is made replace contents of billboard with new
 
                 break;
+
             case DELETE_BILLBOARD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
+                try {
+                    database.DeleteBillboard(req.getBillboardID());
+                    return new Response(true, "The billboard has successfully been deleted.");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return new Response(false, "Billboard does not exist.");
+                }
 
-                // Client sends server billboard name and valid session token
-
-                // if billboardName does not exist return error
-
-                // Do something to find or check the permissions of session if not already found
-
-                // if session.permissions = 'Create Billboards' get list of billboards session user has created
-                // if billboard is created by session user and not currently scheduled allow delete else return error
-
-                // if session.permissions = 'Edit All Billboards' allow delete on any billboard
-
-                break;
             case VIEW_SCHEDULED_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 

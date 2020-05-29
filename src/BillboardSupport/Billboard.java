@@ -326,7 +326,6 @@ public class Billboard implements Serializable {
                 collator.compare(this.information, comparator.information) == 0 &&
                 imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : false ||
                 imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
-
     }
 
     public String getCreator() { return creator; }
