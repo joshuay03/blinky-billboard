@@ -87,10 +87,9 @@ class FunctionalityTest {
 
     @Test
     void SendLogOut(){
-        Request LogOutRequest = new Request(LOGOUT, null, session);
 
         // Attempt to log out
-        Response res = respondTo.apply(LogOutRequest);
+        Response res = respondTo.apply(Request.logoutReq(session));
 
         try {
             // Expire the session
@@ -108,7 +107,7 @@ class FunctionalityTest {
 
     @Test
     void ViewerCurrentlyScheduled(){
-        Request ScheduledBillboardRequest = new Request.scheduledBillboardReq();
+        Request ScheduledBillboardRequest = Request.scheduledBillboardReq();
 
         // Retrieve billboard from request
         Response res = respondTo.apply(ScheduledBillboardRequest);
