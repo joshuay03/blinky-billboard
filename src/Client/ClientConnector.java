@@ -1,11 +1,9 @@
 package Client;
 
-import SocketCommunication.SocketCommunication;
 import SocketCommunication.SocketConnection;
 import SocketCommunication.Session;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import static SocketCommunication.ServerRequest.*;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -16,7 +14,6 @@ import java.util.Arrays;
  * A base class for handling client communication.
  * Extends the SocketConnection base class for intitialising a socket connection with the server.
  * Implements the SocketCommunication interface for communicating directly with the server.
- * @see SocketCommunication
  * @see SocketConnection
  */
 public class ClientConnector extends SocketConnection {
@@ -77,12 +74,18 @@ public class ClientConnector extends SocketConnection {
             ip = InetAddress.getByAddress(IPAddress);
         }
         else ip = InetAddress.getByName("localhost");
-        // establish the connection with server port - this must be updated through the properties file
-        socket = new Socket(ip, getPort());
-        // obtaining input and out streams
-        input = new DataInputStream(socket.getInputStream());
-        output = new DataOutputStream(socket.getOutputStream());
-        session = null;
+        try {
+            // establish the connection with server port - this must be updated through the properties file
+            socket = new Socket(ip, getPort());
+            // obtaining input and out streams
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
+            session = null;
+            System.out.println("Connection initialised...");
+        }
+        catch(IOException e) {
+            System.out.println("Could not initialise the connection...");
+        }
     }
 
     public void close() throws IOException {

@@ -64,7 +64,7 @@ public class SocketConnection {
      */
     public void start() throws IOException {
         retrievePort();
-        System.out.println("The connection has been started...");
+        System.out.println("Initialising connection...");
     }
 
     /**

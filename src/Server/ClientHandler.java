@@ -23,10 +23,8 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 /**
  * A class to handle each client individually on an assigned thread.
- * Implements the SocketCommunication interface for communicating directly with the client socket.
- * @see SocketCommunication
  */
-public class ClientHandler extends Thread implements SocketCommunication {
+public class ClientHandler extends Thread {
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -397,15 +395,5 @@ public class ClientHandler extends Thread implements SocketCommunication {
             e.printStackTrace();
         }
         return closed;
-    }
-
-    @Override
-    public void sendOutput(String msg) {
-
-    }
-
-    @Override
-    public void retrieveInput() {
-
     }
 }
