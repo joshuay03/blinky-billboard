@@ -195,7 +195,8 @@
               <gridbag weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
-              <dividerLocation value="50"/>
+              <continuousLayout value="false"/>
+              <dividerLocation value="75"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>
@@ -216,7 +217,7 @@
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
                   <preferredSize width="267" height="36"/>
-                  <text value="Create New User       "/>
+                  <text value="Create New User          "/>
                 </properties>
               </component>
             </children>

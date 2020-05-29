@@ -190,7 +190,7 @@
               <card name="Card1"/>
             </constraints>
             <properties>
-              <dividerLocation value="50"/>
+              <dividerLocation value="75"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>
@@ -202,7 +202,7 @@
                 <properties>
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
-                  <text value="Create Billboards      "/>
+                  <text value="Create Billboards           "/>
                 </properties>
               </component>
               <component id="10b32" class="javax.swing.JButton" binding="backButton">

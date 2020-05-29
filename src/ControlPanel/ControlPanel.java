@@ -54,7 +54,8 @@ public class ControlPanel extends ClientConnector implements Runnable {
      * Creates a new control control panel instance
      * @param args unused
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         ControlPanel controlPanel = new ControlPanel
                 ("properties.txt");
         Scanner scanner = new Scanner(System.in);

@@ -106,7 +106,7 @@
               <gridbag weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
-              <dividerLocation value="50"/>
+              <dividerLocation value="75"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>
@@ -126,7 +126,7 @@
                 <properties>
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
-                  <text value="Option Menu       "/>
+                  <text value="Option Menu         "/>
                 </properties>
               </component>
             </children>
