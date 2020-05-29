@@ -94,7 +94,7 @@ public class Viewer extends JFrame implements ActionListener   {
 
             try {
                 connector.start();
-                response = connector.sendRequest(new Request(ServerRequest.VIEWER_CURRENTLY_SCHEDULED, null, null));
+                response = connector.sendRequest(Request.scheduledBillboardReq());
                 connector.close();
                 currentBillboard = (Billboard) response.getData();
             } catch (IOException ex) {

@@ -107,31 +107,25 @@ public class User {
     /** Setters **/
     public void setPasswordFromCredentials(Credentials newCredentials, blinkyDB database) throws SQLException { // Change user password. Changing the user's username is not allowed.
         this.saltedCredentials = new Credentials(this.saltedCredentials.getUsername(), AuthenticationHandler.HashPasswordHashSalt(newCredentials.getPasswordHash(), salt));
-        database.UpdateUserDetails(this);
     }
 
-    public void setSalt(byte[] salt, blinkyDB database) throws SQLException {
+    public void setSalt(byte[] salt) throws SQLException {
         this.salt = salt;
-        database.UpdateUserDetails(this);
     }
 
-    public void setCanCreateBillboards(boolean canCreateBillboards, blinkyDB database) throws SQLException {
+    public void setCanCreateBillboards(boolean canCreateBillboards) throws SQLException {
         CanCreateBillboards = canCreateBillboards;
-        database.UpdateUserDetails(this);
     }
 
-    public void setEditAllBillBoards(boolean editAllBillBoards, blinkyDB database) throws SQLException {
+    public void setEditAllBillBoards(boolean editAllBillBoards) throws SQLException {
         EditAllBillBoards = editAllBillBoards;
-        database.UpdateUserDetails(this);
     }
 
-    public void setScheduleBillboards(boolean scheduleBillboards, blinkyDB database) throws SQLException {
+    public void setScheduleBillboards(boolean scheduleBillboards) throws SQLException {
         ScheduleBillboards = scheduleBillboards;
-        database.UpdateUserDetails(this);
     }
 
-    public void setEditUsers(boolean editUsers, blinkyDB database) throws SQLException {
+    public void setEditUsers(boolean editUsers) throws SQLException {
         EditUsers = editUsers;
-        database.UpdateUserDetails(this);
     }
 }

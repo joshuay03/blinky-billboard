@@ -41,8 +41,7 @@ public class ListBillboards {
 
 
     private void createUIComponents() {
-        Request listRequest = new Request(LIST_BILLBOARDS, null, connector.session);
-
+        Request listRequest = Request.listAllBillboardsReq(connector.session);
 
         // Send request to server
         Response response;
@@ -51,7 +50,7 @@ public class ListBillboards {
         try {
             response = listRequest.Send(connector);
         } catch (IOException excep) {
-            JOptionPane.showMessageDialog(null, "Cannot connect to server");;
+            JOptionPane.showMessageDialog(null, "Cannot connect to server");
             return;
         }
 

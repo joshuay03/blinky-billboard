@@ -106,7 +106,7 @@ public class ClientHandler extends Thread {
                 // EXAMPLE how to use the request given from the client
                 Credentials credentials;
                 try{
-                    credentials = (Credentials)req.getData();
+                    credentials = req.getCredentials();
                 }catch (Exception e)
                 {return new Response(false, "Missing username or password");}
                 try {
@@ -171,7 +171,7 @@ public class ClientHandler extends Thread {
                 assert authenticatedUser != null;
                 Billboard billboard;
                 try{
-                    billboard = (Billboard) req.getData();
+                    billboard = req.getBillboard();
                 }catch (Exception e)
 
                 {return new Response(false, "Invalid billboard object"); }

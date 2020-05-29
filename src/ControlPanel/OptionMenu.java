@@ -109,7 +109,7 @@ public class OptionMenu implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 Response res = null;
                 try {
-                    res = new Request(LIST_BILLBOARDS, null, connector.session).Send(connector);
+                    res = Request.scheduledBillboardReq().Send(connector);
                     Billboard[] billboards = (Billboard[])res.getData();
                     // Use the billboards array that was retrieved here
                 } catch (IOException eo) {

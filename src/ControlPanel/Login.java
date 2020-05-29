@@ -49,7 +49,7 @@ public class Login {
                     Credentials loginDetails = new Credentials(username, password);
 
                     //create request
-                    Request loginRequest = new Request(LOGIN, loginDetails, null);
+                    Request loginRequest = Request.loginReq(loginDetails);
 
                     // Send request to server
                     Response response;
