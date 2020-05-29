@@ -316,8 +316,7 @@ public class Billboard implements Serializable {
                 this.informationColour.equals(comparator.informationColour) &&
                 collator.compare(this.message, comparator.message) == 0 &&
                 collator.compare(this.information, comparator.information) == 0 &&
-                imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : false ||
-                imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
+                imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
     }
 
     public String getCreator() {

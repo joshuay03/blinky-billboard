@@ -2,6 +2,7 @@ package Server;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
+import BillboardSupport.Schedule;
 import Exceptions.AuthenticationFailedException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
@@ -14,10 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
@@ -165,9 +163,22 @@ public class ClientHandler extends Thread {
 
                 if (authenticatedUser.CanCreateBillboards()) {
                     List<Billboard> billboards = database.getBillboards();
-                    if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
-                        // TODO: somehow check if a billboard is already scheduled in the DB
-                        if (billboard.isScheduled()) {
+
+                    Optional<Billboard> billboardMatch = billboards.stream().filter(x -> x.equals(billboard)).findFirst();
+
+                    if (billboardMatch.isEmpty()) {
+                        database.createBillboard(billboard, "test_user");
+                        return new Response(true, "Success");
+                    } else {
+                        Billboard existingBillboard = billboardMatch.get();
+
+                        Schedule schedule = existingBillboard.getSchedule();
+
+                        if (schedule == null) {
+                            // TODO: need to be able to get username from authUser
+                            database.createBillboard(billboard, authenticatedUser.getUsername());
+                            return new Response(true, "Success");
+                        } else {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
@@ -175,10 +186,6 @@ public class ClientHandler extends Thread {
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }
-                        } else {
-                            //TODO: need to be able to get authenticatedUser.username
-                            database.createBillboard(billboard, "test_user");
-                            return new Response(true, "Success");
                         }
                     }
                 } else {
@@ -320,7 +327,7 @@ public class ClientHandler extends Thread {
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
-                if (authenticatedUser.CanEditUsers() == true) {
+                if (authenticatedUser.CanEditUsers()) {
 
                     //FIXME - should only be passing credentials object through on this one
                     try {
@@ -369,7 +376,7 @@ public class ClientHandler extends Thread {
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
-                if (authenticatedUser.CanEditUsers() == true || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
+                if (authenticatedUser.CanEditUsers() || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
 
                     User userToChange = null;
 
