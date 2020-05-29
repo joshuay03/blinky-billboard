@@ -129,4 +129,5 @@ public class User implements Serializable {
     public void setEditUsers(boolean editUsers) throws SQLException {
         EditUsers = editUsers;
     }
+
 }

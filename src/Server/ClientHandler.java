@@ -47,19 +47,15 @@ public class ClientHandler extends Thread {
                 ObjectOutputStream outputWriter = new ObjectOutputStream(output);
                 try {
                     // Cast the data into a request object to find out what the client wants
-                    Request req = (Request)inputObject.readObject();
+                    Request req = (Request) inputObject.readObject();
                     outputData = handleInboundRequest(req); // Handle the client's request and retrieve the response for that request
                     outputWriter.writeObject(outputData); // Replaced below statement with a generic object writer
-                }
-                catch (IllegalStateException e){
+                } catch (IllegalStateException e) {
                     outputWriter.writeObject(new Response(false, e.getMessage())); // Send a response to the client, informing it that an invalid request has been sent
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 closed = closeConnection();
                 System.out.println("Connection closed");
             }
@@ -68,14 +64,15 @@ public class ClientHandler extends Thread {
 
     /**
      * A function which takes a request and returns a response object, to be sent back
+     *
      * @param req The request to handle
      * @return A response
      */
-    public Response handleInboundRequest(Request req) {
+    public Response handleInboundRequest(Request req) throws SQLException {
         final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
-        if(!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
+        if (!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
         {
             try {
                 Token sessionAuthentication = Token.validate(req.getSession().token);
@@ -87,43 +84,40 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiryDate))
-                {
-                    return new Response(false,"Token has expired.");
+                if (now.after(sessionAuthentication.expiryDate)) {
+                    return new Response(false, "Token has expired.");
                 }
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
             }
         }
         // Example handle login
-        switch(req.getRequestType()) {
-            case VIEWER_CURRENTLY_SCHEDULED:
-            {
+        switch (req.getRequestType()) {
+            case VIEWER_CURRENTLY_SCHEDULED: {
                 return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
-            case LOGIN:
-            {
+            case LOGIN: {
                 // EXAMPLE how to use the request given from the client
                 Credentials credentials;
-                try{
+                try {
                     credentials = req.getCredentials();
-                }catch (Exception e)
-                {return new Response(false, "Missing username or password");}
+                } catch (Exception e) {
+                    return new Response(false, "Missing username or password");
+                }
                 try {
                     return new Response(true, new Session(credentials, database));
                 } catch (AuthenticationFailedException | NoSuchUserException e) {
-                    return new Response( false, "Cannot create session.");
+                    return new Response(false, "Cannot create session.");
                 }
             }
-            case LIST_BILLBOARDS:
-            {
+            case LIST_BILLBOARDS: {
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
                 List<Billboard> billboardList;
-                try{
+                try {
                     billboardList = database.getBillboards();
 
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
                 }
                 // The billboard list now has all of the returned billboards - convert to an array and return
@@ -139,30 +133,48 @@ public class ClientHandler extends Thread {
 
 
                 break;
-            case CREATE_BILLBOARD:
-            {
+            case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
-                try{
+                try {
                     billboard = req.getBillboard();
-                }catch (Exception e)
+                } catch (Exception e) {
+                    return new Response(false, "Invalid billboard object");
+                }
 
-                {return new Response(false, "Invalid billboard object"); }
+                if (authenticatedUser.CanCreateBillboards()) {
+                        List<Billboard> billboards = database.getBillboards();
+                        if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
+                            billboard
+                        }
 
-                if(authenticatedUser.CanCreateBillboards())
-                {
 
-                } else return permissionDeniedResponse;
+
+                    // if id doesn't exist create it
+
+                    // if id does exist replace it with new billboard object create billboard perms
+
+                    // if has create billboard permissions can only replace if not scheduled
+
+
+                    try {
+                        database.createBillboard(billboard, "Test_User");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        return new Response(false, "Invalid billboard object");
+                    }
+
+                    return new Response(true, "Billboard created.");
+
+                } else {
+                    return permissionDeniedResponse;
+                }
 
                 // triggered inside CreateBillboards() GUI
                 // user with "Create Billboards" permission // inside Gui
 
 
-
                 // Client sends the Server the billboards name, contents (billboard ID, creator) and valid session token
-                // something like String billboardName = req.getData().get(billboardName);
-                String billboardInfo = billboard.getInformation();
-
 
 
                 // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
@@ -176,7 +188,7 @@ public class ClientHandler extends Thread {
                 // if billboardName exist and is currently scheduled edit can not be made return error
                 // if billboardName exist and is not currently scheduled replace contents of billboard with new contents
             }
-                break;
+            break;
             case EDIT_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
@@ -251,17 +263,15 @@ public class ClientHandler extends Thread {
                 // if info is correct Server will remove the billboard from the schedule and send back an acknowledgement of success
 
                 break;
-            case LIST_USERS:
-            {
+            case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
-                if (authenticatedUser.CanEditUsers()){
+                if (authenticatedUser.CanEditUsers()) {
                     // triggered inside EditUsers() GUI
                     try {
                         List<String> usernames = new ArrayList<>();
                         ResultSet rs = database.LookUpAllUserDetails();
-                        while (rs.next())
-                        {
+                        while (rs.next()) {
                             usernames.add(rs.getString("user_name"));
                         }
                         return new Response(true, usernames);
@@ -270,9 +280,7 @@ public class ClientHandler extends Thread {
                         return new Response(false, "Lookup failed.");
                     }
 
-                }
-                else
-                {
+                } else {
                     return permissionDeniedResponse;
                 }
             }
@@ -363,8 +371,7 @@ public class ClientHandler extends Thread {
             input.close();
             output.close();
             closed = true;
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return closed;
