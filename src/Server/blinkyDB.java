@@ -28,15 +28,16 @@ public class blinkyDB {
      * @throws IOException If db.props isn't found
      * @throws SQLException If there's a problem connecting to the database
      */
-    public blinkyDB(Boolean dropSchema) throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
-        props = new DBProps(); // Read db.props
+    public blinkyDB(Boolean dropSchema, String overrideSchemaName) throws IOException, SQLException { // Create a new database object - attempting to populate an actual database if one isn't already initialised. Then, start a connection to the database.
+        if (overrideSchemaName != null) props = new DBProps(overrideSchemaName); // Read db.props
+        else props = new DBProps();
         // Ensure the schema exists
-        Connection init_schema = DriverManager.getConnection("jdbc:mariadb://"+props.url+":3306/", props.username, props.password);
+        Connection init_schema = DriverManager.getConnection("jdbc:mariadb://"+props.url, props.username, props.password);
         if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
         init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
         init_schema.close();
         // Start a database connection
-        dbconn = DriverManager.getConnection("jdbc:mariadb://"+props.url+":3306/"+props.schema, props.username, props.password);
+        dbconn = DriverManager.getConnection("jdbc:mariadb://"+props.url+"/"+props.schema, props.username, props.password);
         // Try to initialise based on sql file
         Path sqlInitFile = Paths.get(new File("blinkybillboard.sql").getPath());
         String[] batch = new String(Files.readAllBytes(sqlInitFile)).split("(?<=;)");
@@ -48,7 +49,7 @@ public class blinkyDB {
     }
 
     public blinkyDB() throws IOException, SQLException {
-        blinkyDB newDB = new blinkyDB(false);
+        blinkyDB newDB = new blinkyDB(false, null);
         this.dbconn = newDB.dbconn;
         this.props = newDB.props;
     }
@@ -276,6 +277,29 @@ public class blinkyDB {
             updateUser.setString(4, user.getSaltedCredentials().getUsername());
 
             updateUser.executeUpdate();
+            dbconn.commit();
+        }
+        catch (SQLException e){
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    /**
+     * Deletes users from the database
+     * @param username The username to delete
+     * @throws SQLException If the deletion fails
+     */
+    public void DeleteUser(String username) throws SQLException {
+        String UserDeletionString = "DELETE FROM Users\n" +
+                "WHERE user_name='?';\n";
+
+        PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
+        dbconn.setAutoCommit(false);
+        try{
+            UserDeleter.setString(1, username);
+
+            UserDeleter.executeUpdate();
             dbconn.commit();
         }
         catch (SQLException e){

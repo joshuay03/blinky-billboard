@@ -107,19 +107,35 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Response res;
-                try {
-                    res = Request.listAllBillboardsReq(connector.session).Send(connector);
-                    Billboard[] billboards = (Billboard[])res.getData();
-                    // Use the billboards array that was retrieved here
+                Request listRequest = Request.listAllBillboardsReq(connector.session);
 
-                    frame.setContentPane(new ListBillboards(frame, connector).listBillboardsPanel);
+                // Send request to server
+                Response response;
+                // use global input stream, this is just to show how it works
+
+                try {
+                    response = listRequest.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, errorMsg);
+                    // return some error response if status is false
+                }
+
+
+                if (status) {
+                    Billboard[] billboardList =  ((Billboard[])response.getData());
+                    frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
-
-                } catch (IOException eo) {
-                    eo.printStackTrace();
                 }
             }
         });
