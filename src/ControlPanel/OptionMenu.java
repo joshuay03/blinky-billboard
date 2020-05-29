@@ -27,6 +27,7 @@ public class OptionMenu implements Runnable {
     protected JButton backButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
+    private JButton logoutButton;
     protected ClientConnector connector;
 
     /**
@@ -131,8 +132,36 @@ public class OptionMenu implements Runnable {
 
 
                 if (status) {
-                    Billboard[] billboardList =  ((Billboard[])response.getData());
+                    Billboard[] billboardList = ((Billboard[]) response.getData());
                     frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
+            }
+        });
+        logoutButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Request request = Request.logoutReq(connector.session);
+
+                Response response;
+
+                try {
+                    response = request.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
+                    return;
+                }
+
+                if (response.isStatus()) {
+                    connector.session = null;
+                    frame.setContentPane(new Login(frame, connector).loginPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
