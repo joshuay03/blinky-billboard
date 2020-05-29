@@ -119,8 +119,9 @@ public class blinkyDB {
      * @param billboard_in The billboard to write to the database
      * @param creator The username of the billboard's creator
      * @throws SQLException If the creation fails
+     * @return The id of the created billboard
      */
-    public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
+    public int createBillboard(Billboard billboard_in, String creator) throws SQLException {
         assert creator != null;
         // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
         Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
@@ -136,6 +137,7 @@ public class blinkyDB {
             SerialisedImage = bos.toByteArray();
         } catch (IOException e) { SerialisedImage = new byte[0]; }
         PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+        int id;
         try {
             insertBillboard.setString(1, creator);
             insertBillboard.setInt(2, ((Color)getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
@@ -146,10 +148,17 @@ public class blinkyDB {
             insertBillboard.setBytes(7, SerialisedImage);
             insertBillboard.executeUpdate();
             dbconn.commit();
+            ResultSet rs = dbconn.prepareStatement("SELECT billboard_id from Billboards order by billboard_id DESC limit 1").executeQuery();
+            rs.first();
+            id = rs.getInt(1);
+
         } catch (SQLException e) {
             dbconn.rollback();
+            throw e;
         }
         dbconn.setAutoCommit(true);
+        billboard_in.setBillboardDatabaseKey(id);
+        return id;
     }
 
     /**
