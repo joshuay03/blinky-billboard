@@ -23,7 +23,7 @@ public class Request implements Serializable {
         return credentials;
     }
 
-    public String getBillboardID() {
+    public int getBillboardID() {
         return billboardID;
     }
 
@@ -38,7 +38,7 @@ public class Request implements Serializable {
     // Request transmission data
     Billboard billboard = null;
     Credentials credentials = null;
-    String billboardID = null;
+    int billboardID = -1;
     User user = null;
     String username = null;
 
@@ -86,7 +86,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request getBillboardInfoReq(String billboardID, Session session){
+    public static Request getBillboardInfoReq(int billboardID, Session session){
         Request infoReq = new Request(ServerRequest.GET_BILLBOARD_INFO, session);
         infoReq.billboardID = billboardID;
         return infoReq;
@@ -115,7 +115,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request editBillboardReq(String billboardID, Billboard changedBillboard, Session session){
+    public static Request editBillboardReq(int billboardID, Billboard changedBillboard, Session session){
         Request editReq = new Request(ServerRequest.EDIT_BILLBOARD, session);
         editReq.billboardID = billboardID;
         editReq.billboard = changedBillboard;
@@ -128,7 +128,7 @@ public class Request implements Serializable {
      * @param session A Session Object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request deleteBillboardReq(String billboardID, Session session){
+    public static Request deleteBillboardReq(int billboardID, Session session){
         Request deleteReq = new Request(ServerRequest.DELETE_BILLBOARD, session);
         deleteReq.billboardID = billboardID;
         return deleteReq;
@@ -140,7 +140,7 @@ public class Request implements Serializable {
      * @param session A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request removeScheduledBillboardReq(String billboardID, Session session){
+    public static Request removeScheduledBillboardReq(int billboardID, Session session){
         Request removeSchReq = new Request(ServerRequest.REMOVE_SCHEDULED, session);
         removeSchReq.billboardID = billboardID;
         return removeSchReq;

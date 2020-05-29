@@ -4,11 +4,12 @@ import Exceptions.NoSuchUserException;
 import Exceptions.UserAlreadyExistsException;
 import SocketCommunication.Credentials;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-public class User {
+public class User implements Serializable {
 
     private Credentials saltedCredentials;
     public Credentials getSaltedCredentials() {
