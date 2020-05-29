@@ -49,10 +49,8 @@ public class CreateBillboards {
     protected JButton backgroundColourButton;
     protected JButton saveBillboardButton;
 
-
-    protected Billboard billboard;
-
     protected ColourChooser colourChooser = new ColourChooser();
+    protected Billboard billboard;
     protected JFrame previewFrame;
 
     /**
@@ -97,8 +95,6 @@ public class CreateBillboards {
                     informationTextArea.setText(billboard.getInformation());
 
                     if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
-
-
                 }
             }
         });
@@ -131,8 +127,13 @@ public class CreateBillboards {
                         ex.printStackTrace();
                     }
                 }
+            }
+        });
 
-
+        saveBillboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO Insert save billboard functionality here
             }
         });
 
@@ -287,10 +288,6 @@ public class CreateBillboards {
         });
     }
 
-    private void importXML(File xmlFile) {
-
-    }
-
     private static String encodeFileToBase64Binary(File file) throws IOException {
         byte[] bytes = loadFile(file);
         byte[] encoded = Base64.getEncoder().encode(bytes);
@@ -304,7 +301,7 @@ public class CreateBillboards {
 
         long length = file.length();
         if (length > Integer.MAX_VALUE) {
-            // File is too large
+            JOptionPane.showMessageDialog(null, "File is too large", "Error", JOptionPane.DEFAULT_OPTION);
         }
         byte[] bytes = new byte[(int)length];
 
