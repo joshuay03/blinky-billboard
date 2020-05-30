@@ -231,12 +231,7 @@ public class ClientHandler extends Thread {
                 break;
             case SCHEDULE_BILLBOARD:
                 // TODO - implement
-                // 1. Query billboards with start time in past
-                // 2. Filter for billboard actually scheduled right now
-                //        - Overlapping rules - find all candidates, select last in time from candidates
-                // 3. Return
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+          
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // triggered inside the ScheduleBillboards() GUI
 
