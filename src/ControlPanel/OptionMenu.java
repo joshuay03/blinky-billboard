@@ -44,7 +44,13 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Send request to server to expire token
+                Response logoutResp = null;
+                try {
+                    logoutResp = Request.logoutReq(connector.session).Send(connector);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
                 connector.session = null;
                 frame.setContentPane(new Login(frame, connector).loginPanel);
                 frame.pack();
