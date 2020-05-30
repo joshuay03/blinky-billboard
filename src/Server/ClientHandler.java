@@ -219,14 +219,22 @@ public class ClientHandler extends Thread {
                 }
 
             case VIEW_SCHEDULED_BILLBOARDS:
-                // TODO - write using database.getSchedules
+            {
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
+                try {
+                    assert authenticatedUser != null;
 
-                // client will send server a valid session
+                    // client will send server a valid session
+                    List<Schedule> allScheduledBillboards = database.getSchedules(LocalDateTime.now());
 
-                // if session token is valid server will respond with list of billboards that have been scheduled
-                // including billboardName, creator, time scheduled, and duration
+                    // if session token is valid server will respond with list of billboards that have been scheduled
+                    // including billboardName, creator, time scheduled, and duration
+                    return new Response(true, allScheduledBillboards);
+                } catch (Exception e){}
+
+                return new Response(false, "No billboards currently scheduled");
+            }
 
                 break;
             case SCHEDULE_BILLBOARD:
