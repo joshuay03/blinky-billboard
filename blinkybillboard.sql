@@ -43,15 +43,6 @@ CREATE TABLE IF NOT EXISTS `Billboards` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Billboards`
---
-
-LOCK TABLES `Billboards` WRITE;
-/*!40000 ALTER TABLE `Billboards` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Billboards` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Scheduling`
 --
 

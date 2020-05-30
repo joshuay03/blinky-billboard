@@ -291,6 +291,8 @@ public class ClientHandler extends Thread {
                 }
             }
             case CREATE_USER:
+            {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 // TODO - implement
                 // request only happens if user has 'Edit Users' permission
@@ -314,8 +316,7 @@ public class ClientHandler extends Thread {
                 } else {
                     return permissionDeniedResponse;
                 }
-
-
+            }
                 break;
             case GET_USER_PERMISSION:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
@@ -406,6 +407,7 @@ public class ClientHandler extends Thread {
                 break;
             case DELETE_USER:
             {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
