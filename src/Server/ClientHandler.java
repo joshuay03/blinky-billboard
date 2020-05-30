@@ -237,28 +237,31 @@ public class ClientHandler extends Thread {
             }
             case SCHEDULE_BILLBOARD: {
                 // TODO - implement
-
-
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
-                // this request will only happen is user has 'Schedule Billboards' permission
-                // triggered inside the ScheduleBillboards() GUI
-
-                //Client will send server billboardName, timeScheduled, duration, and valid session
-                // (there also might be more information e.g for handling recurrence)
-
-                // if billboard name is not found return error
-
-                // Else server will add new billboard to schedule
-
-                // if there is a billboard previously scheduled for the time of the newly scheduled billboard
-                // new billboard will take precedence over previously scheduled billboard but will not delete previously scheduled
-
-                // e.g billboard A scheduled from 10:00-11:00 and billboard B is then scheduled from 10:30-11
-                // billboard A will display until 10:30 then billboard B will be displayed
-
-                // once billboard is scheduled Server will send back an acknowledgement of success
-
+                assert authenticatedUser != null;
+                try {
+                    // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration
+                    int interval = req.getBillboard().getSchedule().repeatInterval;
+                    // Duration in minutes
+                    int duration = req.getBillboard().getSchedule().duration;
+                    Timestamp startTime = req.getBillboard().getSchedule().StartTime;
+                    Timestamp endTime = req.getBillboard().getSchedule().EndTime;
+                    Timestamp currTime = startTime;
+                    long nanoseconds = 0;
+                    if (authenticatedUser.CanScheduleBillboards()) {
+                        while (currTime.before(endTime)) {
+                            database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
+                            nanoseconds = currTime.getTime() + ((interval * 60) * 1000);
+                            currTime.setTime(nanoseconds);
+                            req.getBillboard().getSchedule().StartTime = currTime;
+                        }
+                        return new Response(true, "The billboard has successfully been scheduled.");
+                    } else {
+                        return permissionDeniedResponse;
+                    }
+                }
+                catch (SQLException e) {
+                    return new Response(false, "Unable to schedule billboard");
+                }
         }
             case REMOVE_SCHEDULED:
             {
