@@ -79,7 +79,7 @@ public class ClientHandler extends Thread {
      * @param req The request to handle
      * @return A response
      */
-    public Response handleInboundRequest(Request req) throws SQLException {
+    public Response handleInboundRequest(Request req) {
         final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
@@ -148,6 +148,8 @@ public class ClientHandler extends Thread {
                     return new Response(true, result);
                 } catch (BillboardNotFoundException e) {
                     return new Response(false, "Could not find Billboard with that ID");
+                } catch (SQLException e) {
+                    return new Response(false, "Lookup failed");
                 }
             }
             case CREATE_BILLBOARD: {
@@ -170,10 +172,15 @@ public class ClientHandler extends Thread {
                         {
                             try {
                                 database.editBillboard(billboard.getBillboardName(), billboard.getBackgroundColour(), billboard.getMessageColour(), billboard.getInformationColour(), billboard.getMessage(), billboard.getInformation(), billboard.getImageData());
-                            } catch (BillboardNotFoundException ignored) {}
+                            } catch (BillboardNotFoundException ignored) {} catch (SQLException throwables) {
+                                return new Response(true, "Database error");
+                            }
                             return new Response(true, "Existing billboard was found and edited successfully.");
                         }
                         else return new Response(false, "There's already an existing billboard with that name, which you may not edit.");
+                    }
+                    catch (SQLException e) {
+                        return new Response(false, "There was a database error.");
                     }
                 } else {
                     return permissionDeniedResponse;
@@ -188,6 +195,8 @@ public class ClientHandler extends Thread {
                     orig = database.getBillboard(req.getBillboardName());
                 } catch (BillboardNotFoundException e) {
                     return new Response(false, e.getMessage());
+                } catch (SQLException e) {
+                    return new Response(false, "There was a database error.");
                 }
                 // If the user is allowed to edit this billboard
                 if (orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) ||
@@ -197,6 +206,8 @@ public class ClientHandler extends Thread {
                         database.editBillboard(req.getBillboardName(), modifiedBillboard.getBackgroundColour(), modifiedBillboard.getMessageColour(), modifiedBillboard.getInformationColour(), modifiedBillboard.getMessage(), modifiedBillboard.getInformation(), modifiedBillboard.getImageData());
                     } catch (BillboardNotFoundException e) {
                         return new Response(false, e.getMessage());
+                    } catch (SQLException e) {
+                        return new Response(false, "There was a database error.");
                     }
                     return new Response(true, String.format("Billboard %s was changed successfully", req.getBillboardName()));
                 }
@@ -395,6 +406,8 @@ public class ClientHandler extends Thread {
 
                     } catch (NoSuchUserException e) {
                         e.printStackTrace();
+                    } catch (SQLException e) {
+                        return new Response(false, "There was a database error.");
                     }
                 } else return permissionDeniedResponse;
 
@@ -426,7 +439,11 @@ public class ClientHandler extends Thread {
                     }
 
                     userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
-                    database.UpdateUserDetails(userToChange);
+                    try {
+                        database.UpdateUserDetails(userToChange);
+                    } catch (SQLException e) {
+                        return new Response(false, "There was a database error.");
+                    }
 
                 } // else return false send error
                 else return permissionDeniedResponse;

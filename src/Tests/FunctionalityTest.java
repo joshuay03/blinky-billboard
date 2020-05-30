@@ -71,13 +71,7 @@ class FunctionalityTest {
             }
         }
         database.CreateViewer("localhost:5506");
-        respondTo = req -> {
-            try {
-                return new ClientHandler(null, null, null, new blinkyDB()).handleInboundRequest(req);
-            } catch (SQLException | IOException e) {
-                return null;
-            }
-        };
+        respondTo = new ClientHandler(null, null, null, database)::handleInboundRequest;
         setupAndLogin();
     }
 
