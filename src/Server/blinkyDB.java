@@ -24,6 +24,8 @@ public class blinkyDB {
     final private DBProps props;
     final private Connection dbconn;
 
+    //TODO insert constants which correspond to database columns
+
     /**
      * Database object constructor
      *

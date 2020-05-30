@@ -17,6 +17,8 @@ public class User implements Serializable {
     private boolean EditAllBillBoards;
     private boolean ScheduleBillboards;
     private boolean EditUsers;
+
+    // TODO - create wrapper functions for readability
     /**
      * Creates a new User object based on a username from the supplied database.
      *
