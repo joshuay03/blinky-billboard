@@ -7,6 +7,7 @@ import ControlPanel.CreateBillboards;
 import Exceptions.*;
 import SocketCommunication.*;
 
+import javax.xml.transform.Result;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -179,16 +180,28 @@ public class ClientHandler extends Thread {
                 }
             }
             case EDIT_BILLBOARD:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
-                // this request will only happen if User has 'Edit all Billboards' permission
-                // Client sends server billboardName, contents (billboard ID, creator) and valid session token
-
-                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
-
-                // Edit can be made by this user to any billboard on list (even if currently scheduled)
-                // if edit is made replace contents of billboard with new
-
+            {
+                assert authenticatedUser != null;
+                Billboard modifiedBillboard = req.getBillboard();
+                Billboard orig;
+                try {
+                    orig = database.getBillboard(req.getBillboardName());
+                } catch (BillboardNotFoundException e) {
+                    return new Response(false, e.getMessage());
+                }
+                // If the user is allowed to edit this billboard
+                if (orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) ||
+                authenticatedUser.CanEditAllBillboards())
+                {
+                    try {
+                        database.editBillboard(req.getBillboardName(), modifiedBillboard.getBackgroundColour(), modifiedBillboard.getMessageColour(), modifiedBillboard.getInformationColour(), modifiedBillboard.getMessage(), modifiedBillboard.getInformation(), modifiedBillboard.getImageData());
+                    } catch (BillboardNotFoundException e) {
+                        return new Response(false, e.getMessage());
+                    }
+                    return new Response(true, String.format("Billboard %s was changed successfully", req.getBillboardName()));
+                }
+                else return permissionDeniedResponse;
+            }
             case DELETE_BILLBOARD:
             {
                 try {
