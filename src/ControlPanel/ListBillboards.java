@@ -23,11 +23,12 @@ public class ListBillboards {
 
     protected List<Billboard> billboardList;
     protected JList<String> billboardJList;
-    DefaultListModel<String> model;
+    protected DefaultListModel<String> model;
+
+    protected JFrame previewBillboardContentsFrame;
 
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
-
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -43,6 +44,7 @@ public class ListBillboards {
                 frame.setVisible(true);
             }
         });
+
         billboardJList.addListSelectionListener(new ListSelectionListener() {
             /**
              * Called whenever the value of the selection changes.
@@ -51,11 +53,11 @@ public class ListBillboards {
              */
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                Billboard b = billboardList.get(billboardJList.getSelectedIndex());
-                frame.setContentPane(new PreviewBillboardContents(frame, connector, b).previewBillboardContentsPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(billboard).previewBillboardContentsPanel);
+                previewBillboardContentsFrame.pack();
+                previewBillboardContentsFrame.setLocationRelativeTo(frame);
+                previewBillboardContentsFrame.setVisible(true);
             }
         });
     }
@@ -69,5 +71,8 @@ public class ListBillboards {
         }
 
         billboardJList.setModel(model);
+
+        previewBillboardContentsFrame = new JFrame();
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(200, 200));
     }
 }

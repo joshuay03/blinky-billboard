@@ -18,6 +18,7 @@ public class PreviewBillboardContents {
     private JLabel messageColorLabel;
     private JLabel messageLabel;
     private JLabel billboardNameLabel;
+    private JTextArea informationTextArea;
     private Billboard billboard;
 
     private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
@@ -36,7 +37,7 @@ public class PreviewBillboardContents {
     }
 
 
-    public PreviewBillboardContents(JFrame previewBillboardContentsFrame, ClientConnector connector, Billboard billboard) {
+    public PreviewBillboardContents(Billboard billboard) {
         Color infoColor = billboard.getInformationColour();
         if( infoColor != null ) {
             infoColorLabel.setText(infoColor.toString().replace("java.awt.Color", ""));
@@ -47,7 +48,9 @@ public class PreviewBillboardContents {
         }
         String info = billboard.getInformation();
         if(info != null) {
-            infoLabel.setText(info);
+            informationTextArea.setText(info);
+            informationTextArea.setWrapStyleWord(true);
+            informationTextArea.setLineWrap(true);
         }
         URL picUrl = billboard.getImageURL();
         if(picUrl != null) {

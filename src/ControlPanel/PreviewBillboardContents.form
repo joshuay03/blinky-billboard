@@ -88,13 +88,11 @@
               <text value="Information:"/>
             </properties>
           </component>
-          <component id="20e31" class="javax.swing.JLabel" binding="infoLabel">
+          <component id="372dd" class="javax.swing.JTextArea" binding="informationTextArea">
             <constraints>
               <splitpane position="right"/>
             </constraints>
-            <properties>
-              <text value=""/>
-            </properties>
+            <properties/>
           </component>
         </children>
       </splitpane>
