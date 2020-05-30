@@ -26,6 +26,7 @@ public class CreateNewUser {
     protected JCheckBox editAllBillboardsCheckBox;
     protected JCheckBox scheduleBillboardsCheckBox;
     protected JCheckBox editUsersCheckBox;
+    private JButton saveUserButton;
 
     public CreateNewUser(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
