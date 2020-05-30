@@ -2,7 +2,10 @@ package Server;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
-import Exceptions.*;
+import BillboardSupport.Schedule;
+import Exceptions.AuthenticationFailedException;
+import Exceptions.InvalidTokenException;
+import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
 import java.io.*;
@@ -12,10 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
@@ -163,24 +163,29 @@ public class ClientHandler extends Thread {
 
                 if (authenticatedUser.CanCreateBillboards()) {
                     List<Billboard> billboards = database.getBillboards();
-                    if (billboards.stream().anyMatch(x -> x.equals(billboard))) {
-                        // TODO: somehow check if a billboard is already scheduled in the DB
-                        if (billboard.isScheduled()) {
+
+                    Optional<Billboard> billboardMatch = billboards.stream().filter(x -> x.equals(billboard)).findFirst();
+
+                    if (billboardMatch.isEmpty()) {
+                        database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
+                        return new Response(true, "Success");
+                    } else {
+                        Billboard existingBillboard = billboardMatch.get();
+
+                        Schedule schedule = existingBillboard.getSchedule();
+
+                        if (schedule == null) {
+                            // TODO: need to be able to get username from authUser
+                            database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
+                            return new Response(true, "Success");
+                        } else {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
-                                try {
-                                    database.editBillboard(billboard.getBillboardDatabaseKey(), null, null, null, "test_user", null, null);
-                                } catch (BillboardNotFoundException e) {
-                                    return new Response(false, "Billboard was not found in the database.");
-                                }
+                                database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }
-                        } else {
-                            //TODO: need to be able to get authenticatedUser.username
-                            database.createBillboard(billboard, "test_user");
-                            return new Response(true, "Success");
                         }
                     }
                 } else {
@@ -257,6 +262,7 @@ public class ClientHandler extends Thread {
                 } catch (SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
                     return new Response(false, "Billboard lookup failed.");
                 }
+
             case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
@@ -279,31 +285,33 @@ public class ClientHandler extends Thread {
                 }
             }
             case CREATE_USER:
-            {
-                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
-                    // Client will send partial user object
+                    // Client will send server username, list of permissions, hashedPassword, and valid session token
+                    // TODO - Fix spec compliance
                     User newUser = req.getUser();
-                    // Attempt to create a new user and if that succeeds then return a response acknowledging the success
-                    try {
-                        new User(newUser.getSaltedCredentials() /* Not actually salted here */,
-                                newUser.CanCreateBillboards(),newUser.CanEditAllBillboards(),
-                                newUser.CanScheduleBillboards(), newUser.CanEditUsers(), database);
-                        return new Response(true, "User created successfully");
-                    } catch (UserAlreadyExistsException e) {
-                        // If the creation fails because there's already a user
-                        return new Response(false, "User already exists.");
+
+                    // if username already exist send error
+                    if (database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false) {
+
+                    } else {
+                        // FIXME - BlinkyDB logic
+
                     }
+
+
+                    // else Server will create user and send back acknowledgement of success
+
                 } else {
                     return permissionDeniedResponse;
                 }
-            }
+
+
+                break;
             case GET_USER_PERMISSION:
-            {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // Client will send server a username and valid session token
@@ -313,14 +321,14 @@ public class ClientHandler extends Thread {
                 // if session user is requesting details of another user, check permissions = 'Edit Users' == true then return details
 
                 // else return false send error
-            }
+
                 break;
             case SET_USER_PERMISSION:
-            {
-                assert authenticatedUser != null;
+
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
+
                     //FIXME - should only be passing credentials object through on this one
                     try {
                         User userToModify = new User(req.getUsername(), database);
@@ -338,20 +346,17 @@ public class ClientHandler extends Thread {
                         userToModify.setCanCreateBillboards(canCreateBillboards);
 
                         // Special case - can't remove own admin permissions
-                        String PartialSuccessMessage = "";
+                        // FIXME - need to implement a nuanced response which explains that the rest of the perms changes were successful
                         if (collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) != 0) {
                             userToModify.setEditUsers(canEditUsers);
                         }
-                        else PartialSuccessMessage =
-                                ", however, you cannot remove your own permission to edit users, therefore it wasn't removed.";
+
 
                         database.UpdateUserDetails(userToModify);
-                        return new Response(true, "User details have been updated" + PartialSuccessMessage);
+
 
                     } catch (NoSuchUserException e) {
-                        return new Response(false, "User with the given username was not found in database.");
-                    } catch (SQLException e) {
-                        return new Response(false, "There was an error interacting with the database");
+                        e.printStackTrace();
                     }
 
                 } else return permissionDeniedResponse;
@@ -364,16 +369,16 @@ public class ClientHandler extends Thread {
                 // else if session user is requesting to remove their own "Edit User" permission return error
 
                 // else Server change that users permissions and send back acknowledgement of success
-            }
+
+                break;
             case SET_USER_PASSWORD:
-            {
-                assert authenticatedUser != null;
+
+
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
-                if (authenticatedUser.CanEditUsers()||
-                        collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
+                if (authenticatedUser.CanEditUsers() || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
 
-                    User userToChange;
+                    User userToChange = null;
 
                     try {
                         userToChange = new User(req.getUsername(), database);
@@ -381,15 +386,17 @@ public class ClientHandler extends Thread {
                         return new Response(false, "Could not find user");
                     }
 
-                    userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
-                    database.UpdateUserDetails(userToChange);
-                    return new Response(true, "User password has been changed.");
+                    if (userToChange != null) {
+                        userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
+                        database.UpdateUserDetails(userToChange);
+                    }
+
                 } // else return false send error
                 else return permissionDeniedResponse;
-            }
+
+
+                break;
             case DELETE_USER:
-            {
-                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
@@ -400,29 +407,27 @@ public class ClientHandler extends Thread {
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
-                    collator = Collator.getInstance(Locale.ENGLISH);
+                    Collator collator = Collator.getInstance(Locale.ENGLISH);
                     if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
                         return new Response(false, "User cannot delete their own account");
                     } else {
                         try {
                             database.DeleteUser(deletionCandidate);
-                            return new Response(true, "User deleted successfully");
                         } catch (SQLException e) {
                             e.printStackTrace();
-                            return new Response(false, "There was an sql exception");
                         }
                     }
+
                     // TODO if username deleted = creator of a billboard, billboard will no longer have owner registered in DB
                     // CRA says for team to decide what will happen in this circumstance
 
                 } else return new Response(false, permissionDeniedResponse);
-            }
+                break;
             case LOGOUT:
-            {
 
-            }
-            // server will expire session token and send back and acknowledgement
-            break;
+
+                // server will expire session token and send back and acknowledgement
+                break;
         }
         // If the request is invalid:
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));
