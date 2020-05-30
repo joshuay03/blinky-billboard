@@ -9,11 +9,11 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
- *
- * @author Joshua Young
  */
 public class OptionMenu implements Runnable {
     protected JPanel optionMenuPanel;
@@ -25,10 +25,10 @@ public class OptionMenu implements Runnable {
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
     protected ClientConnector connector;
-    private JButton logoutButton;
 
     /**
-     * @param frame:     JPanel Frame
+     *
+     * @param frame: JPanel Frame
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
@@ -59,10 +59,10 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                    frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
             }
         });
 
@@ -128,36 +128,12 @@ public class OptionMenu implements Runnable {
 
 
                 if (status) {
-                    Billboard[] billboardList = ((Billboard[]) response.getData());
+                    List<?> billboardObjects = (List<?>) response.getData();
+
+                    List<Billboard> billboardList = new ArrayList<>();
+                    billboardObjects.forEach(x -> billboardList.add((Billboard) x));
+
                     frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
-                }
-            }
-        });
-        logoutButton.addActionListener(new ActionListener() {
-            /**
-             * Invoked when an action occurs.
-             *
-             * @param e the event to be processed
-             */
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Request request = Request.logoutReq(connector.session);
-
-                Response response;
-
-                try {
-                    response = request.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
-                    return;
-                }
-
-                if (response.isStatus()) {
-                    connector.session = null;
-                    frame.setContentPane(new Login(frame, connector).loginPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);

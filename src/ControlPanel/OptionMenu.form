@@ -9,7 +9,7 @@
     <children>
       <grid id="cd4ad" binding="optionsPanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="1.0" weighty="1.0"/>
         </constraints>
         <properties/>
@@ -92,18 +92,7 @@
       </grid>
       <grid id="ec5ee" binding="titlePanel" layout-manager="GridBagLayout">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
-      <splitpane id="326d9">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="200"/>
-          </grid>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties/>
@@ -111,10 +100,13 @@
         <children>
           <splitpane id="e026d">
             <constraints>
-              <splitpane position="left"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
             </constraints>
             <properties>
-              <dividerLocation value="78"/>
+              <dividerLocation value="75"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>
@@ -133,24 +125,14 @@
                 </constraints>
                 <properties>
                   <font size="30"/>
-                  <horizontalAlignment value="4"/>
-                  <horizontalTextPosition value="0"/>
-                  <text value="Option Menu       "/>
+                  <horizontalAlignment value="0"/>
+                  <text value="Option Menu         "/>
                 </properties>
               </component>
             </children>
           </splitpane>
-          <component id="3db4" class="javax.swing.JButton" binding="logoutButton">
-            <constraints>
-              <splitpane position="right"/>
-            </constraints>
-            <properties>
-              <maximumSize width="30" height="30"/>
-              <text value="Logout"/>
-            </properties>
-          </component>
         </children>
-      </splitpane>
+      </grid>
     </children>
   </grid>
 </form>

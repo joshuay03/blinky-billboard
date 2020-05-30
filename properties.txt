@@ -1,2 +1,2 @@
-port: 5057
+port: 5056
 IP: localhost

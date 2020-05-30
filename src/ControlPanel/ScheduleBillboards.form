@@ -61,7 +61,7 @@
               <card name="Card1"/>
             </constraints>
             <properties>
-              <dividerLocation value="50"/>
+              <dividerLocation value="75"/>
               <dividerSize value="0"/>
             </properties>
             <border type="none"/>
@@ -74,7 +74,7 @@
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
                   <horizontalTextPosition value="11"/>
-                  <text value="Schedule Billboards     "/>
+                  <text value="Schedule Billboards       "/>
                 </properties>
               </component>
               <component id="9efc5" class="javax.swing.JButton" binding="backButton">

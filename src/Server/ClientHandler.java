@@ -132,12 +132,10 @@ public class ClientHandler extends Thread {
                 List<Billboard> billboardList;
                 try {
                     billboardList = database.getBillboards();
-
+                    return new Response(true, billboardList);
                 } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
                 }
-                // The billboard list now has all of the returned billboards - convert to an array and return
-                return new Response(true, billboardList.toArray(new Billboard[0]));
             }
             case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI

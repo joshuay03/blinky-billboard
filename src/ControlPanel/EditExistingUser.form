@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.CreateNewUser">
-  <grid id="27dc6" binding="createNewUserPanel" layout-manager="GridBagLayout">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.EditExistingUser">
+  <grid id="27dc6" binding="editExistingUserPanel" layout-manager="GridBagLayout">
     <constraints>
       <xy x="20" y="20" width="500" height="415"/>
     </constraints>
@@ -209,7 +209,7 @@
                   <text value="Back"/>
                 </properties>
               </component>
-              <component id="fef3f" class="javax.swing.JLabel" binding="createNewUserLabel">
+              <component id="fef3f" class="javax.swing.JLabel" binding="editExistingUserLabel">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
@@ -217,7 +217,7 @@
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
                   <preferredSize width="267" height="36"/>
-                  <text value="Create New User          "/>
+                  <text value="Edit Existing User        "/>
                 </properties>
               </component>
             </children>
