@@ -44,8 +44,8 @@ public class Request implements Serializable {
     /**
      * @return
      */
-    public static Request scheduleBillboardReq(Schedule schedule) {
-        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, null);
+    public static Request scheduleBillboardReq(Schedule schedule, Session session) {
+        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, session);
         request.schedule = schedule;
         return  request;
     }

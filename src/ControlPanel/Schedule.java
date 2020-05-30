@@ -3,7 +3,6 @@ package ControlPanel;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import SocketCommunication.Session;
 
 import javax.swing.*;
 import javax.swing.text.DefaultFormatterFactory;
@@ -13,8 +12,11 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class Schedule {
     protected JPanel schedulePanel;
@@ -39,8 +41,7 @@ public class Schedule {
         for (int i = 0; i <= 23; i++) {
             if (i < 10) {
                 hourComboBox.addItem("0" + i);
-            }
-            else {
+            } else {
                 hourComboBox.addItem(i);
             }
         }
@@ -49,21 +50,20 @@ public class Schedule {
         for (int i = 1; i <= 60; i++) {
             if (i < 10) {
                 minuteComboBox.addItem("0" + i);
-            }
-            else {
+            } else {
                 minuteComboBox.addItem(i);
             }
         }
 
         NumberFormat numFormat = new DecimalFormat("#");
 
-        NumberFormatter durationFormatter  = new NumberFormatter(numFormat);
+        NumberFormatter durationFormatter = new NumberFormatter(numFormat);
         durationFormatter.setMinimum(1);
         DefaultFormatterFactory durationFactory = new DefaultFormatterFactory(durationFormatter);
         durationFormattedTextField.setFormatterFactory(durationFactory);
         durationFormattedTextField.setValue(1);
 
-        NumberFormatter customFrequencyFormatter  = new NumberFormatter(numFormat);
+        NumberFormatter customFrequencyFormatter = new NumberFormatter(numFormat);
         customFrequencyFormatter.setMinimum(1);
         customFrequencyFormatter.setMaximum((int) durationFormattedTextField.getValue());
         DefaultFormatterFactory customFrequencyFactory = new DefaultFormatterFactory(customFrequencyFormatter);
@@ -117,45 +117,57 @@ public class Schedule {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-//                Schedule schedule = new BillboardSupport.Schedule();
-                //create request
-//                Request loginRequest = Request.scheduleBillboardReq();
+                String[] date = dateTextField.getText().split("-");
+                int hour = Integer.parseInt(String.valueOf(hourComboBox.getSelectedItem()));
+                int minute = Integer.parseInt(String.valueOf(minuteComboBox.getSelectedItem()));
+                int duration = Integer.parseInt(durationFormattedTextField.getText());
 
-                // Send request to server
-//                Response response;
-//                // use global input stream, this is just to show how it works
-//
-//                try {
-//                    response = loginRequest.Send(connector);
-//                } catch (IOException excep) {
-//                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
-//                    usernameField.setText("");
-//                    passwordField.setText("");
-//                    usernameField.requestFocus();
-//                    return;
-//                }
-//
-//                // check status of response
-//                boolean status = response.isStatus();
-//
-//                if (!status) {
-//                    String errorMsg = (String) response.getData();
-//                    JOptionPane.showMessageDialog(null, errorMsg);
-//                    usernameField.setText("");
-//                    passwordField.setText("");
-//                    usernameField.requestFocus();
-//                    // return some error response if status is false
-//                }
-//
-//                // if status == true, get session object Session session = response.getData()
-//                if (status) {
-//                    // Save session object and move onto next screen
-//                    connector.session = (Session) response.getData();
-//                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
-//                    frame.pack();
-//                    frame.setLocationRelativeTo(null);
-//                    frame.setVisible(true);
-//                }
+                SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+
+                try {
+                    format.parse(dateTextField.getText());
+                } catch (ParseException ex) {
+                    JOptionPane.showMessageDialog(null, "Improper entry for date. Please enter in format: dd-mm-yyyy");
+                    return;
+                }
+
+
+                int frequency;
+                if (dailyRadioButton.isSelected()) {
+                    frequency = 24 * 60;
+                } else if (hourlyRadioButton.isSelected()) {
+                    frequency = 60;
+                } else {
+                    frequency = Integer.parseInt(customFrequencyFormattedTextField.getText());
+                }
+
+                Timestamp timestamp = new Timestamp(Integer.parseInt(date[2]), Integer.parseInt(date[1]),
+                        Integer.parseInt(date[0]), hour, minute, 0, 0);
+
+
+                BillboardSupport.Schedule schedule = new BillboardSupport.Schedule(timestamp, duration, frequency, "test");
+                Request scheduleBillboardReq = Request.scheduleBillboardReq(schedule, connector.session);
+
+                Response response;
+
+                try {
+                    response = scheduleBillboardReq.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, errorMsg);
+                    return;
+                }
+
+                JOptionPane.showMessageDialog(null, "Successfully scheduled billboard.");
+                scheduleFrame.setVisible(false);
             }
         });
     }
