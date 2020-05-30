@@ -257,7 +257,6 @@ public class ClientHandler extends Thread {
                 } catch (SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
                     return new Response(false, "Billboard lookup failed.");
                 }
-
             case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
@@ -407,17 +406,17 @@ public class ClientHandler extends Thread {
                     } else {
                         try {
                             database.DeleteUser(deletionCandidate);
+                            return new Response(true, "User deleted successfully");
                         } catch (SQLException e) {
                             e.printStackTrace();
+                            return new Response(false, "There was an sql exception");
                         }
                     }
-
                     // TODO if username deleted = creator of a billboard, billboard will no longer have owner registered in DB
                     // CRA says for team to decide what will happen in this circumstance
 
                 } else return new Response(false, permissionDeniedResponse);
             }
-            break;
             case LOGOUT:
             {
 
