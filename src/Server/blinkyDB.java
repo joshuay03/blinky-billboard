@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -271,18 +270,18 @@ public class blinkyDB {
      * @return The schedules
      * @throws SQLException If the lookup fails
      */
-    public List<Schedule> getSchedules(LocalDateTime time) throws SQLException {
+    public List<Schedule> getSchedules(Timestamp time) throws SQLException {
         String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
         PreparedStatement ScheduleLookUp;
         dbconn.setAutoCommit(false);
         ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);
-        ScheduleLookUp.setTimestamp(1, Timestamp.valueOf(time));
+        ScheduleLookUp.setTimestamp(1, time);
         dbconn.setAutoCommit(true);
         ResultSet rs = ScheduleLookUp.executeQuery();
         List<Schedule> ScheduleList = new ArrayList<>();
         while (rs.next()) {
             try {
-                Timestamp startTime = Timestamp.from(rs.getTime("start_time").toInstant());
+                Timestamp startTime = rs.getTimestamp("start_time");
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 String billboardName = rs.getString("billboard_name");

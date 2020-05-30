@@ -228,7 +228,7 @@ public class ClientHandler extends Thread {
                     assert authenticatedUser != null;
 
                     // client will send server a valid session
-                    List<Schedule> allScheduledBillboards = database.getSchedules(LocalDateTime.now());
+                    List<Schedule> allScheduledBillboards = database.getSchedules(Timestamp.valueOf(LocalDateTime.now()));
 
                     // if session token is valid server will respond with list of billboards that have been scheduled
                     // including billboardName, creator, time scheduled, and duration
