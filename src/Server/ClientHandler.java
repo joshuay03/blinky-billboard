@@ -109,13 +109,11 @@ public class ClientHandler extends Thread {
         // LOGIC SWITCHING
         // *************************************************************************************
         //<editor-fold desc="REQUEST TYPE SWITCHING">
-        // Example handle login
         switch (req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED: {
                 return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
             case LOGIN: {
-                // EXAMPLE how to use the request given from the client
                 Credentials credentials;
                 try {
                     credentials = req.getCredentials();
