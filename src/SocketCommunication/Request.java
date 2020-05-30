@@ -10,7 +10,12 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-
+/**
+ * This class implements a series of methods, representing the different
+ * types of requests which can be made to the server. Each method returns
+ * a Request object based off of the request type.
+ * Implements Serializable.
+ */
 public class Request implements Serializable {
     public ServerRequest requestType;
     // Request transmission data
@@ -161,7 +166,16 @@ public class Request implements Serializable {
         return new Request(ServerRequest.LIST_USERS, session);
     }
 
-
+    /**
+     * Method for creating a new user.
+     * @param credentials The credentials belonging to the user.
+     * @param CreateBillboards true/false permission
+     * @param ScheduleBillboards true/false permission
+     * @param EditAllBillboards true/false permission
+     * @param EditUsers true/false permission
+     * @param session The session belongin to the user.
+     * @return A request to be sent to the server.
+     */
     public static Request createUserReq(Credentials credentials, boolean CreateBillboards, boolean ScheduleBillboards, boolean EditAllBillboards, boolean EditUsers, Session session) {
         Request newUserReq = new Request(ServerRequest.CREATE_USER, session);
         newUserReq.user = new User(credentials, CreateBillboards, EditAllBillboards, ScheduleBillboards, EditUsers);
@@ -231,10 +245,16 @@ public class Request implements Serializable {
         return new Request(ServerRequest.LOGOUT, session);
     }
 
+    /**
+     * Returns the billboard object associated with the request object.
+     */
     public Billboard getBillboard() {
         return billboard;
     }
 
+    /**
+     * Returns the credentials object associated with the request object.
+     */
     public Credentials getCredentials() {
         return credentials;
     }
@@ -242,22 +262,37 @@ public class Request implements Serializable {
     // FIXME - Permissions should be a separate class so we don't have to send a whole user object around with unnecessary content in it
     //
 
+    /**
+     * Returns the billboard name associated with the request object.
+     */
     public String getBillboardName() {
         return billboardName;
     }
 
+    /**
+     * Returns the user object associated with the request object.
+     */
     public User getUser() {
         return user;
     }
 
+    /**
+     * Returns the username associated with the request object.
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Returns the request's type associated with the request object.
+     */
     public ServerRequest getRequestType() {
         return requestType;
     }
 
+    /**
+     * Returns the session object associated with the request object.
+     */
     public Session getSession() {
         return session;
     }
@@ -286,6 +321,7 @@ public class Request implements Serializable {
 
 
     public byte[] serialise() {
+        // TODO - determine if this code is redundant.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             ObjectOutputStream os = new ObjectOutputStream(bos);

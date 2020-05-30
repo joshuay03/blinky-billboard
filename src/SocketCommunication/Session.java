@@ -12,8 +12,6 @@ import java.io.Serializable;
 /**
  * Class for defining a user's session in the control panel.
  *
- * Holds the
- *
  * Implements the Serializable class.
  * @see Serializable
  */
@@ -28,6 +26,17 @@ public class Session implements Serializable {
     public boolean scheduleBillboards;
     public boolean editUsers;
 
+    /**
+     * A constructor which instantiates a Session object. Generates a token for the
+     * user using the credentials object. Sets the permissions of the user.
+     *
+     * @param credentials stores the user's username and hashed password
+     * @see Credentials
+     * @param database the blinkyDB database class which contains the SQL queries.
+     * @see blinkyDB
+     * @throws AuthenticationFailedException
+     * @throws NoSuchUserException
+     */
     public Session(Credentials credentials, blinkyDB database) throws AuthenticationFailedException, NoSuchUserException {
         // The session should only be successfully created if Authentication succeeds
         if (!AuthenticationHandler.Authenticate(credentials, database))
