@@ -311,6 +311,10 @@ public class ClientHandler extends Thread {
                             return new Response(false, "User with that username already exists. Please try again");
                             // else Server will create user and send back acknowledgement of success
                         else {
+                            if(newUser.getSaltedCredentials().getUsername().length() < 1)
+                                return new Response(false,"Username cannot be empty.");
+                            if (newUser.getSaltedCredentials().getUsername().length() > 100)
+                                return new Response(false, "Usernames must be up to 100 characters long");
                             database.RegisterUserInDatabase(newUser.getSaltedCredentials(),
                                     newUser.CanCreateBillboards(),
                                     newUser.CanEditAllBillboards(),
