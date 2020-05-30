@@ -222,9 +222,11 @@ public class ClientHandler extends Thread {
                         return new Response(true, "The billboard has successfully been deleted.");
                     } else
                         return permissionDeniedResponse;
-                } catch (SQLException e) {
+                } catch (BillboardNotFoundException e) {
                     e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
+                } catch (SQLException e) {
+                    return new Response(false, "Database lookup or deletion failed.");
                 }
             }
             case VIEW_SCHEDULED_BILLBOARDS: {
@@ -254,12 +256,16 @@ public class ClientHandler extends Thread {
                     Timestamp currTime = schedule.StartTime;
                     long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
+                        /* Great work on the logic, it works brilliantly, but this isn't supposed to get written into the database.
+                        ** The database needs only store the first occurrence, it's then on the server to calculate each occurrence of a schedule.
+                        * Instead of using this, use the new method Schedule.extrapolate(Timestamp until) on an existing schedule object
                         while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
                             database.ScheduleBillboard(schedule.billboardName, schedule);
                             milliseconds = currTime.getTime() + ((interval * 60) * 1000);
                             currTime.setTime(milliseconds);
                             schedule.StartTime = currTime;
-                        }
+                        }*/
+                        database.ScheduleBillboard(schedule.billboardName, schedule);
                         return new Response(true, "The billboard has successfully been scheduled.");
                     } else {
                         return permissionDeniedResponse;
@@ -281,6 +287,10 @@ public class ClientHandler extends Thread {
                     }
                 } catch (SQLException e) { // Will catch if the billboard does not exist or is not scheduled.
                     return new Response(false, "Billboard lookup failed.");
+                } catch (BillboardUnscheduledException e) {
+                    return new Response(false, "Billboard has no schedules to remove.");
+                } catch (BillboardNotFoundException e) {
+                    return new Response(false, String.format("Billboard \"%s\" was not found.", req.getBillboardName()));
                 }
             }
             case LIST_USERS: {

@@ -146,13 +146,13 @@ public class Request implements Serializable {
     /**
      * A method to generate a request for the server to add scheduling information to a Billboard
      *
-     * @param billboardWithSchedulingInformation The billboard, including scheduling information
+     * @param schedule The billboard, including scheduling information
      * @param session                            A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request scheduleBillboard(Billboard billboardWithSchedulingInformation, Session session) {
-        Request schedReq = new Request(ServerRequest.REMOVE_SCHEDULED, session);
-        schedReq.billboard = billboardWithSchedulingInformation;
+    public static Request scheduleBillboard(Schedule schedule, Session session) {
+        Request schedReq = new Request(ServerRequest.SCHEDULE_BILLBOARD, session);
+        schedReq.schedule = schedule;
         return schedReq;
     }
 

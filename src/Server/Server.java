@@ -42,6 +42,7 @@ public class Server extends SocketConnection {
                 new User(new Credentials("Root", "root"), true, true, true, true, server.database);
             } catch (UserAlreadyExistsException ignored) {
             }
+            server.database.CreateViewer("localhost:5506");
 
             server.serverIsOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + server.serverIsOpen);

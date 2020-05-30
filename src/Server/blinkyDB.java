@@ -5,6 +5,7 @@ import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
 import Exceptions.BillboardAlreadyExistsException;
 import Exceptions.BillboardNotFoundException;
+import Exceptions.BillboardUnscheduledException;
 import Exceptions.InvalidTokenException;
 import SocketCommunication.Credentials;
 
@@ -56,6 +57,9 @@ public class blinkyDB {
             if (!toExec.trim().isEmpty()) // (don't execute empty statements)
                 dbconn.createStatement().executeQuery(toExec);
         }
+        try {
+            dbconn.createStatement().executeQuery("INSERT INTO `Viewers` (viewer_id, socket) VALUES (1, \"localhost:5508\");");
+        } catch (SQLException ignored){} // Only try to insert if it's not already there
     }
 
     public blinkyDB() throws IOException, SQLException {
@@ -351,7 +355,7 @@ public class blinkyDB {
      * @param schedule  The schedule to assign to the billboard
      */
     public void ScheduleBillboard(String billboard_name, Schedule schedule) throws SQLException {
-        String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
+        String SchedulingString = "INSERT INTO Scheduling\n" +
                 "(billboard_name, viewer_id, start_time, duration, `interval`)\n" +
                 "VALUES(?, ?, ?, ?, ?);\n";
 
@@ -370,7 +374,6 @@ public class blinkyDB {
             dbconn.commit();
 
         } catch (SQLException e) {
-            dbconn.setAutoCommit(true);
             dbconn.rollback();
         }
 
@@ -532,15 +535,25 @@ public class blinkyDB {
      * @param name Billboard Name
      * @throws SQLException If the deletion fails
      */
-    public void UnscheduleBillboard(String name) throws SQLException {
+    public void UnscheduleBillboard(String name) throws SQLException, BillboardNotFoundException, BillboardUnscheduledException {
         String SchedulesDeletionString = "DELETE FROM Scheduling\n" +
-                "billboard_name=?;\n";
+                "WHERE billboard_name=?;\n";
 
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
         try {
             SchedulesDeleter.setString(1, name);
-            SchedulesDeleter.executeUpdate();
+            int unscheduled = SchedulesDeleter.executeUpdate();
+            if (unscheduled == 0){
+                dbconn.rollback();
+                Billboard billboard;
+                try {
+                    billboard = this.getBillboard(name);
+                } catch (BillboardNotFoundException e) {
+                    throw new BillboardNotFoundException(name);
+                }
+                throw new BillboardUnscheduledException(billboard);
+            }
             dbconn.commit();
         } catch (SQLException e) {
             dbconn.rollback();
@@ -554,11 +567,11 @@ public class blinkyDB {
      * @param name The billboard name to delete
      * @throws SQLException If the deletion fails
      */
-    public void DeleteBillboard(String name) throws SQLException {
+    public void DeleteBillboard(String name) throws SQLException, BillboardNotFoundException {
         String BillboardDeletionString = "DELETE FROM Billboards\n" +
                 "WHERE billboard_name=?;\n";
         String SchedulesDeletionString = "DELETE FROM Scheduling\n" +
-                "billboard_name=?;\n";
+                "WHERE billboard_name=?;\n";
         PreparedStatement BillboardDeleter = dbconn.prepareStatement(BillboardDeletionString);
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
@@ -566,10 +579,15 @@ public class blinkyDB {
             SchedulesDeleter.setString(1, name);
             BillboardDeleter.setString(1, name);
             SchedulesDeleter.executeUpdate();
-            BillboardDeleter.executeUpdate();
+            boolean deleted = BillboardDeleter.executeUpdate() > 0;
+            if (!deleted) {
+                dbconn.rollback();
+                throw new BillboardNotFoundException(name);
+            }
             dbconn.commit();
         } catch (SQLException e) {
             dbconn.rollback();
+            throw e;
         }
         dbconn.setAutoCommit(true);
     }

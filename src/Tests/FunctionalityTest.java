@@ -147,7 +147,7 @@ class FunctionalityTest {
     }
 
     @Test
-    void Edit_Billboard() {
+    void Edit_Billboard() throws SQLException {
         Billboard mock = DummyBillboards.messagePictureAndInformationBillboard();
 
         // User with edit billboards permission attempts to edit a billboard which exists
@@ -157,11 +157,7 @@ class FunctionalityTest {
 
         Response unAuthedSameCreatorRes = respondTo.apply(Request.editBillboardReq("MyBill", mock, noperms_session));
 
-        try {
-            database.ScheduleBillboard("Mybill", new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now())));
-        } catch (SQLException e) {
-            fail();
-        }
+        database.ScheduleBillboard("Mybill", new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now())));
         Response unAuthedSameCreatorScheduledRes = respondTo.apply(Request.editBillboardReq("MyBill", mock, noperms_session));
         Response unAuthedDifferentCreatorRes = respondTo.apply(Request.editBillboardReq("MyOtherBill", mock, noperms_session));
         Response nonExistentBillboardRes = respondTo.apply(Request.editBillboardReq("INVALID_BILLBOARD", mock, session));
@@ -178,22 +174,24 @@ class FunctionalityTest {
     }
 
     @Test
-    void Schedule_Billboard() throws BillboardNotFoundException, SQLException {
+    void Schedule_Billboard() throws BillboardNotFoundException, SQLException, BillboardUnscheduledException {
         // Set a schedule for the billboard
-        Billboard MyBill = database.getBillboard("MyBill");
-        MyBill.setSchedule(new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now())));
-        Response scheduleRes = respondTo.apply(Request.scheduleBillboard(MyBill, session));
-        Response scheduleResNoPerms = respondTo.apply(Request.scheduleBillboard(MyBill, noperms_session));
+        Schedule sched = new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now()));
+        Response scheduleRes = respondTo.apply(Request.scheduleBillboard(sched, session));
+        Response scheduleScheduledRes = respondTo.apply(Request.scheduleBillboard(sched, session));
+        Object When = sched.extrapolate(Timestamp.valueOf(LocalDateTime.now().plusDays(6)));
+        database.UnscheduleBillboard("Mybill");
+        Response scheduleResNoPerms = respondTo.apply(Request.scheduleBillboard(sched, noperms_session));
 
-        assertTrue(scheduleRes.isStatus() && !scheduleResNoPerms.isStatus());
+        assertTrue(scheduleRes.isStatus() && !scheduleScheduledRes.isStatus() && !scheduleResNoPerms.isStatus());
     }
 
     @Test
-    void Remove_Scheduled() throws SQLException {
+    void Remove_Scheduled() throws SQLException, BillboardNotFoundException {
         database.ScheduleBillboard("MyBill", new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now())));
         Response UnscheduleRes = respondTo.apply(Request.removeScheduledBillboardReq("MyBill", session));
         Response UnscheduleResNoPerms = respondTo.apply(Request.removeScheduledBillboardReq("MyBill", noperms_session));
-        database.UnscheduleBillboard("Mybill");
+        try { database.UnscheduleBillboard("Mybill"); } catch (BillboardUnscheduledException ignored) {}
         Response UnscheduleUnScheduledRes = respondTo.apply(Request.removeScheduledBillboardReq("MyBill", session));
 
         assertTrue(UnscheduleRes.isStatus() && !UnscheduleResNoPerms.isStatus() && !UnscheduleUnScheduledRes.isStatus());
