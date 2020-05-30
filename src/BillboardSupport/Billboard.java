@@ -22,7 +22,6 @@ public class Billboard implements Serializable {
 
     //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
 
-
     public int getBillboardDatabaseKey() {
         return billboardDatabaseKey;
     }
@@ -107,8 +106,6 @@ public class Billboard implements Serializable {
     private int billboardDatabaseKey;
 
     private Schedule schedule;
-
-
 
     /** New Billboard Object from scratch
      * @param backgroundColour The colour of the Billboard background

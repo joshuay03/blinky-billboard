@@ -273,6 +273,8 @@ class FunctionalityTest {
     }
     @Test
     void changeUserPermissions(){
+        Credentials adminCredentials = session.serverUser.getSaltedCredentials();
+        Credentials userCredentials = noperms_session.serverUser.getSaltedCredentials();
 
         assertTrue(!adminDeleteSelf.isStatus());
     }
