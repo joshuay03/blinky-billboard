@@ -231,6 +231,7 @@ public class ClientHandler extends Thread {
                     // including billboardName, creator, time scheduled, and duration
                     return new Response(true, allScheduledBillboards);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 return new Response(false, "No billboards currently scheduled");
@@ -243,15 +244,13 @@ public class ClientHandler extends Thread {
                     int interval = req.getBillboard().getSchedule().repeatInterval;
                     // Duration in minutes
                     int duration = req.getBillboard().getSchedule().duration;
-                    Timestamp startTime = req.getBillboard().getSchedule().StartTime;
-                    Timestamp endTime = req.getBillboard().getSchedule().EndTime;
-                    Timestamp currTime = startTime;
-                    long nanoseconds = 0;
+                    Timestamp currTime = req.getBillboard().getSchedule().StartTime;
+                    long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
-                        while (currTime.before(endTime)) {
+                        while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
                             database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
-                            nanoseconds = currTime.getTime() + ((interval * 60) * 1000);
-                            currTime.setTime(nanoseconds);
+                            milliseconds = currTime.getTime() + ((interval * 60) * 1000);
+                            currTime.setTime(milliseconds);
                             req.getBillboard().getSchedule().StartTime = currTime;
                         }
                         return new Response(true, "The billboard has successfully been scheduled.");
@@ -312,7 +311,7 @@ public class ClientHandler extends Thread {
                     // Check if a user with the same username exists
                     try {
                         ResultSet resultSet = database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername());
-                        if (resultSet.next() == true)
+                        if (resultSet.next())
                             return new Response(false, "User with that username already exists. Please try again");
                             // else Server will create user and send back acknowledgement of success
                         else {
@@ -336,6 +335,7 @@ public class ClientHandler extends Thread {
 
             }
             case GET_USER_PERMISSION: {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 // TODO - implement
 
@@ -352,14 +352,14 @@ public class ClientHandler extends Thread {
 
                 // if session user is requesting their own details return details, no permissions required
                 // if session user is requesting details of another user, check permissions = 'Edit Users' == true then return details
-                if (req.getSession().username == queryUsername || authenticatedUser.CanEditUsers()) {
+                if (req.getSession().username.equals(queryUsername) || authenticatedUser.CanEditUsers()) {
                     return new Response(true, existingUser);
                 } else return permissionDeniedResponse;
 
                 // else return false send error
             }
             case SET_USER_PERMISSION: {
-
+                assert authenticatedUser != null;
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
@@ -434,6 +434,7 @@ public class ClientHandler extends Thread {
 
             }
             case DELETE_USER: {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
@@ -463,8 +464,6 @@ public class ClientHandler extends Thread {
                     // CRA says for team to decide what will happen in this circumstance
 
                 } else return new Response(false, permissionDeniedResponse);
-            }
-                    if (Collator.getInstance(Locale.ENGLISH).compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
             }
                 break;
             case LOGOUT:
