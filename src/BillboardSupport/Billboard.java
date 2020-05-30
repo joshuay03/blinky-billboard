@@ -28,7 +28,7 @@ public class Billboard implements Serializable {
     private URL imageURL;
     private String imageData;
     private String creator;
-    private int billboardDatabaseKey;
+    private String billboard_name;
     private Schedule schedule;
 
     // Creates an empty billboard
@@ -38,6 +38,7 @@ public class Billboard implements Serializable {
     /**
      * New Billboard Object from scratch
      *
+     * @param name              The name of the billboard
      * @param backgroundColour  The colour of the Billboard background
      * @param messageColour     The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
@@ -46,7 +47,8 @@ public class Billboard implements Serializable {
      * @param imageURL          The URL of the image to be displayed by the Billboard
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
+    public Billboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
+        this.billboard_name = name;
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -58,6 +60,7 @@ public class Billboard implements Serializable {
     /**
      * New Billboard Object from scratch
      *
+     * @param name              The name of the billboard
      * @param backgroundColour  The colour of the Billboard background
      * @param messageColour     The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
@@ -66,7 +69,8 @@ public class Billboard implements Serializable {
      * @param imageData         The Base64 byte string of the image to be displayed by the Billboard
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
+    public Billboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
+        this.billboard_name = name;
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -153,12 +157,12 @@ public class Billboard implements Serializable {
         return schedule != null;
     }
 
-    public int getBillboardDatabaseKey() {
-        return billboardDatabaseKey;
+    public String getBillboardName() {
+        return billboard_name;
     }
 
-    public void setBillboardDatabaseKey(int billboardDatabaseKey) {
-        this.billboardDatabaseKey = billboardDatabaseKey;
+    public void setBillboardName(String billboard_name) {
+        this.billboard_name = billboard_name;
     }
 
     public URL getImageURL() {

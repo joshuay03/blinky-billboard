@@ -4,6 +4,7 @@ import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
 import Exceptions.AuthenticationFailedException;
+import Exceptions.BillboardNotFoundException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
@@ -25,7 +26,7 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
-    private final int BILLBOARD_ID = 0,
+    private final int BILLBOARD_NAME = 0,
             CREATOR = 1,
             BACKGROUND_COLOUR = 2,
             MESSAGE_COLOUR = 3,
@@ -138,19 +139,18 @@ public class ClientHandler extends Thread {
                 // The billboard list now has all of the returned billboards - convert to an array and return
                 return new Response(true, billboardList.toArray(new Billboard[0]));
             }
-            case GET_BILLBOARD_INFO:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
-
+            case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name and valid session
-                int billboardID = req.getBillboardID();
-
-                List<Billboard> results = database.getBillboards(Integer.toString(billboardID), "billboard_id");
-
-                //server responds with billboards contents
-                if (results != null) return new Response(true, results.get(0));
-                else return new Response(false, "Could not find Billboard with that ID");
-
+                String billboardName = req.getBillboardName();
+                try {
+                    Billboard result = database.getBillboard(billboardName);
+                    //server responds with billboards contents
+                    return new Response(true, result);
+                } catch (BillboardNotFoundException e) {
+                    return new Response(false, "Could not find Billboard with that ID");
+                }
+            }
             // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
@@ -204,12 +204,11 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
-
             case DELETE_BILLBOARD:
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
-                        database.DeleteBillboard(req.getBillboardID()); // TODO - change argument to string
+                        database.DeleteBillboard(req.getBillboardName());
                         return new Response(true, "The billboard has successfully been deleted.");
                     } else
                         return permissionDeniedResponse;
@@ -260,7 +259,7 @@ public class ClientHandler extends Thread {
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
-                        database.UnscheduleBillboard(req.getBillboardID());
+                        database.UnscheduleBillboard(req.getBillboardName());
                         return new Response(true, "Billboard has been removed from the schedule.");
                     } else {
                         return permissionDeniedResponse;

@@ -2,8 +2,6 @@ package SocketCommunication;
 
 import BillboardSupport.Billboard;
 import Client.ClientConnector;
-import ControlPanel.EditUsers;
-import ControlPanel.ScheduleBillboards;
 import Server.User;
 
 import java.io.ByteArrayOutputStream;
@@ -17,7 +15,7 @@ public class Request implements Serializable {
     // Request transmission data
     Billboard billboard = null;
     Credentials credentials = null;
-    int billboardID;
+    String billboardName;
     User user = null;
     String username = null;
     private Session session; //can be null
@@ -61,13 +59,13 @@ public class Request implements Serializable {
     /**
      * A method to generate a request for the server to provide detailed information about a specific billboard
      *
-     * @param billboardID The ID of the Billboard to retrieve information about
+     * @param billboardName The name of the Billboard to retrieve information about
      * @param session     A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request getBillboardInfoReq(int billboardID, Session session) {
+    public static Request getBillboardInfoReq(String billboardName, Session session) {
         Request infoReq = new Request(ServerRequest.GET_BILLBOARD_INFO, session);
-        infoReq.billboardID = billboardID;
+        infoReq.billboardName = billboardName;
         return infoReq;
     }
 
@@ -88,17 +86,17 @@ public class Request implements Serializable {
      * A method to generate a request for the server to edit a particular Billboard. ALSO NOTE - this method can be used to schedule Billboards
      * <p>
      * Note well, this request will have
-     * the effect of COMPLETELY REPLACING the billboard with matching billboardID. Therefore, you must ensure you send
+     * the effect of COMPLETELY REPLACING the billboard with matching billboardName. Therefore, you must ensure you send
      * a Billboard which reflects the intended result (and not merely the intended changes to the Billboard)
      *
-     * @param billboardID      The ID of the Billboard to edit
+     * @param billboardName    The name of the Billboard to edit
      * @param changedBillboard The resulting Billboard after changing the Billboard
      * @param session          A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request editBillboardReq(int billboardID, Billboard changedBillboard, Session session) {
+    public static Request editBillboardReq(String billboardName, Billboard changedBillboard, Session session) {
         Request editReq = new Request(ServerRequest.EDIT_BILLBOARD, session);
-        editReq.billboardID = billboardID;
+        editReq.billboardName = billboardName;
         editReq.billboard = changedBillboard;
         return editReq;
     }
@@ -106,26 +104,26 @@ public class Request implements Serializable {
     /**
      * A method to generate a request for the server to delete a particular Billboard
      *
-     * @param billboardID The ID of the Billboard to be deleted
-     * @param session     A Session Object for an authenticated user
+     * @param billboardName The name of the Billboard to be deleted
+     * @param session       A Session Object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request deleteBillboardReq(int billboardID, Session session) {
+    public static Request deleteBillboardReq(String billboardName, Session session) {
         Request deleteReq = new Request(ServerRequest.DELETE_BILLBOARD, session);
-        deleteReq.billboardID = billboardID;
+        deleteReq.billboardName = billboardName;
         return deleteReq;
     }
 
     /**
      * A method to generate a request for the server to remove a Billboard's scheduling information
      *
-     * @param billboardID The ID of the Billboard to remove from the schedule
+     * @param billboardName The name of the Billboard to remove from the schedule
      * @param session     A Session object for an authenticated user
      * @return Request object to be sent to the server
      */
-    public static Request removeScheduledBillboardReq(int billboardID, Session session) {
+    public static Request removeScheduledBillboardReq(String billboardName, Session session) {
         Request removeSchReq = new Request(ServerRequest.REMOVE_SCHEDULED, session);
-        removeSchReq.billboardID = billboardID;
+        removeSchReq.billboardName = billboardName;
         return removeSchReq;
     }
 
@@ -233,8 +231,8 @@ public class Request implements Serializable {
     // FIXME - Permissions should be a separate class so we don't have to send a whole user object around with unnecessary content in it
     //
 
-    public int getBillboardID() {
-        return billboardID;
+    public String getBillboardName() {
+        return billboardName;
     }
 
     public User getUser() {
