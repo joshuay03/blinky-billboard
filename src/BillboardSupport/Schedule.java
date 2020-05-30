@@ -1,8 +1,9 @@
 package BillboardSupport;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Schedule {
+public class Schedule implements Serializable {
     public Timestamp StartTime;
     public int duration; // Minutes
     public int repeatInterval;
