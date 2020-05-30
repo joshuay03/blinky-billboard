@@ -13,6 +13,7 @@ public class DummyBillboards {
 
     public static Billboard defaultBillboard() {
         Billboard b = new Billboard();
+        b.setBillboardName("Default");
         b.setBackgroundColour(Color.WHITE);
         b.setMessageColour(Color.BLACK);
         b.setInformationColour(Color.DARK_GRAY);
@@ -24,7 +25,7 @@ public class DummyBillboards {
 
     public static Billboard messageOnlyBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("MessageOnly");
         b.setMessage("Basic message-only billboard");
 
         return b;
@@ -32,7 +33,7 @@ public class DummyBillboards {
 
     public static Billboard pictureOnlyBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("PictureOnly");
         b.setImageData(dummyImage);
 
         return b;
@@ -40,7 +41,7 @@ public class DummyBillboards {
 
     public static Billboard informationOnlyBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("InformationOnly");
         b.setInformation("Billboard with an information tag and nothing else. Note that the text is word-wrapped. The quick brown fox jumped over the lazy dogs.");
 
         return b;
@@ -49,7 +50,7 @@ public class DummyBillboards {
 
     public static Billboard messageAndPictureBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("MessageAndPic");
         b.setMessage("Billboard with message and picture with data attribute");
         b.setImageData(dummyImage);
 
@@ -58,7 +59,7 @@ public class DummyBillboards {
 
     public static Billboard messageAndInformationBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("MessageAndInfo");
         b.setMessage("Billboard with message and info");
         b.setInformation("Billboard with a message tag, an information tag, but no picture tag. The message is centred within the top half of the screen while the information is centred within the bottom half.");
 
@@ -67,7 +68,7 @@ public class DummyBillboards {
 
     public static Billboard pictureAndInformationBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("PicAndInfo");
         b.setInformation("Billboard with message and picture with data attribute");
         b.setImageData(dummyImage);
 
@@ -76,7 +77,7 @@ public class DummyBillboards {
 
     public static Billboard messagePictureAndInformationBillboard() {
         Billboard b = new Billboard();
-
+        b.setBillboardName("MessagePicAndInfo");
         b.setInformation("This billboard has a message tag, a picture tag (linking to a URL with a GIF image) and an information tag. The picture is drawn in the centre and the message and information text are centred in the space between the top of the image and the top of the page, and the space between the bottom of the image and the bottom of the page, respectively.");
         b.setMessage("Billboard with message, GIF and information");
         try {

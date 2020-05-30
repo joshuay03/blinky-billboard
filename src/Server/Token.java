@@ -13,20 +13,25 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 
 public class Token implements Serializable {
     String username;
-    Timestamp expiryDate;
+    Timestamp expiry;
+    byte[] code;
 
-    private Token(String username, Timestamp expiry) {
-        this.expiryDate = expiry;
+    private Token(String username, Timestamp expiry, byte[] code){
+        this.expiry = expiry;
         this.username = username;
+        this.code = code;
     }
 
     Token(String username) {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
-        this.expiryDate = Timestamp.valueOf(tomorrow); // Generate an expiry date
+        this.expiry = Timestamp.valueOf(tomorrow); // Generate an expiry date
         this.username = username;
+        this.code = new byte[128];
+        new Random().nextBytes(this.code);
     }
 
     private static SecretKey getKey(String filePath) {
@@ -145,6 +150,6 @@ public class Token implements Serializable {
             throw new InvalidTokenException(encryptedToken);
         }
         assert token != null;
-        return new Token(token.username.replaceAll(String.valueOf('\n'), ""), token.expiryDate);
+        return new Token(token.username.replaceAll(String.valueOf('\n'), ""), token.expiry, token.code);
     }
 }

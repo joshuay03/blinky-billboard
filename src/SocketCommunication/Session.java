@@ -9,6 +9,14 @@ import Server.blinkyDB;
 
 import java.io.Serializable;
 
+/**
+ * Class for defining a user's session in the control panel.
+ *
+ * Holds the
+ *
+ * Implements the Serializable class.
+ * @see Serializable
+ */
 public class Session implements Serializable {
     public byte[] token;
     // While derivable from the token, this variable exists so that the client knows the username it's connected as.

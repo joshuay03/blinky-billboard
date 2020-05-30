@@ -3,6 +3,8 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
+import Exceptions.BillboardNotFoundException;
+import Exceptions.InvalidTokenException;
 import SocketCommunication.Credentials;
 
 import java.awt.*;
@@ -13,10 +15,13 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class blinkyDB {
     final private DBProps props;
@@ -81,7 +86,7 @@ public class blinkyDB {
                 image = null;
             }
             Billboard current = new Billboard();
-            current.setBillboardDatabaseKey(rs.getInt("billboard_id"));
+            current.setBillboardName(rs.getString("billboard_name"));
             current.setCreator(rs.getString("creator"));
             current.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
             current.setMessageColour(new Color(rs.getInt("messageColour")));
@@ -96,6 +101,39 @@ public class blinkyDB {
 
     public List<Billboard> getBillboards() throws SQLException {
         return this.getBillboards(null, null);
+    }
+
+    public Billboard getBillboard(String name) throws BillboardNotFoundException, SQLException {
+        PreparedStatement getBillboard;
+        final String billboardLookUpString = "select * from Billboards where billboard_name = ?";
+        dbconn.setAutoCommit(false);
+        getBillboard = dbconn.prepareStatement(billboardLookUpString);
+        getBillboard.setString(1, name);
+        dbconn.setAutoCommit(true);
+        ResultSet rs = getBillboard.executeQuery();
+        try {rs.first();} // Go to the result
+        catch (SQLException e) {throw new BillboardNotFoundException(name);} // If there is no result, throw an exception
+        // Process billboard data
+            Object image;
+            try{
+                ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+                ObjectInput in = new ObjectInputStream(bis);
+                image = in.readObject();
+            }
+            catch (Exception e){
+                image = null;
+            }
+            Billboard billboard = new Billboard();
+            billboard.setBillboardName(rs.getString("billboard_name"));
+            billboard.setCreator(rs.getString("creator"));
+            billboard.setBackgroundColour(new Color(rs.getInt("backgroundColour")));
+            billboard.setMessageColour(new Color(rs.getInt("messageColour")));
+            billboard.setInformationColour(new Color(rs.getInt("informationColour")));
+            billboard.setMessage(rs.getString("message"));
+            billboard.setInformation(rs.getString("information"));
+            billboard.setImageData((String) image);
+
+        return billboard;
     }
 
     public void CreateViewer(String socket) throws SQLException {
@@ -114,6 +152,45 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    public void editBillboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) throws SQLException, BillboardNotFoundException {
+        // Takes billboard properties, and applies them to the given id
+        getBillboard(name); // Will throw an exception if the billboard doesn't exist
+        byte[] SerialisedImage;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(bos).writeObject(imageData);
+            SerialisedImage = bos.toByteArray();
+        } catch (IOException e) { SerialisedImage = null; }
+        List<String> updateList = new ArrayList<>();
+        if (backgroundColour != null) updateList.add("backgroundColour=?");
+        if (messageColour != null) updateList.add("messageColour=?");
+        if (informationColour != null) updateList.add("informationColour=?");
+        if (message != null) updateList.add("message=?");
+        if (information != null) updateList.add("information=?");
+        if (imageData != null) updateList.add("billboardImage=?");
+        String AttrsUpdateString = String.join(", ", updateList);
+        String BillboardInsertQuery = "UPDATE Billboards\n" +
+                "SET" + AttrsUpdateString + "\n" +
+                "WHERE billboard_name=?;\n";
+        dbconn.setAutoCommit(false);
+        PreparedStatement updateBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+        try {
+            {int index = updateList.indexOf("backgroundColour=?"); if (index != -1) updateBillboard.setInt(index+1, backgroundColour.getRGB());}
+            {int index = updateList.indexOf("messageColour=?"); if (index != -1) updateBillboard.setInt(index+1, messageColour.getRGB());}
+            {int index = updateList.indexOf("informationColour=?"); if (index != -1) updateBillboard.setInt(index+1, informationColour.getRGB());}
+            {int index = updateList.indexOf("message=?"); if (index != -1) updateBillboard.setString(index+1, message);}
+            {int index = updateList.indexOf("information=?"); if (index != -1) updateBillboard.setString(index+1, information);}
+            {int index = updateList.indexOf("billboardImage=?"); if (index != -1) updateBillboard.setBytes(index+1, SerialisedImage);}
+            updateBillboard.setString(updateList.size()+1 ,name);
+            updateBillboard.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+        }
+        dbconn.setAutoCommit(true);
+    }
+
     /**
      * Allows writing a billboard into the database
      *
@@ -123,12 +200,13 @@ public class blinkyDB {
      */
     public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
         assert creator != null;
+        assert billboard_in.getBillboardName() != null;
         // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
         Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
                 Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
         String BillboardInsertQuery = "INSERT INTO Billboards\n" +
-                "(creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
-                "VALUES(?, ?, ?, ?, ?, ?, ?);\n";
+                "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
         dbconn.setAutoCommit(false);
         byte[] SerialisedImage;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -140,13 +218,14 @@ public class blinkyDB {
         }
         PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
         try {
-            insertBillboard.setString(1, creator);
-            insertBillboard.setInt(2, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-            insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-            insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-            insertBillboard.setString(5, ((String) getPropertySafely.apply(Billboard::getMessage)));
-            insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getInformation)));
-            insertBillboard.setBytes(7, SerialisedImage);
+            insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
+            insertBillboard.setString(2, creator);
+            insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+            insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+            insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+            insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
+            insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
+            insertBillboard.setBytes(8, SerialisedImage);
             insertBillboard.executeUpdate();
             dbconn.commit();
         } catch (SQLException e) {
@@ -207,8 +286,8 @@ public class blinkyDB {
                 Timestamp startTime = Timestamp.from(rs.getTime("start_time").toInstant());
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
-                int billboardID = rs.getInt("billboard_id");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+                String billboardName = rs.getString("billboard_name");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -217,18 +296,18 @@ public class blinkyDB {
     }
 
     /**
-     * Put in billboard ID - get schedule (including future schedules)
+     * Put in billboard Name - get schedule (including future schedules)
      *
-     * @param id The billboard ID
+     * @param name The billboard name
      * @return The schedule of that billboard
      * @throws SQLException if the lookup fails
      */
-    public Schedule getScheduleForBillboard(int id) throws SQLException {
-        String scheduleLookup = "SELECT * FROM Scheduling WHERE billboard_id = ?";
+    public Schedule getScheduleForBillboard(String name) throws SQLException {
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE billboard_name = ?";
         PreparedStatement scheduleLookUpForBillboard;
         dbconn.setAutoCommit(false);
         scheduleLookUpForBillboard = dbconn.prepareStatement(scheduleLookup);
-        scheduleLookUpForBillboard.setInt(1, id);
+        scheduleLookUpForBillboard.setString(1, name);
         dbconn.setAutoCommit(true);
         ResultSet rs = scheduleLookUpForBillboard.executeQuery();
         List<Schedule> ScheduleList = new ArrayList<>();
@@ -237,8 +316,8 @@ public class blinkyDB {
                 Timestamp startTime = rs.getTimestamp("start_time");
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
-                int billboardID = rs.getInt("billboard_id");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardID));
+                String billboardName = rs.getString("billboard_name");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -254,7 +333,7 @@ public class blinkyDB {
      */
     public void ScheduleBillboard(Billboard billboard, Schedule schedule) throws SQLException {
         String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
-                "(billboard_id, viewer_id, start_time, duration, `interval`)\n" +
+                "(billboard_name, viewer_id, start_time, duration, `interval`)\n" +
                 "VALUES(?, ?, ?, ?, ?);\n";
 
         PreparedStatement CreateSchedule;
@@ -262,7 +341,7 @@ public class blinkyDB {
         try {
             CreateSchedule = dbconn.prepareStatement(SchedulingString);
 
-            CreateSchedule.setInt(1, billboard.getBillboardDatabaseKey());
+            CreateSchedule.setString(1, billboard.getBillboardName());
             CreateSchedule.setInt(2, 1);
             CreateSchedule.setTimestamp(3, schedule.StartTime);
             CreateSchedule.setInt(4, schedule.duration);
@@ -426,17 +505,17 @@ public class blinkyDB {
     /**
      * Deletes schedules for a given billboard ID
      *
-     * @param id Billboard ID
+     * @param name Billboard Name
      * @throws SQLException If the deletion fails
      */
-    public void UnscheduleBillboard(int id) throws SQLException {
-        String SchedulesDeletionString = "DELETE FROM blinkyBillboard.Scheduling\n" +
-                "billboard_id=?;\n";
+    public void UnscheduleBillboard(String name) throws SQLException {
+        String SchedulesDeletionString = "DELETE FROM Scheduling\n" +
+                "billboard_name=?;\n";
 
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
         try {
-            SchedulesDeleter.setInt(1, id);
+            SchedulesDeleter.setString(1, name);
             SchedulesDeleter.executeUpdate();
             dbconn.commit();
         } catch (SQLException e) {
@@ -448,22 +527,22 @@ public class blinkyDB {
     /**
      * Deletes a billboard and all schedules associated with it
      *
-     * @param id The billboard ID to delete
+     * @param name The billboard name to delete
      * @throws SQLException If the deletion fails
      */
-    public void DeleteBillboard(int id) throws SQLException {
-        String BillboardDeletionString = "DELETE FROM blinkyBillboard.Billboards\n" +
-                "WHERE billboard_id=?;\n";
-        String SchedulesDeletionString = "DELETE FROM blinkyBillboard.Scheduling\n" +
-                "billboard_id=?;\n";
+    public void DeleteBillboard(String name) throws SQLException {
+        String BillboardDeletionString = "DELETE FROM Billboards\n" +
+                "WHERE billboard_name=?;\n";
+        String SchedulesDeletionString = "DELETE FROM Scheduling\n" +
+                "billboard_name=?;\n";
         PreparedStatement BillboardDeleter = dbconn.prepareStatement(BillboardDeletionString);
         PreparedStatement SchedulesDeleter = dbconn.prepareStatement(SchedulesDeletionString);
         dbconn.setAutoCommit(false);
         try {
-            BillboardDeleter.setInt(1, id);
-            SchedulesDeleter.setInt(1, id);
-            BillboardDeleter.executeUpdate();
+            SchedulesDeleter.setString(1, name);
+            BillboardDeleter.setString(1, name);
             SchedulesDeleter.executeUpdate();
+            BillboardDeleter.executeUpdate();
             dbconn.commit();
         } catch (SQLException e) {
             dbconn.rollback();
@@ -482,5 +561,60 @@ public class blinkyDB {
                 "FROM Viewers;\n";
         PreparedStatement ViewersSelector = dbconn.prepareStatement(ViewersSelectorString);
         return ViewersSelector.executeQuery();
+    }
+
+    protected void BlacklistToken(byte[] token) throws SQLException {
+        Timestamp expiry;
+        byte[] code;
+        try {
+            Token tokenValidated = Token.validate(token);
+            expiry = tokenValidated.expiry;
+            code = tokenValidated.code;
+        } catch (InvalidTokenException e) {
+            e.printStackTrace();
+            return;
+        }
+        String WriteTokenToBlackListString = "INSERT INTO TokenBlacklist\n" +
+                "(tokenCode, expiry)\n" +
+                "VALUES(?, ?);\n";
+        String DeleteOldTokensString = "DELETE FROM TokenBlacklist\n" +
+                "WHERE expiry < NOW();\n";
+
+        PreparedStatement WriteTokenToBlackList = dbconn.prepareStatement(WriteTokenToBlackListString);
+        PreparedStatement PurgeOldTokens = dbconn.prepareStatement(DeleteOldTokensString);
+        dbconn.setAutoCommit(false);
+        try{
+            WriteTokenToBlackList.setBytes(1, code);
+            WriteTokenToBlackList.setTimestamp(2, expiry);
+            WriteTokenToBlackList.executeUpdate();
+            PurgeOldTokens.executeUpdate();
+            dbconn.commit();
+        } catch (SQLException e) {
+            dbconn.rollback();
+            throw e;
+        }
+        dbconn.setAutoCommit(true);
+    }
+
+    protected boolean IsTokenBlackListed(byte[] token){
+        String AttemptTokenLookup = "SELECT *\n" +
+                "FROM TokenBlacklist WHERE tokenCode = ?;\n";
+        PreparedStatement TokenLookup;
+        try {
+            TokenLookup = dbconn.prepareStatement(AttemptTokenLookup);
+            TokenLookup.setBytes(1, Token.validate(token).code);
+        } catch (SQLException | InvalidTokenException e) {
+            e.printStackTrace();
+            // Invalid tokens can also be seen as blacklisted although they should never get in here
+            return true;
+        }
+        try {
+            ResultSet rs = TokenLookup.executeQuery(); // Return whether there is a result or not
+            //noinspection UnnecessaryLocalVariable - is there for readability purposes
+            boolean IsThereAResult = rs.next();
+            return IsThereAResult;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 }
