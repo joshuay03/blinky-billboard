@@ -29,7 +29,7 @@ USE `blinkyBillboard`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Billboards` (
   `billboard_name` varchar(100) NOT NULL,
-  `creator` varchar(100) NOT NULL COMMENT 'User ID of the billboard''s creator',
+  `creator` varchar(100) NULL COMMENT 'User ID of the billboard''s creator',
   `backgroundColour` int(11) DEFAULT NULL,
   `messageColour` int(11) DEFAULT NULL,
   `informationColour` int(11) DEFAULT NULL,
