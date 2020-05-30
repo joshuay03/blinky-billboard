@@ -3,10 +3,8 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
-import Exceptions.AuthenticationFailedException;
-import Exceptions.BillboardNotFoundException;
-import Exceptions.InvalidTokenException;
-import Exceptions.NoSuchUserException;
+import ControlPanel.CreateBillboards;
+import Exceptions.*;
 import SocketCommunication.*;
 
 import java.io.*;
@@ -153,7 +151,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Could not find Billboard with that ID");
                 }
             }
-            // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
@@ -162,40 +159,27 @@ public class ClientHandler extends Thread {
                 } catch (Exception e) {
                     return new Response(false, "Invalid billboard object");
                 }
-
                 if (authenticatedUser.CanCreateBillboards()) {
-                    Billboard existingBillboard = null;
+                    // If the user is allowed to create billboards
                     try {
-                        existingBillboard = database.getBillboard(billboard.getBillboardName());
-                    } catch (BillboardNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (existingBillboard == null) {
                         database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                        return new Response(true, "Success");
-                    } else {
-                        Schedule schedule = existingBillboard.getSchedule();
-
-                        if (schedule == null) {
-                            // TODO: need to be able to get username from authUser
-                            database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                            return new Response(true, "Success");
-                        } else {
-                            if (authenticatedUser.CanEditAllBillboards()) {
-                                //replace billboard in db with billboard from request
-                                // TODO: make editBillboard()
-                                //database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                            } else {
-                                return new Response(false, "Invalid billboard edit permissions.");
-                            }
+                        return new Response(true, "Billboard created successfully");
+                    } catch (BillboardAlreadyExistsException e) {
+                        // If there's already a billboard
+                        // If the user can edit all billboards, or if they're the creator of the existing billboard
+                        if(authenticatedUser.CanEditAllBillboards() || e.getBillboard().getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()))
+                        {
+                            try {
+                                database.editBillboard(billboard.getBillboardName(), billboard.getBackgroundColour(), billboard.getMessageColour(), billboard.getInformationColour(), billboard.getMessage(), billboard.getInformation(), billboard.getImageData());
+                            } catch (BillboardNotFoundException ignored) {}
+                            return new Response(true, "Existing billboard was found and edited successfully.");
                         }
+                        else return new Response(false, "There's already an existing billboard with that name, which you may not edit.");
                     }
                 } else {
                     return permissionDeniedResponse;
                 }
             }
-            break;
             case EDIT_BILLBOARD:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 

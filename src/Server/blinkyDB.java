@@ -3,6 +3,7 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
+import Exceptions.BillboardAlreadyExistsException;
 import Exceptions.BillboardNotFoundException;
 import Exceptions.InvalidTokenException;
 import SocketCommunication.Credentials;
@@ -24,6 +25,9 @@ public class blinkyDB {
     final private Connection dbconn;
 
     //TODO insert constants which correspond to database columns
+    public enum Columns {
+
+    }
 
     /**
      * Database object constructor
@@ -196,40 +200,45 @@ public class blinkyDB {
      * @param creator      The username of the billboard's creator
      * @throws SQLException If the creation fails
      */
-    public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
+    public void createBillboard(Billboard billboard_in, String creator) throws SQLException, BillboardAlreadyExistsException {
         assert creator != null;
         assert billboard_in.getBillboardName() != null;
-        // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
-        Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
-                Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
-        String BillboardInsertQuery = "INSERT INTO Billboards\n" +
-                "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
-        dbconn.setAutoCommit(false);
-        byte[] SerialisedImage;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
-            SerialisedImage = bos.toByteArray();
-        } catch (IOException e) {
-            SerialisedImage = new byte[0];
+            Billboard existingBillboard = getBillboard(billboard_in.getBillboardName());
+            throw new BillboardAlreadyExistsException(existingBillboard);
+        } catch (BillboardNotFoundException ex) {
+            // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
+            Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
+                    Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
+            String BillboardInsertQuery = "INSERT INTO Billboards\n" +
+                    "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
+            dbconn.setAutoCommit(false);
+            byte[] SerialisedImage;
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try {
+                new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+                SerialisedImage = bos.toByteArray();
+            } catch (IOException e) {
+                SerialisedImage = new byte[0];
+            }
+            PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+            try {
+                insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
+                insertBillboard.setString(2, creator);
+                insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+                insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+                insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+                insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
+                insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
+                insertBillboard.setBytes(8, SerialisedImage);
+                insertBillboard.executeUpdate();
+                dbconn.commit();
+            } catch (SQLException e) {
+                dbconn.rollback();
+            }
+            dbconn.setAutoCommit(true);
         }
-        PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
-        try {
-            insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
-            insertBillboard.setString(2, creator);
-            insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-            insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-            insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-            insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
-            insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
-            insertBillboard.setBytes(8, SerialisedImage);
-            insertBillboard.executeUpdate();
-            dbconn.commit();
-        } catch (SQLException e) {
-            dbconn.rollback();
-        }
-        dbconn.setAutoCommit(true);
     }
 
     /**
