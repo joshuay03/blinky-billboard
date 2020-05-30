@@ -240,12 +240,13 @@ public class ClientHandler extends Thread {
                 try {
                     // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration
                     int interval = req.getBillboard().getSchedule().repeatInterval;
-                    // In minutes
+                    // Duration in minutes
                     int duration = req.getBillboard().getSchedule().duration;
                     Timestamp startTime = req.getBillboard().getSchedule().StartTime;
                     Timestamp endTime = req.getBillboard().getSchedule().EndTime;
                     Timestamp currTime = startTime;
                     long nanoseconds = 0;
+
 
                     if (authenticatedUser.CanScheduleBillboards()) {
                         if (duration <= interval) {
@@ -254,6 +255,7 @@ public class ClientHandler extends Thread {
                                     database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
                                     nanoseconds = currTime.getTime() + ((interval * 60) * 1000);
                                     currTime.setTime(nanoseconds);
+                                    req.getBillboard().getSchedule().StartTime = currTime;
                                 }
                                 return new Response(true, "The billboard has successfully been scheduled.");
                             }
