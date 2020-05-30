@@ -3,12 +3,11 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
-import Exceptions.AuthenticationFailedException;
-import Exceptions.BillboardNotFoundException;
-import Exceptions.InvalidTokenException;
-import Exceptions.NoSuchUserException;
+import ControlPanel.CreateBillboards;
+import Exceptions.*;
 import SocketCommunication.*;
 
+import javax.xml.transform.Result;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -29,7 +28,14 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
-
+    private final int BILLBOARD_NAME = 0,
+            CREATOR = 1,
+            BACKGROUND_COLOUR = 2,
+            MESSAGE_COLOUR = 3,
+            INFORMATION_COLOUR = 4,
+            MESSAGE = 5,
+            INFORMATION = 6,
+            IMAGE = 7;
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -104,14 +110,11 @@ public class ClientHandler extends Thread {
         // LOGIC SWITCHING
         // *************************************************************************************
         //<editor-fold desc="REQUEST TYPE SWITCHING">
-        // Example handle login
         switch (req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED: {
                 return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
-
             case LOGIN: {
-                // EXAMPLE how to use the request given from the client
                 Credentials credentials;
                 try {
                     credentials = req.getCredentials();
@@ -124,7 +127,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Cannot create session.");
                 }
             }
-
             case LIST_BILLBOARDS: {
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
@@ -136,7 +138,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "There was an SQL error");
                 }
             }
-
             case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name and valid session
@@ -149,8 +150,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Could not find Billboard with that ID");
                 }
             }
-
-            // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
@@ -159,50 +158,49 @@ public class ClientHandler extends Thread {
                 } catch (Exception e) {
                     return new Response(false, "Invalid billboard object");
                 }
-
                 if (authenticatedUser.CanCreateBillboards()) {
-                    Billboard existingBillboard = null;
+                    // If the user is allowed to create billboards
                     try {
-                        existingBillboard = database.getBillboard(billboard.getBillboardName());
-                    } catch (BillboardNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (existingBillboard == null) {
                         database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                        return new Response(true, "Success");
-                    } else {
-                        Schedule schedule = existingBillboard.getSchedule();
-
-                        if (schedule == null) {
-                            // TODO: need to be able to get username from authUser
-                            database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                            return new Response(true, "Success");
-                        } else {
-                            if (authenticatedUser.CanEditAllBillboards()) {
-                                //replace billboard in db with billboard from request
-                                // TODO: make editBillboard()
-                                //database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
-                            } else {
-                                return new Response(false, "Invalid billboard edit permissions.");
-                            }
+                        return new Response(true, "Billboard created successfully");
+                    } catch (BillboardAlreadyExistsException e) {
+                        // If there's already a billboard
+                        // If the user can edit all billboards, or if they're the creator of the existing billboard
+                        if(authenticatedUser.CanEditAllBillboards() || e.getBillboard().getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()))
+                        {
+                            try {
+                                database.editBillboard(billboard.getBillboardName(), billboard.getBackgroundColour(), billboard.getMessageColour(), billboard.getInformationColour(), billboard.getMessage(), billboard.getInformation(), billboard.getImageData());
+                            } catch (BillboardNotFoundException ignored) {}
+                            return new Response(true, "Existing billboard was found and edited successfully.");
                         }
+                        else return new Response(false, "There's already an existing billboard with that name, which you may not edit.");
                     }
                 } else {
                     return permissionDeniedResponse;
                 }
             }
-
-            case EDIT_BILLBOARD: {
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
-                // this request will only happen if User has 'Edit all Billboards' permission
-                // Client sends server billboardName, contents (billboard ID, creator) and valid session token
-
-                // if billboard info searched is not valid e.g corresponding billboardName, id, and creator nonexistent or incorrect send back error
-
-                // Edit can be made by this user to any billboard on list (even if currently scheduled)
-                // if edit is made replace contents of billboard with new
+            case EDIT_BILLBOARD:
+            {
+                assert authenticatedUser != null;
+                Billboard modifiedBillboard = req.getBillboard();
+                Billboard orig;
+                try {
+                    orig = database.getBillboard(req.getBillboardName());
+                } catch (BillboardNotFoundException e) {
+                    return new Response(false, e.getMessage());
+                }
+                // If the user is allowed to edit this billboard
+                if (orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) ||
+                authenticatedUser.CanEditAllBillboards())
+                {
+                    try {
+                        database.editBillboard(req.getBillboardName(), modifiedBillboard.getBackgroundColour(), modifiedBillboard.getMessageColour(), modifiedBillboard.getInformationColour(), modifiedBillboard.getMessage(), modifiedBillboard.getInformation(), modifiedBillboard.getImageData());
+                    } catch (BillboardNotFoundException e) {
+                        return new Response(false, e.getMessage());
+                    }
+                    return new Response(true, String.format("Billboard %s was changed successfully", req.getBillboardName()));
+                }
+                else return permissionDeniedResponse;
             }
             case DELETE_BILLBOARD:
             {
@@ -218,7 +216,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard does not exist.");
                 }
             }
-
             case VIEW_SCHEDULED_BILLBOARDS: {
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
@@ -237,22 +234,20 @@ public class ClientHandler extends Thread {
 
                 return new Response(false, "No billboards currently scheduled");
             }
-
             case SCHEDULE_BILLBOARD: {
                 assert authenticatedUser != null;
                 try {
+                    Schedule schedule = req.getSchedule();
                     // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration
-                    int interval = req.getBillboard().getSchedule().repeatInterval;
-                    // Duration in minutes
-                    int duration = req.getBillboard().getSchedule().duration;
-                    Timestamp currTime = req.getBillboard().getSchedule().StartTime;
+                    int interval = schedule.repeatInterval;
+                    Timestamp currTime = schedule.StartTime;
                     long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
                         while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
-                            database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
+                            database.ScheduleBillboard(schedule.billboardName, schedule);
                             milliseconds = currTime.getTime() + ((interval * 60) * 1000);
                             currTime.setTime(milliseconds);
-                            req.getBillboard().getSchedule().StartTime = currTime;
+                            schedule.StartTime = currTime;
                         }
                         return new Response(true, "The billboard has successfully been scheduled.");
                     } else {
@@ -263,7 +258,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Unable to schedule billboard");
                 }
         }
-
             case REMOVE_SCHEDULED:
             {
                 try {
@@ -278,7 +272,6 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard lookup failed.");
                 }
             }
-
             case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
@@ -300,7 +293,6 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
-
             case CREATE_USER:
             {
                 assert authenticatedUser != null;
@@ -338,7 +330,6 @@ public class ClientHandler extends Thread {
 
 
             }
-
             case GET_USER_PERMISSION: {
                 assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
@@ -363,7 +354,6 @@ public class ClientHandler extends Thread {
 
                 // else return false send error
             }
-
             case SET_USER_PERMISSION: {
                 assert authenticatedUser != null;
                 // request only happens if user has 'Edit Users' permission
@@ -374,9 +364,8 @@ public class ClientHandler extends Thread {
 
                     // else if session user is requesting to remove their own "Edit User" permission return error
 
+                    // else Server change that users permissions and send back acknowledgement of success
 
-                    // Client will send server username(user whose permissions are to be changed),
-                    // list of permissions, and valid session token
                     //FIXME - should only be passing credentials object through on this one
                     try {
                         // Client will send server username(user whose permissions are to be changed),
@@ -398,21 +387,23 @@ public class ClientHandler extends Thread {
                             userToModify.setEditUsers(canEditUsers);
                         }
 
-                        // Update the user's permissions accordingly ont he server
                         database.UpdateUserDetails(userToModify);
-                        return new Response(true, "Permissions successfully modified");
 
                     } catch (NoSuchUserException e) {
-                        return new Response(false, "No such user exists");
+                        e.printStackTrace();
                     }
-                }
+                } else return permissionDeniedResponse;
+
+                // Client will send server username(user whose permissions are to be changed),
+                // list of permissions, and valid session token
+
                 // if username does not exist return error
-                else return permissionDeniedResponse;
 
                 // else if session user is requesting to remove their own "Edit User" permission return error
 
                 // else Server change that users permissions and send back acknowledgement of success
             }
+                break;
             case SET_USER_PASSWORD:
             {
                 assert authenticatedUser != null;

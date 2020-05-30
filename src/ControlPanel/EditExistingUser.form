@@ -15,7 +15,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <splitpane id="3b5f7">
+          <splitpane id="1d51">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
@@ -25,36 +25,6 @@
             <properties>
               <dividerSize value="0"/>
               <preferredSize width="300" height="30"/>
-            </properties>
-            <border type="none"/>
-            <children>
-              <component id="dc2eb" class="javax.swing.JLabel" binding="user_idLabel">
-                <constraints>
-                  <splitpane position="left"/>
-                </constraints>
-                <properties>
-                  <text value="user_id:"/>
-                </properties>
-              </component>
-              <component id="55dcc" class="javax.swing.JTextField" binding="user_idTextField">
-                <constraints>
-                  <splitpane position="right"/>
-                </constraints>
-                <properties>
-                  <preferredSize width="200" height="30"/>
-                </properties>
-              </component>
-            </children>
-          </splitpane>
-          <splitpane id="1d51">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                <preferred-size width="200" height="200"/>
-              </grid>
-              <gridbag weightx="0.0" weighty="0.0"/>
-            </constraints>
-            <properties>
-              <dividerSize value="0"/>
             </properties>
             <border type="none"/>
             <children>
@@ -70,13 +40,15 @@
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
             </children>
           </splitpane>
           <splitpane id="1783e">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
               </grid>
               <gridbag weightx="0.0" weighty="0.0"/>
@@ -104,7 +76,7 @@
           </splitpane>
           <splitpane id="6d5e9">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
               </grid>
               <gridbag weightx="0.0" weighty="0.0"/>
@@ -132,7 +104,7 @@
           </splitpane>
           <component id="e796e" class="javax.swing.JLabel" binding="permissionsLabel">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
@@ -141,7 +113,7 @@
           </component>
           <component id="990f3" class="javax.swing.JCheckBox" binding="createBillboardsCheckBox" default-binding="true">
             <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
@@ -152,7 +124,7 @@
           </component>
           <component id="1784c" class="javax.swing.JCheckBox" binding="editAllBillboardsCheckBox" default-binding="true">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
@@ -161,7 +133,7 @@
           </component>
           <component id="8f619" class="javax.swing.JCheckBox" binding="scheduleBillboardsCheckBox" default-binding="true">
             <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
@@ -170,11 +142,20 @@
           </component>
           <component id="a18ed" class="javax.swing.JCheckBox" binding="editUsersCheckBox" default-binding="true">
             <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
               <text value="Edit Users"/>
+            </properties>
+          </component>
+          <component id="9147b" class="javax.swing.JButton" binding="saveUserButton" default-binding="true">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Save User"/>
             </properties>
           </component>
         </children>

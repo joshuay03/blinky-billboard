@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -53,6 +54,8 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton saveBillboardButton;
+    private JTextArea nameTextArea;
+    private JLabel nameLabel;
 
     protected ColourChooser colourChooser = new ColourChooser();
     protected Billboard billboard;
@@ -95,7 +98,7 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File xmlFile = chooser.getSelectedFile();
                     billboard = Billboard.getBillboardFromXML(xmlFile);
-
+                    assert billboard != null;
                     messageTextArea.setText(billboard.getMessage());
                     informationTextArea.setText(billboard.getInformation());
 
@@ -126,8 +129,6 @@ public class CreateBillboards {
                         StreamResult streamResult = new StreamResult(fileLocation);
 
                         transformer.transform(domSource, streamResult);
-                    } catch (TransformerConfigurationException ex) {
-                        ex.printStackTrace();
                     } catch (TransformerException ex) {
                         ex.printStackTrace();
                     }
@@ -138,7 +139,11 @@ public class CreateBillboards {
         saveBillboardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                billboard.setBillboardName("test");
+
+                if (billboard.getBillboardName() == null){
+                    JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
+                    return;
+                }
                 //create request
                 Request createBillboard = Request.createBillboardReq(billboard, connector.session);
 
@@ -161,7 +166,7 @@ public class CreateBillboards {
                 }
 
                 if (status) {
-                    JOptionPane.showMessageDialog(null, "Billboard successfully created and saved on server.");
+                    JOptionPane.showMessageDialog(null, response.getData());
                     frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
@@ -217,7 +222,7 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File pictureFile = chooser.getSelectedFile();
                     try {
-                        billboard.setImageData(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes()).toString());
+                        billboard.setImageData(Arrays.toString(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes())));
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }

@@ -1,6 +1,7 @@
 package SocketCommunication;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.Schedule;
 import Client.ClientConnector;
 import Server.User;
 
@@ -24,6 +25,7 @@ public class Request implements Serializable {
     User user = null;
     String username = null;
     private Session session; //can be null
+    private Schedule schedule = null;
 
     private Request(ServerRequest requestType, Session session) {
         this.requestType = requestType;
@@ -35,8 +37,17 @@ public class Request implements Serializable {
      *
      * @return Request object to be sent to the server
      */
-    public static Request scheduledBillboardReq() {
+    public static Request viewScheduledBillboardReq() {
         return new Request(ServerRequest.VIEWER_CURRENTLY_SCHEDULED, null);
+    }
+
+    /**
+     * @return
+     */
+    public static Request scheduleBillboardReq(Schedule schedule, Session session) {
+        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, session);
+        request.schedule = schedule;
+        return request;
     }
 
     /**
@@ -198,9 +209,8 @@ public class Request implements Serializable {
     }
 
     /**
-     * A method to generate a request for the server to change a user's password.
-     *
-     * N.B. Server needs to check whether the user actually exists because it is possible to end up with a malformed Credentials Object
+     * A method to generate a request for the server to change a user's password. N.B. Server needs to check whether the user actually exists
+     * Possible to end up with a malformed Credentials Object
      *
      * @param proposedCredentials The proposed credentials of the new user
      * @param session             A Session object for an authenticated user
@@ -320,6 +330,11 @@ public class Request implements Serializable {
             e.printStackTrace();
         }
         return bos.toByteArray();
+    }
+
+
+    public Schedule getSchedule() {
+        return schedule;
     }
 }
 

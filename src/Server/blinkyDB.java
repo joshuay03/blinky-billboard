@@ -3,6 +3,7 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
+import Exceptions.BillboardAlreadyExistsException;
 import Exceptions.BillboardNotFoundException;
 import Exceptions.InvalidTokenException;
 import SocketCommunication.Credentials;
@@ -24,6 +25,9 @@ public class blinkyDB {
     final private Connection dbconn;
 
     //TODO insert constants which correspond to database columns
+    public enum Columns {
+
+    }
 
     /**
      * Database object constructor
@@ -107,13 +111,16 @@ public class blinkyDB {
         getBillboard.setString(1, name);
         dbconn.setAutoCommit(true);
         ResultSet rs = getBillboard.executeQuery();
-        try {rs.first();} // Go to the result
+        try {
+            boolean found = rs.first();
+            if (!found) throw new BillboardNotFoundException(name); // If there is no result, throw an exception
+        } // Go to the result
         catch (SQLException e) {throw new BillboardNotFoundException(name);} // If there is no result, throw an exception
         // Process billboard data
         Object image;
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
-            ObjectInput in = new ObjectInputStream(bis);
+           ObjectInput in = new ObjectInputStream(bis);
             image = in.readObject();
         } catch (Exception e) {
             image = null;
@@ -156,10 +163,13 @@ public class blinkyDB {
         getBillboard(name); // Will throw an exception if the billboard doesn't exist
         byte[] SerialisedImage;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            new ObjectOutputStream(bos).writeObject(imageData);
-            SerialisedImage = bos.toByteArray();
-        } catch (IOException e) { SerialisedImage = null; }
+        if (imageData != null){
+            try {
+                new ObjectOutputStream(bos).writeObject(imageData);
+                SerialisedImage = bos.toByteArray();
+            } catch (IOException e) { SerialisedImage = null; }
+        }
+        else SerialisedImage = null;
         List<String> updateList = new ArrayList<>();
         if (backgroundColour != null) updateList.add("backgroundColour=?");
         if (messageColour != null) updateList.add("messageColour=?");
@@ -168,8 +178,9 @@ public class blinkyDB {
         if (information != null) updateList.add("information=?");
         if (imageData != null) updateList.add("billboardImage=?");
         String AttrsUpdateString = String.join(", ", updateList);
+        if (AttrsUpdateString.isEmpty()) return;
         String BillboardInsertQuery = "UPDATE Billboards\n" +
-                "SET" + AttrsUpdateString + "\n" +
+                "SET " + AttrsUpdateString + "\n" +
                 "WHERE billboard_name=?;\n";
         dbconn.setAutoCommit(false);
         PreparedStatement updateBillboard = dbconn.prepareStatement(BillboardInsertQuery);
@@ -196,40 +207,45 @@ public class blinkyDB {
      * @param creator      The username of the billboard's creator
      * @throws SQLException If the creation fails
      */
-    public void createBillboard(Billboard billboard_in, String creator) throws SQLException {
+    public void createBillboard(Billboard billboard_in, String creator) throws SQLException, BillboardAlreadyExistsException {
         assert creator != null;
         assert billboard_in.getBillboardName() != null;
-        // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
-        Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
-                Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
-        String BillboardInsertQuery = "INSERT INTO Billboards\n" +
-                "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
-        dbconn.setAutoCommit(false);
-        byte[] SerialisedImage;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
-            SerialisedImage = bos.toByteArray();
-        } catch (IOException e) {
-            SerialisedImage = new byte[0];
+            Billboard existingBillboard = getBillboard(billboard_in.getBillboardName());
+            throw new BillboardAlreadyExistsException(existingBillboard);
+        } catch (BillboardNotFoundException ex) {
+            // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
+            Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
+                    Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
+            String BillboardInsertQuery = "INSERT INTO Billboards\n" +
+                    "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
+            dbconn.setAutoCommit(false);
+            byte[] SerialisedImage;
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try {
+                new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+                SerialisedImage = bos.toByteArray();
+            } catch (IOException e) {
+                SerialisedImage = new byte[0];
+            }
+            PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
+            try {
+                insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
+                insertBillboard.setString(2, creator);
+                insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
+                insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
+                insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
+                insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
+                insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
+                insertBillboard.setBytes(8, SerialisedImage);
+                insertBillboard.executeUpdate();
+                dbconn.commit();
+            } catch (SQLException e) {
+                dbconn.rollback();
+            }
+            dbconn.setAutoCommit(true);
         }
-        PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
-        try {
-            insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
-            insertBillboard.setString(2, creator);
-            insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-            insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-            insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-            insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
-            insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
-            insertBillboard.setBytes(8, SerialisedImage);
-            insertBillboard.executeUpdate();
-            dbconn.commit();
-        } catch (SQLException e) {
-            dbconn.rollback();
-        }
-        dbconn.setAutoCommit(true);
     }
 
     /**
@@ -285,7 +301,8 @@ public class blinkyDB {
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 String billboardName = rs.getString("billboard_name");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
+                Timestamp scheduledAt = rs.getTimestamp("scheduled_at");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName, scheduledAt));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -315,7 +332,8 @@ public class blinkyDB {
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 String billboardName = rs.getString("billboard_name");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
+                Timestamp scheduledAt = rs.getTimestamp("scheduled_at");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName, scheduledAt));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -326,10 +344,10 @@ public class blinkyDB {
     /**
      * Takes a billboard, and assigns a given schedule to it
      *
-     * @param billboard The billboard
+     * @param billboard_name The billboard's name
      * @param schedule  The schedule to assign to the billboard
      */
-    public void ScheduleBillboard(Billboard billboard, Schedule schedule) throws SQLException {
+    public void ScheduleBillboard(String billboard_name, Schedule schedule) throws SQLException {
         String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
                 "(billboard_name, viewer_id, start_time, duration, `interval`)\n" +
                 "VALUES(?, ?, ?, ?, ?);\n";
@@ -339,7 +357,7 @@ public class blinkyDB {
         try {
             CreateSchedule = dbconn.prepareStatement(SchedulingString);
 
-            CreateSchedule.setString(1, billboard.getBillboardName());
+            CreateSchedule.setString(1, billboard_name);
             CreateSchedule.setInt(2, 1);
             CreateSchedule.setTimestamp(3, schedule.StartTime);
             CreateSchedule.setInt(4, schedule.duration);
@@ -353,7 +371,6 @@ public class blinkyDB {
             dbconn.rollback();
         }
 
-        billboard.setSchedule(schedule);
         dbconn.setAutoCommit(true);
     }
 
@@ -441,13 +458,19 @@ public class blinkyDB {
     public void DeleteUser(String username) throws SQLException {
         String UserDeletionString = "DELETE FROM Users\n" +
                 "WHERE user_name='?';\n";
+        String BillboardDisassociationString = "UPDATE Billboards\n" +
+                "SET creator=NULL\n" +
+                "WHERE creator = '?';";
 
         PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
+        PreparedStatement BillboardDisassociator = dbconn.prepareStatement(BillboardDisassociationString);
 
         dbconn.setAutoCommit(false);
         try {
             UserDeleter.setString(1, username);
+            BillboardDisassociator.setString(1, username);
 
+            BillboardDisassociator.executeUpdate();
             UserDeleter.executeUpdate();
             dbconn.commit();
         } catch (SQLException e) {
