@@ -49,6 +49,10 @@ public class CreateNewUser {
         saveUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (confirmPasswordField.getPassword() != passwordField.getPassword()) {
+                    JOptionPane.showMessageDialog(null, "Passwords do not match. Try again");
+                    return;
+                }
 
                 String username = usernameTextField.getText();
                 String password = new String(passwordField.getPassword());
