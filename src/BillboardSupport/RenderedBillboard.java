@@ -49,7 +49,7 @@ public class RenderedBillboard extends JPanel {
         SimpleAttributeSet informationAttributes = new SimpleAttributeSet();
         StyleConstants.setAlignment(informationAttributes, StyleConstants.ALIGN_CENTER);
         StyleConstants.setSpaceAbove(informationAttributes, 0);
-        StyleConstants.setForeground(informationAttributes, board.getMessageColour());
+        StyleConstants.setForeground(informationAttributes, board.getInformationColour());
 
         informationContainer.setParagraphAttributes(informationAttributes, false);
         informationContainer.setOpaque(false);

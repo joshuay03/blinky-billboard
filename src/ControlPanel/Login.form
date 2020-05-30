@@ -95,7 +95,9 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
-        <properties/>
+        <properties>
+          <preferredSize width="250" height="35"/>
+        </properties>
         <border type="none"/>
         <children>
           <component id="a17e6" class="javax.swing.JLabel" binding="loginLabel">
@@ -105,7 +107,7 @@
             <properties>
               <alignmentY value="0.5"/>
               <autoscrolls value="false"/>
-              <font size="25"/>
+              <font size="30"/>
               <horizontalAlignment value="0"/>
               <horizontalTextPosition value="11"/>
               <preferredSize width="250" height="30"/>

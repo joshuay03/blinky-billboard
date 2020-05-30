@@ -6,6 +6,7 @@ import Client.ClientConnector;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class ListBillboards {
     protected JPanel listBillboardsPanel;
@@ -14,11 +15,11 @@ public class ListBillboards {
     protected JLabel listBillboardsLabel;
     protected ClientConnector connector;
 
-    protected Billboard[] billboardList;
+    protected List<Billboard> billboardList;
     protected JList<Billboard> billboardJList;
     DefaultListModel<Billboard> model;
 
-    public ListBillboards(JFrame frame, ClientConnector connector, Billboard[] billboardList) {
+    public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
 
         backButton.addActionListener(new ActionListener() {

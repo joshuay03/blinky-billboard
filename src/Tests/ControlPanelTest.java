@@ -1,4 +1,4 @@
-package Tests;
+/*package Tests;
 
 import SocketCommunication.SocketCommunication;
 import SocketCommunication.SocketConnection;
@@ -70,4 +70,4 @@ public class ControlPanelTest extends SocketConnection implements SocketCommunic
             e.printStackTrace();
         }
     }
-}
+}*/

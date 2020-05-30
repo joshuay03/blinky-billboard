@@ -12,8 +12,6 @@ import java.util.Scanner;
 
 /**
  * A class which represents a control panel which connects to the server
- *
- * @author Joshua Young
  */
 public class ControlPanel extends ClientConnector implements Runnable {
     protected ClientConnector connector;
@@ -25,22 +23,38 @@ public class ControlPanel extends ClientConnector implements Runnable {
     /**
      * Constructs a control panel which uses the information in the properties file to establish a connection with the
      * server
-     *
      * @param propFile the properties file which contains the IP and Port of the server
      */
     public ControlPanel(String propFile) {
         super(propFile);
         frame = new JFrame("Control Panel");
-        frame.setPreferredSize(new Dimension(900, 500));
+        frame.setPreferredSize(new Dimension(900, 510));
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
     }
 
     /**
+     * Initialises a socket connection
+     * @throws IOException If the socket cannot start
+     */
+    public void start() throws IOException {
+        super.start();
+
+        try {
+            socket = new Socket(getIP(), getPort());
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
+        }
+        catch(Exception e) {
+            System.out.println("The port " + getPort() + " is currently already in use.");
+        }
+    }
+
+    /**
      * Creates a new control control panel instance
-     *
      * @param args unused
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         ControlPanel controlPanel = new ControlPanel
                 ("properties.txt");
         Scanner scanner = new Scanner(System.in);
@@ -53,25 +67,9 @@ public class ControlPanel extends ClientConnector implements Runnable {
             while (controlPanelOpen) {
                 String outputData = scanner.nextLine();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
-
-    /**
-     * Initialises a socket connection
-     *
-     * @throws IOException If the socket cannot start
-     */
-    public void start() throws IOException {
-        super.start();
-
-        try {
-            socket = new Socket(getIP(), getPort());
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
-        } catch (Exception e) {
-            System.out.println("The port " + getPort() + " is currently already in use.");
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
