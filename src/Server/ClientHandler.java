@@ -182,7 +182,7 @@ public class ClientHandler extends Thread {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
-                                database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
+                                //database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }
@@ -330,7 +330,8 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PERMISSION:
-
+            {
+                assert authenticatedUser != null;
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
@@ -375,16 +376,18 @@ public class ClientHandler extends Thread {
                 // else if session user is requesting to remove their own "Edit User" permission return error
 
                 // else Server change that users permissions and send back acknowledgement of success
-
+            }
                 break;
             case SET_USER_PASSWORD:
+            {
+                assert authenticatedUser != null;
                 // TODO - implement in GUI
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
                 if (authenticatedUser.CanEditUsers() || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
 
-                    User userToChange = null;
+                    User userToChange;
 
                     try {
                         userToChange = new User(req.getUsername(), database);
@@ -392,17 +395,17 @@ public class ClientHandler extends Thread {
                         return new Response(false, "Could not find user");
                     }
 
-                    if (userToChange != null) {
-                        userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
-                        database.UpdateUserDetails(userToChange);
-                    }
+                    userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
+                    database.UpdateUserDetails(userToChange);
 
                 } // else return false send error
                 else return permissionDeniedResponse;
 
 
+            }
                 break;
             case DELETE_USER:
+            {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
@@ -413,8 +416,7 @@ public class ClientHandler extends Thread {
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
-                    Collator collator = Collator.getInstance(Locale.ENGLISH);
-                    if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
+                    if (Collator.getInstance(Locale.ENGLISH).compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
                         return new Response(false, "User cannot delete their own account");
                     } else {
                         try {
@@ -430,6 +432,7 @@ public class ClientHandler extends Thread {
                     // CRA says for team to decide what will happen in this circumstance
 
                 } else return new Response(false, permissionDeniedResponse);
+            }
                 break;
             case LOGOUT:
 
