@@ -134,7 +134,6 @@ public class ClientHandler extends Thread {
 
                 } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
-                }
                 // The billboard list now has all of the returned billboards - convert to an array and return
                 return new Response(true, billboardList.toArray(new Billboard[0]));
             }
@@ -407,7 +406,7 @@ public class ClientHandler extends Thread {
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
-                    Collator collator = Collator.getInstance(Locale.ENGLISH);
+                    collator = Collator.getInstance(Locale.ENGLISH);
                     if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
                         return new Response(false, "User cannot delete their own account");
                     } else {
