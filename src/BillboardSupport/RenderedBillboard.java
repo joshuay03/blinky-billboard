@@ -21,7 +21,7 @@ public class RenderedBillboard extends JPanel {
     private JLabel imageContainer;
     private JTextPane messageContainer, informationContainer;
 
-    /**
+    /** Returns a RenderedBillboard Object for insertion into a JFrame
      * @param board            The billboard that you would like to render
      * @param renderDimensions The dimensions of the area you want to render the billboard in
      */
@@ -244,6 +244,11 @@ public class RenderedBillboard extends JPanel {
 
     }
 
+    /**
+     * A helper method to retrieve an ImageIcon object from the internet, given a URL
+     * @param url The URL of the image resource
+     * @return An ImageIcon if the retrieval was successful, null in every other case.
+     */
     public static ImageIcon getImageIconFromURL(URL url) {
 
         if (url == null) return null;
@@ -259,6 +264,11 @@ public class RenderedBillboard extends JPanel {
         else return null;
     }
 
+    /**
+     * A helper method which retrieves an ImageIcon from a Base64 encoded string
+     * @param imageString The string containing the Base64 encoded image data
+     * @return An ImageIcon if decoding was successful, null in all other cases
+     */
     public static ImageIcon getImageIconFromBase64(String imageString) {
 
         if (imageString == null) return null;
@@ -268,6 +278,13 @@ public class RenderedBillboard extends JPanel {
         return new ImageIcon(decodedImage);
     }
 
+    /**
+     * A helper method to scale an ImageIcon proportionally to a new size
+     * @param src The image to be scaled
+     * @param maxWidth The maximum width of the image after scaling
+     * @param maxHeight The maximum height of the image after scaling
+     * @return A scaled ImageIcon object
+     */
     private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
 
         // Determine which side to bound the scaling on
@@ -283,6 +300,14 @@ public class RenderedBillboard extends JPanel {
         return new ImageIcon(newImg);
     }
 
+    /**
+     * A helper method which is used to get a font which is an appropriate size to render within a given area
+     * @param widthLimit The horizontal size of the rectangle in which rendering must occur
+     * @param heightLimit The vertical size of the rectangle in which rendering must occur
+     * @param stringToRender The string of text to render
+     * @param allowWrap Whether the text is allowed to wrap within the rectangle
+     * @return A font object representing a font of default size
+     */
     Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap) {
         Font boardFont = new Font(defaultBillboardFont, Font.BOLD, 10);
 
@@ -329,6 +354,10 @@ public class RenderedBillboard extends JPanel {
         return boardFont;
     }
 
+    /**
+     * A helper method which adds a component to the Rendered Billboard
+     * @param c The component to be added to the Rendered Billboard
+     */
     void addComponent(Component c) {
         this.add(c);
     }
