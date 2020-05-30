@@ -3,6 +3,7 @@ package ControlPanel;
 import Client.ClientConnector;
 
 import javax.swing.*;
+import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +22,12 @@ public class Schedule {
     protected JComboBox minuteComboBox;
     protected JFormattedTextField durationFormattedTextField;
     protected JLabel selectDurationLabel;
+    protected JPanel timeDurationPanel;
+    protected JRadioButton dailyRadioButton;
+    protected JRadioButton customMinutesRadioButton;
+    protected JRadioButton hourlyRadioButton;
+    protected JPanel frequencyPanel;
+    protected JFormattedTextField customFrequencyFormattedTextField;
 
     Schedule(JFrame scheduleFrame, ClientConnector connector) {
         hourComboBox.addItem("Select Hour");
@@ -43,6 +50,20 @@ public class Schedule {
             }
         }
 
+        NumberFormat numFormat = new DecimalFormat("#");
+
+        NumberFormatter durationFormatter  = new NumberFormatter(numFormat);
+        durationFormatter.setMinimum(1);
+        DefaultFormatterFactory durationFactory = new DefaultFormatterFactory(durationFormatter);
+        durationFormattedTextField.setFormatterFactory(durationFactory);
+        durationFormattedTextField.setValue(1);
+
+        NumberFormatter customFrequencyFormatter  = new NumberFormatter(numFormat);
+        customFrequencyFormatter.setMinimum(1);
+        customFrequencyFormatter.setMaximum((int) durationFormattedTextField.getValue());
+        DefaultFormatterFactory customFrequencyFactory = new DefaultFormatterFactory(customFrequencyFormatter);
+        customFrequencyFormattedTextField.setFormatterFactory(customFrequencyFactory);
+        customFrequencyFormattedTextField.setValue(1);
 
         selectDateButton.addActionListener(new ActionListener() {
             @Override
@@ -54,15 +75,34 @@ public class Schedule {
         durationFormattedTextField.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                customFrequencyFormatter.setMaximum((int) durationFormattedTextField.getValue());
+                DefaultFormatterFactory customFrequencyFactory = new DefaultFormatterFactory(customFrequencyFormatter);
+                customFrequencyFormattedTextField.setFormatterFactory(customFrequencyFactory);
             }
         });
-    }
 
-    private void createUIComponents() {
-        NumberFormat numFormat = new DecimalFormat("#");
-        NumberFormatter numFormatter  = new NumberFormatter(numFormat);
-        numFormatter.setMinimum(1);
-        durationFormattedTextField = new JFormattedTextField(numFormatter);
-        durationFormattedTextField.setValue(1);
+        dailyRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hourlyRadioButton.setSelected(false);
+                customMinutesRadioButton.setSelected(false);
+            }
+        });
+
+        hourlyRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dailyRadioButton.setSelected(false);
+                customMinutesRadioButton.setSelected(false);
+            }
+        });
+
+        customMinutesRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dailyRadioButton.setSelected(false);
+                hourlyRadioButton.setSelected(false);
+            }
+        });
     }
 }
