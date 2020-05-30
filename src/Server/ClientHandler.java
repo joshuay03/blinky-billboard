@@ -237,18 +237,17 @@ public class ClientHandler extends Thread {
             case SCHEDULE_BILLBOARD: {
                 assert authenticatedUser != null;
                 try {
+                    Schedule schedule = req.getSchedule();
                     // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration
-                    int interval = req.getBillboard().getSchedule().repeatInterval;
-                    // Duration in minutes
-                    int duration = req.getBillboard().getSchedule().duration;
-                    Timestamp currTime = req.getBillboard().getSchedule().StartTime;
+                    int interval = schedule.repeatInterval;
+                    Timestamp currTime = schedule.StartTime;
                     long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
                         while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
-                            database.ScheduleBillboard(req.getBillboardName(), req.getBillboard().getSchedule());
+                            database.ScheduleBillboard(schedule.billboardName, schedule);
                             milliseconds = currTime.getTime() + ((interval * 60) * 1000);
                             currTime.setTime(milliseconds);
-                            req.getBillboard().getSchedule().StartTime = currTime;
+                            schedule.StartTime = currTime;
                         }
                         return new Response(true, "The billboard has successfully been scheduled.");
                     } else {

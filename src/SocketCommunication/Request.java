@@ -333,5 +333,8 @@ public class Request implements Serializable {
     }
 
 
+    public Schedule getSchedule() {
+        return schedule;
+    }
 }
 
