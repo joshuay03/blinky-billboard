@@ -5,6 +5,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Crreates a credentials object associated with a user's username and password.
+ * Hashes the password.
+ * Implements Serrializable.
+ * @see Serializable
+ */
 public class Credentials implements Serializable {
 
     final private String username; // Username cannot be changed
@@ -28,15 +34,26 @@ public class Credentials implements Serializable {
         }
     }
 
-    public Credentials(String username, byte[] passwordHash) { // Create a credentials object using an already-hashed password (retrieved from the database)
+    /**
+     * Create a credentials object using an already-hashed password (retrieved from the database)
+     * @param username
+     * @param passwordHash
+     */
+    public Credentials(String username, byte[] passwordHash) {
         this.username = username;
         this.passwordHash = passwordHash;
     }
 
+    /**
+     * Get the user's username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Get the user's hashed password
+     */
     public byte[] getPasswordHash() {
         return passwordHash;
     }
