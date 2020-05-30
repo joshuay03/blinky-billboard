@@ -16,9 +16,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
-import static SocketCommunication.ServerRequest.*;
+import static SocketCommunication.ServerRequest.LOGIN;
+import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 
 /**
@@ -132,12 +136,10 @@ public class ClientHandler extends Thread {
                 List<Billboard> billboardList;
                 try {
                     billboardList = database.getBillboards();
-
+                    return new Response(true, billboardList);
                 } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
                 }
-                // The billboard list now has all of the returned billboards - convert to an array and return
-                return new Response(true, billboardList.toArray(new Billboard[0]));
             }
             case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI
@@ -162,16 +164,17 @@ public class ClientHandler extends Thread {
                 }
 
                 if (authenticatedUser.CanCreateBillboards()) {
-                    List<Billboard> billboards = database.getBillboards();
+                    Billboard existingBillboard = null;
+                    try {
+                        existingBillboard = database.getBillboard(billboard.getBillboardName());
+                    } catch (BillboardNotFoundException e) {
+                        e.printStackTrace();
+                    }
 
-                    Optional<Billboard> billboardMatch = billboards.stream().filter(x -> x.equals(billboard)).findFirst();
-
-                    if (billboardMatch.isEmpty()) {
+                    if (existingBillboard == null) {
                         database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                         return new Response(true, "Success");
                     } else {
-                        Billboard existingBillboard = billboardMatch.get();
-
                         Schedule schedule = existingBillboard.getSchedule();
 
                         if (schedule == null) {
@@ -225,7 +228,7 @@ public class ClientHandler extends Thread {
                     assert authenticatedUser != null;
 
                     // client will send server a valid session
-                    List<Schedule> allScheduledBillboards = database.getSchedules(LocalDateTime.now());
+                    List<Schedule> allScheduledBillboards = database.getSchedules(Timestamp.valueOf(LocalDateTime.now()));
 
                     // if session token is valid server will respond with list of billboards that have been scheduled
                     // including billboardName, creator, time scheduled, and duration

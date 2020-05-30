@@ -27,7 +27,7 @@ USE `blinkyBillboard`;
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `Billboards` (
+create TABLE IF NOT EXISTS `Billboards` (
   `billboard_name` varchar(100) NOT NULL,
   `creator` varchar(100) NULL COMMENT 'User ID of the billboard''s creator',
   `backgroundColour` int(11) DEFAULT NULL,
@@ -48,20 +48,20 @@ CREATE TABLE IF NOT EXISTS `Billboards` (
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `Scheduling` (
+create TABLE IF NOT EXISTS `Scheduling` (
   `schedule_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The ID is per billboard, per viewer',
   `billboard_name` varchar(100) NOT NULL,
   `viewer_id` int(11) unsigned NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NULL,
+  `start_time` timestamp NOT NULL,
+  `end_time` timestamp NULL,
   `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
   `interval` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'How often should the billboard repeat itself in minutes? (must be more than the duration )',
-  `scheduled_at` time DEFAULT NOW() NOT NULL COMMENT 'When was the billboard created?',
+  `scheduled_at` timestamp DEFAULT NOW() NOT NULL COMMENT 'When was the billboard created?',
   PRIMARY KEY (`schedule_id`,`billboard_name`,`viewer_id`),
   KEY `billboard_name_idx` (`billboard_name`),
   KEY `viewer_id_idx` (`viewer_id`),
   CONSTRAINT `Scheduling_FK` FOREIGN KEY (`viewer_id`) REFERENCES `Viewers` (`viewer_id`),
-  CONSTRAINT `billboard_name` FOREIGN KEY (`billboard_name`) REFERENCES `Billboards` (`billboard_name`) ON DELETE NO ACTION
+  CONSTRAINT `billboard_name` FOREIGN KEY (`billboard_name`) REFERENCES `Billboards` (`billboard_name`) ON delete NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `Scheduling` (
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `TokenBlacklist` (
+create TABLE IF NOT EXISTS `TokenBlacklist` (
   `tokenCode` binary(128) NOT NULL,
   `expiry` timestamp NOT NULL,
   PRIMARY KEY (`tokenCode`)
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `TokenBlacklist` (
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `Users` (
+create TABLE IF NOT EXISTS `Users` (
   `user_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_permissions` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `password_hash` binary(32) NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS `Viewers` (
+create TABLE IF NOT EXISTS `Viewers` (
   `viewer_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `socket` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'IP + port of viewer',
   PRIMARY KEY (`viewer_id`),
