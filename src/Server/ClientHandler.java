@@ -218,7 +218,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard does not exist.");
                 }
 
-            case VIEW_SCHEDULED_BILLBOARD:
+            case VIEW_SCHEDULED_BILLBOARDS:
                 // TODO - write using database.getSchedules
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
