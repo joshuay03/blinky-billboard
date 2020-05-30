@@ -17,6 +17,9 @@ import java.net.URL;
 import java.text.Collator;
 import java.util.Locale;
 
+/**
+ * An object which contains a representation of a billboard, and all of its properties.
+ */
 public class Billboard implements Serializable {
 
     private static Color DEFAULT_COLOUR = Color.WHITE;
@@ -28,16 +31,28 @@ public class Billboard implements Serializable {
     private URL imageURL;
     private String imageData;
     private String creator;
-    private int billboardDatabaseKey;
+    private String billboard_name;
     private Schedule schedule;
 
-    // Creates an empty billboard
+    /**
+     * Creates an empty billboard with none of the fields initialised.
+     */
     public Billboard() {
+        this.backgroundColour = null;
+        this.messageColour = null;
+        this.information = null;
+        this.message = null;
+        this.information = null;
+        this.imageURL = null;
+        this.imageData = null;
+        this.creator = null;
+        this.schedule = null;
     }
 
     /**
-     * New Billboard Object from scratch
+     * New Billboard Object from scratch, given an Image URL
      *
+     * @param name              The name of the billboard
      * @param backgroundColour  The colour of the Billboard background
      * @param messageColour     The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
@@ -46,7 +61,8 @@ public class Billboard implements Serializable {
      * @param imageURL          The URL of the image to be displayed by the Billboard
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
+    public Billboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
+        this.billboard_name = name;
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -56,8 +72,9 @@ public class Billboard implements Serializable {
     }
 
     /**
-     * New Billboard Object from scratch
+     * New Billboard Object from scratch, given Base64 Image Data
      *
+     * @param name              The name of the billboard
      * @param backgroundColour  The colour of the Billboard background
      * @param messageColour     The colour of the text which displays the 'message' string.
      * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
@@ -66,7 +83,8 @@ public class Billboard implements Serializable {
      * @param imageData         The Base64 byte string of the image to be displayed by the Billboard
      */
 
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
+    public Billboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
+        this.billboard_name = name;
         this.backgroundColour = backgroundColour;
         this.messageColour = messageColour;
         this.informationColour = informationColour;
@@ -104,6 +122,7 @@ public class Billboard implements Serializable {
                 return null;
             }
 
+            // Handle the message, if any
             NodeList messageNodes = doc.getElementsByTagName("message");
             if (messageNodes.getLength() > 0) {
                 billboard.message = messageNodes.item(0).getTextContent();
@@ -113,6 +132,7 @@ public class Billboard implements Serializable {
                 }
             }
 
+            //Handle the picture, if any
             NodeList pictureNodes = doc.getElementsByTagName("picture");
             if (pictureNodes.getLength() > 0) {
                 if (pictureNodes.item(0).hasAttributes()) {
@@ -124,6 +144,7 @@ public class Billboard implements Serializable {
                 }
             }
 
+            //Handle information, if any
             NodeList informationNodes = doc.getElementsByTagName("information");
             if (informationNodes.getLength() > 0) {
                 billboard.information = informationNodes.item(0).getTextContent();
@@ -135,13 +156,19 @@ public class Billboard implements Serializable {
 
         } catch (ParserConfigurationException | IOException e) {
             e.printStackTrace();
-        } catch (SAXException e) {
+        }
+        // TODO - consider letting the SAXException go out to the GUI so that the user can be informed the file was no good, otherwise they will just get an empty billboard
+        catch (SAXException e) {
             System.out.println("That does not appear to be valid billboard data!");
         }
         return billboard;
     }
     //</editor-fold>
 
+    /**
+     * A class to get a Billboard configured for error cases (primarily used by Viewer)
+     * @return Billboard object
+     */
     public static Billboard errorBillboard() {
         Billboard errorBillboard = new Billboard();
         errorBillboard.message = "Error: Could not connect to server";
@@ -149,12 +176,16 @@ public class Billboard implements Serializable {
         return errorBillboard;
     }
 
-    public int getBillboardDatabaseKey() {
-        return billboardDatabaseKey;
+    public boolean isScheduled() {
+        return schedule != null;
     }
 
-    public void setBillboardDatabaseKey(int billboardDatabaseKey) {
-        this.billboardDatabaseKey = billboardDatabaseKey;
+    public String getBillboardName() {
+        return billboard_name;
+    }
+
+    public void setBillboardName(String billboard_name) {
+        this.billboard_name = billboard_name;
     }
 
     public URL getImageURL() {
@@ -213,17 +244,19 @@ public class Billboard implements Serializable {
         this.information = information;
     }
 
+    /**
+     * A method to get an XML Representation of a Billboard which can be written to disk
+     * @return Document object
+     */
     public Document getXMLRepresentation() {
 
         Document billboardXMLRep = null;
         try {
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-
             billboardXMLRep = documentBuilder.newDocument();
 
-            //Billboard element
+            //Create the root Billboard element
             Element root = billboardXMLRep.createElement("billboard");
             billboardXMLRep.appendChild(root);
 
@@ -267,8 +300,6 @@ public class Billboard implements Serializable {
             }
 
             // Image ------------------------------------------------
-            //  N.B. Because we only ever store the ImageIcon data (and we don't retain the URL) when we read a Billboard in, we only have to deal with writing out
-            // Base64 encoded image data
             Element image = null;
             if (this.imageData != null ^ this.imageURL != null) {
                 image = billboardXMLRep.createElement("picture");
@@ -294,6 +325,11 @@ public class Billboard implements Serializable {
         return billboardXMLRep;
     }
 
+    /**
+     * A special getter to handle the URL/Base64 image storage dichotomy
+     * @return Either a string representation of the URL, or a Base64 encoded string, or null if neither of the above
+     * are present
+     */
     public String getBillboardImage() {
         if (imageURL != null) {
             return imageURL.toString();

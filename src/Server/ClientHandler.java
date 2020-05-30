@@ -4,6 +4,7 @@ import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
 import Exceptions.AuthenticationFailedException;
+import Exceptions.BillboardNotFoundException;
 import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
@@ -17,15 +18,14 @@ import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static SocketCommunication.ServerRequest.LOGIN;
-import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
+import static SocketCommunication.ServerRequest.*;
 
 
 /**
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
-    private final int BILLBOARD_ID = 0,
+    private final int BILLBOARD_NAME = 0,
             CREATOR = 1,
             BACKGROUND_COLOUR = 2,
             MESSAGE_COLOUR = 3,
@@ -92,8 +92,9 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiryDate)) {
-                    return new Response(false, "Token has expired.");
+                if (now.after(sessionAuthentication.expiry) || database.IsTokenBlackListed(req.getSession().token))
+                {
+                    return new Response(false,"Token has expired.");
                 }
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
@@ -136,20 +137,19 @@ public class ClientHandler extends Thread {
                     return new Response(false, "There was an SQL error");
                 }
             }
-            case GET_BILLBOARD_INFO:
-                // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
-
+            case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name and valid session
-                int billboardID = req.getBillboardID();
-
-                List<Billboard> results = database.getBillboards(Integer.toString(billboardID), "billboard_id");
-
-                //server responds with billboards contents
-                if (results != null) return new Response(true, results.get(0));
-                else return new Response(false, "Could not find Billboard with that ID");
-
-                // FIXME - change to Insert/Change after database changes
+                String billboardName = req.getBillboardName();
+                try {
+                    Billboard result = database.getBillboard(billboardName);
+                    //server responds with billboards contents
+                    return new Response(true, result);
+                } catch (BillboardNotFoundException e) {
+                    return new Response(false, "Could not find Billboard with that ID");
+                }
+            }
+            // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
@@ -180,7 +180,7 @@ public class ClientHandler extends Thread {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
-//                                database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
+                                //database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }
@@ -202,12 +202,12 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
-
-            case DELETE_BILLBOARD: {
+            case DELETE_BILLBOARD:
+            {
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
-                        database.DeleteBillboard(req.getBillboardID()); // TODO - change argument to string
+                        database.DeleteBillboard(req.getBillboardName());
                         return new Response(true, "The billboard has successfully been deleted.");
                     } else
                         return permissionDeniedResponse;
@@ -229,40 +229,43 @@ public class ClientHandler extends Thread {
                     // including billboardName, creator, time scheduled, and duration
                     return new Response(true, allScheduledBillboards);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 return new Response(false, "No billboards currently scheduled");
             }
             case SCHEDULE_BILLBOARD: {
                 // TODO - implement
-
-
-                // check if session is valid e.g. expired, if not return failure and trigger relogin
-
-                // this request will only happen is user has 'Schedule Billboards' permission
-                // triggered inside the ScheduleBillboards() GUI
-
-                //Client will send server billboardName, timeScheduled, duration, and valid session
-                // (there also might be more information e.g for handling recurrence)
-
-                // if billboard name is not found return error
-
-                // Else server will add new billboard to schedule
-
-                // if there is a billboard previously scheduled for the time of the newly scheduled billboard
-                // new billboard will take precedence over previously scheduled billboard but will not delete previously scheduled
-
-                // e.g billboard A scheduled from 10:00-11:00 and billboard B is then scheduled from 10:30-11
-                // billboard A will display until 10:30 then billboard B will be displayed
-
-                // once billboard is scheduled Server will send back an acknowledgement of success
-
+                assert authenticatedUser != null;
+                try {
+                    // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration
+                    int interval = req.getBillboard().getSchedule().repeatInterval;
+                    // Duration in minutes
+                    int duration = req.getBillboard().getSchedule().duration;
+                    Timestamp currTime = req.getBillboard().getSchedule().StartTime;
+                    long milliseconds;
+                    if (authenticatedUser.CanScheduleBillboards()) {
+                        while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
+                            database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
+                            milliseconds = currTime.getTime() + ((interval * 60) * 1000);
+                            currTime.setTime(milliseconds);
+                            req.getBillboard().getSchedule().StartTime = currTime;
+                        }
+                        return new Response(true, "The billboard has successfully been scheduled.");
+                    } else {
+                        return permissionDeniedResponse;
+                    }
+                }
+                catch (SQLException e) {
+                    return new Response(false, "Unable to schedule billboard");
+                }
         }
-            case REMOVE_SCHEDULED: {
+            case REMOVE_SCHEDULED:
+            {
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
-                        database.UnscheduleBillboard(req.getBillboardID());
+                        database.UnscheduleBillboard(req.getBillboardName());
                         return new Response(true, "Billboard has been removed from the schedule.");
                     } else {
                         return permissionDeniedResponse;
@@ -292,7 +295,9 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
-            case CREATE_USER: {
+            case CREATE_USER:
+            {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
@@ -304,7 +309,7 @@ public class ClientHandler extends Thread {
                     // Check if a user with the same username exists
                     try {
                         ResultSet resultSet = database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername());
-                        if (resultSet.next() == true)
+                        if (resultSet.next())
                             return new Response(false, "User with that username already exists. Please try again");
                             // else Server will create user and send back acknowledgement of success
                         else {
@@ -328,6 +333,7 @@ public class ClientHandler extends Thread {
 
             }
             case GET_USER_PERMISSION: {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 // TODO - implement
 
@@ -344,14 +350,14 @@ public class ClientHandler extends Thread {
 
                 // if session user is requesting their own details return details, no permissions required
                 // if session user is requesting details of another user, check permissions = 'Edit Users' == true then return details
-                if (req.getSession().username == queryUsername || authenticatedUser.CanEditUsers()) {
+                if (req.getSession().username.equals(queryUsername) || authenticatedUser.CanEditUsers()) {
                     return new Response(true, existingUser);
                 } else return permissionDeniedResponse;
 
                 // else return false send error
             }
             case SET_USER_PERMISSION: {
-
+                assert authenticatedUser != null;
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
@@ -390,15 +396,26 @@ public class ClientHandler extends Thread {
                     }
                 } else return permissionDeniedResponse;
 
+                // Client will send server username(user whose permissions are to be changed),
+                // list of permissions, and valid session token
+
+                // if username does not exist return error
+
+                // else if session user is requesting to remove their own "Edit User" permission return error
+
+                // else Server change that users permissions and send back acknowledgement of success
             }
-            case SET_USER_PASSWORD: {
+                break;
+            case SET_USER_PASSWORD:
+            {
+                assert authenticatedUser != null;
                 // TODO - implement in GUI
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
                 if (authenticatedUser.CanEditUsers() || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
 
-                    User userToChange = null;
+                    User userToChange;
 
                     try {
                         userToChange = new User(req.getUsername(), database);
@@ -406,10 +423,8 @@ public class ClientHandler extends Thread {
                         return new Response(false, "Could not find user");
                     }
 
-                    if (userToChange != null) {
-                        userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
-                        database.UpdateUserDetails(userToChange);
-                    }
+                    userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
+                    database.UpdateUserDetails(userToChange);
 
                 } // else return false send error
                 else return permissionDeniedResponse;
@@ -417,6 +432,7 @@ public class ClientHandler extends Thread {
 
             }
             case DELETE_USER: {
+                assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // request only happens if user has 'Edit Users' permission
@@ -447,11 +463,18 @@ public class ClientHandler extends Thread {
 
                 } else return new Response(false, permissionDeniedResponse);
             }
-            case LOGOUT: {
-
-                // TODO - implement
-
-                // server will expire session token and send back and acknowledgement
+                break;
+            case LOGOUT:
+            {
+                // Client will send server valid session token
+                byte[] TokenToExpire = req.getSession().token;
+                try {
+                    // server will expire session token and send back and acknowledgement
+                    database.BlacklistToken(TokenToExpire);
+                    return new Response(true, "Log out successful");
+                } catch (SQLException e) {
+                    return new Response(false, "There was an SQL error");
+                }
             }
         }
         // If the request is invalid:

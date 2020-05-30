@@ -18,23 +18,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.awt.*;
+import java.io.*;
+import java.net.Authenticator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
-import static SocketCommunication.ServerRequest.LOGIN;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static SocketCommunication.ServerRequest.*;
 
 /**
  * A suite of tests to ensure that permissions are being handled according to specification
  */
 class FunctionalityTest {
-    static final int VALID_BILLBOARD = 0,
-            VALID_BILLBOARD_CREATED_BY_UNAUTHORISED_USER = 1,
-            CURRENTLY_SCHEDULED_BILLBOARD = 2,
-            INVALID_BILLBOARD = 999;
     Session session;
     Session noperms_session;
     Function<Request, Response> respondTo;
@@ -73,57 +71,42 @@ class FunctionalityTest {
         db.CreateViewer("localhost:5506");
     }
 
-    @AfterAll()
-    static void Reset_Schema() throws IOException, SQLException {
-        new blinkyDB(true);
-    }
-
-    @BeforeEach
-    @Test
-    void setUpAndLogin() throws SQLException, IOException {
-        Function<Credentials, Request> MakeLoginRequest = (Credentials credentials) -> new Request(LOGIN, credentials, null);
+    @BeforeEach @Test
+    void setUpAndLogin() throws SQLException, IOException{
         respondTo = new ClientHandler(null, null, null, new blinkyDB())::handleInboundRequest;
         // Create and send a login request
-        noperms_session = (Session) respondTo.apply(MakeLoginRequest.apply(
+        noperms_session = (Session) respondTo.apply(Request.loginReq(
                 new Credentials("Lira", "SeaMonkey123"))).getData();
         Credentials credentials = new Credentials("Liran", "SeaMonkey123");
-        Response res = respondTo.apply(MakeLoginRequest.apply(credentials));
-        if (res.isStatus()) {
+        Response res = respondTo.apply(Request.loginReq(credentials));
+        if (res.isStatus()){
             // Set the session token
             session = (Session) res.getData();
             assertTrue(res.isStatus());
-        } else fail();
+        }
+        else fail();
     }
 
     @Test
-    void SendLogOut() {
-
+    void SendLogOut(){
         // Attempt to log out
         Response res = respondTo.apply(Request.logoutReq(session));
-
-        try {
-            // Expire the session
-            session = (Session) res.getData();
-            // Verify logout
-            Token.validate(session.token);
-            // If the token validates
-            fail();
-        } catch (InvalidTokenException | NullPointerException | ClassCastException e) {
-            // If the response was unsucessful/token validation failed after logout
-            assertTrue(res.isStatus());
-        }
+        if (!res.isStatus()) fail();
+        // Verify logout by attempting to use the same session token to send an authenticated request
+        assertFalse(respondTo.apply(Request.listAllBillboardsReq(session)).isStatus());
     }
 
     @Test
-    void ViewerCurrentlyScheduled() {
+    void ViewerCurrentlyScheduled(){
         Request ScheduledBillboardRequest = Request.scheduledBillboardReq();
 
         // Retrieve billboard from request
         Response res = respondTo.apply(ScheduledBillboardRequest);
-        try {
+        try{
             @SuppressWarnings("unused") Billboard ScheduledBillboard = (Billboard) res.getData(); // Statement is necessary to verify that a valid billboard was received
             assertTrue(res.isStatus());
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e){
             // If response wasn't a valid billboard
             fail();
         }

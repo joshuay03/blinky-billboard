@@ -28,15 +28,15 @@ USE `blinkyBillboard`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Billboards` (
-  `billboard_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `creator` varchar(100) NULL COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'User ID of the billboard''s creator',
+  `billboard_name` varchar(100) NOT NULL,
+  `creator` varchar(100) NULL COMMENT 'User ID of the billboard''s creator',
   `backgroundColour` int(11) DEFAULT NULL,
   `messageColour` int(11) DEFAULT NULL,
   `informationColour` int(11) DEFAULT NULL,
   `message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `information` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `billboardImage` blob DEFAULT NULL,
-  PRIMARY KEY (`billboard_id`),
+  PRIMARY KEY (`billboard_name`),
   KEY `fk_creator_idx` (`creator`),
   CONSTRAINT `Billboards_FK` FOREIGN KEY (`creator`) REFERENCES `Users` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -50,18 +50,18 @@ CREATE TABLE IF NOT EXISTS `Billboards` (
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE IF NOT EXISTS `Scheduling` (
   `schedule_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'The ID is per billboard, per viewer',
-  `billboard_id` int(11) unsigned NOT NULL,
+  `billboard_name` varchar(100) NOT NULL,
   `viewer_id` int(11) unsigned NOT NULL,
   `start_time` time NOT NULL,
-  `end_time` time DEFAULT NULL,
+  `end_time` time NULL,
   `duration` int(11) unsigned NOT NULL COMMENT 'How long will one instance of this billboard be up for?',
   `interval` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'How often should the billboard repeat itself in minutes? (must be more than the duration )',
-  `scheduled_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'When was the billboard created?',
-  PRIMARY KEY (`schedule_id`,`billboard_id`,`viewer_id`),
-  KEY `billboard_id_idx` (`billboard_id`),
+  `scheduled_at` time DEFAULT NOW() NOT NULL COMMENT 'When was the billboard created?',
+  PRIMARY KEY (`schedule_id`,`billboard_name`,`viewer_id`),
+  KEY `billboard_name_idx` (`billboard_name`),
   KEY `viewer_id_idx` (`viewer_id`),
   CONSTRAINT `Scheduling_FK` FOREIGN KEY (`viewer_id`) REFERENCES `Viewers` (`viewer_id`),
-  CONSTRAINT `billboard_id` FOREIGN KEY (`billboard_id`) REFERENCES `Billboards` (`billboard_id`) ON DELETE NO ACTION
+  CONSTRAINT `billboard_name` FOREIGN KEY (`billboard_name`) REFERENCES `Billboards` (`billboard_name`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -107,9 +107,6 @@ CREATE TABLE IF NOT EXISTS `Viewers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping routines for database 'blinkyBillboard'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
