@@ -8,8 +8,6 @@ import java.awt.event.ActionListener;
 
 /**
  * A class to represent an "Edit Users" page which is bound to EditUsers.form
- *
- * @author Joshua Young
  */
 public class EditUsers {
     protected JPanel editUsersPanel;
@@ -22,6 +20,7 @@ public class EditUsers {
     private JPanel titlePanel;
 
     /**
+     *
      * @param frame
      */
     public EditUsers(JFrame frame, ClientConnector connector) {
@@ -49,6 +48,15 @@ public class EditUsers {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setContentPane(new CreateNewUser(frame, connector).createNewUserPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
+        editExistingUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new EditExistingUser(frame, connector).editExistingUserPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);

@@ -18,10 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +26,6 @@ import java.util.Base64;
 
 /**
  * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
- *
- * @author Joshua Young
  */
 public class CreateBillboards {
     protected JPanel createBillboardsPanel;
@@ -40,6 +35,7 @@ public class CreateBillboards {
     protected JPanel optionPanel;
     protected JButton importButton;
     protected JButton exportButton;
+    protected JButton previewBillboardButton;
     protected JPanel createPanel;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
@@ -51,14 +47,14 @@ public class CreateBillboards {
     protected JTextArea informationTextArea;
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
-    protected JButton viewBillboardButton;
-
-    protected Billboard billboard;
+    protected JButton saveBillboardButton;
 
     protected ColourChooser colourChooser = new ColourChooser();
+    protected Billboard billboard;
     protected JFrame previewFrame;
 
     /**
+     *
      * @param frame
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
@@ -98,10 +94,7 @@ public class CreateBillboards {
                     messageTextArea.setText(billboard.getMessage());
                     informationTextArea.setText(billboard.getInformation());
 
-                    if (billboard.getImageURL() != null)
-                        pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
-
-
+                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
                 }
             }
         });
@@ -134,8 +127,13 @@ public class CreateBillboards {
                         ex.printStackTrace();
                     }
                 }
+            }
+        });
 
-
+        saveBillboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO Insert save billboard functionality here
             }
         });
 
@@ -270,7 +268,7 @@ public class CreateBillboards {
             }
         });
 
-        viewBillboardButton.addActionListener(new ActionListener() {
+        previewBillboardButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
              *
@@ -278,8 +276,8 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Dimension renderDimension = new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2,
-                        (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2);
+                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
+                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
                 previewFrame = new JFrame();
@@ -303,14 +301,14 @@ public class CreateBillboards {
 
         long length = file.length();
         if (length > Integer.MAX_VALUE) {
-            // File is too large
+            JOptionPane.showMessageDialog(null, "File is too large", "Error", JOptionPane.DEFAULT_OPTION);
         }
-        byte[] bytes = new byte[(int) length];
+        byte[] bytes = new byte[(int)length];
 
         int offset = 0;
         int numRead = 0;
         while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+                && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
             offset += numRead;
         }
 
@@ -320,9 +318,5 @@ public class CreateBillboards {
 
         is.close();
         return bytes;
-    }
-
-    private void importXML(File xmlFile) {
-
     }
 }

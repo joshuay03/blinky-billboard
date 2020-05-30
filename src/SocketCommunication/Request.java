@@ -15,7 +15,7 @@ public class Request implements Serializable {
     // Request transmission data
     Billboard billboard = null;
     Credentials credentials = null;
-    int billboardID;
+    int billboardID = -1;
     User user = null;
     String username = null;
     private Session session; //can be null
