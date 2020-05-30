@@ -17,8 +17,7 @@ import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static SocketCommunication.ServerRequest.LOGIN;
-import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
+import static SocketCommunication.ServerRequest.*;
 
 
 /**
@@ -134,8 +133,9 @@ public class ClientHandler extends Thread {
 
                 } catch (SQLException e) {
                     return new Response(false, "There was an SQL error");
-                // The billboard list now has all of the returned billboards - convert to an array and return
-                return new Response(true, billboardList.toArray(new Billboard[0]));
+                    // The billboard list now has all of the returned billboards - convert to an array and return
+                    return new Response(true, billboardList.toArray(new Billboard[0]));
+                }
             }
             case GET_BILLBOARD_INFO:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin - already done above
