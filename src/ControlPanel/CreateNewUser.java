@@ -1,10 +1,14 @@
 package ControlPanel;
 
 import Client.ClientConnector;
+import SocketCommunication.Credentials;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class CreateNewUser {
 
@@ -28,6 +32,38 @@ public class CreateNewUser {
     protected JCheckBox editUsersCheckBox;
 
     public CreateNewUser(JFrame frame, ClientConnector connector) {
+
+        String username = usernameTextField.getText();
+        String password = new String(passwordField.getPassword());
+
+        Credentials newUserCredentials = new Credentials(username, password);
+
+        //Create request
+        Request createNewUser = Request.createUserReq(newUserCredentials, createBillboardsCheckBox.isSelected(),
+                scheduleBillboardsCheckBox.isSelected(), editAllBillboardsCheckBox.isSelected(), editUsersCheckBox.isSelected(), connector.session);
+
+        // Send request to server
+        Response response;
+
+        try {
+            response = createNewUser.Send(connector);
+        } catch (IOException excep) {
+            JOptionPane.showMessageDialog(null, "Cannot save user.");
+            return;
+        }
+
+        // check status of response
+        boolean status = response.isStatus();
+
+        if (!status) {
+            String errorMsg = (String) response.getData();
+            JOptionPane.showMessageDialog(null, "Cannot save user. Error: " + errorMsg);
+        }
+
+        if (status) {
+            JOptionPane.showMessageDialog(null, "User successfully created.");
+        }
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
