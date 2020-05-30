@@ -15,7 +15,7 @@ import java.text.NumberFormat;
 public class Schedule {
     protected JPanel schedulePanel;
     protected JPanel datePanel;
-    protected JLabel scheduledDateLabel;
+    protected JLabel dateLabel;
     protected JTextField dateTextField;
     protected JButton selectDateButton;
     protected JComboBox hourComboBox;
@@ -28,6 +28,7 @@ public class Schedule {
     protected JRadioButton hourlyRadioButton;
     protected JPanel frequencyPanel;
     protected JFormattedTextField customFrequencyFormattedTextField;
+    private JButton doneButton;
 
     Schedule(JFrame scheduleFrame, ClientConnector connector) {
         hourComboBox.addItem("Select Hour");
