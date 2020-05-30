@@ -457,13 +457,19 @@ public class blinkyDB {
     public void DeleteUser(String username) throws SQLException {
         String UserDeletionString = "DELETE FROM Users\n" +
                 "WHERE user_name='?';\n";
+        String BillboardDisassociationString = "UPDATE Billboards\n" +
+                "SET creator=NULL\n" +
+                "WHERE creator = '?';";
 
         PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
+        PreparedStatement BillboardDisassociator = dbconn.prepareStatement(BillboardDisassociationString);
 
         dbconn.setAutoCommit(false);
         try {
             UserDeleter.setString(1, username);
+            BillboardDisassociator.setString(1, username);
 
+            BillboardDisassociator.executeUpdate();
             UserDeleter.executeUpdate();
             dbconn.commit();
         } catch (SQLException e) {
