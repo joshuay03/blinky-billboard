@@ -4,8 +4,11 @@ import BillboardSupport.Billboard;
 import Client.ClientConnector;
 
 import javax.swing.*;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.util.List;
 
 public class ListBillboards {
@@ -21,6 +24,13 @@ public class ListBillboards {
 
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
+
+        JFrame previewBillboardContentsFrame = new JFrame("Billboard Contents");
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(300, 250));
+        previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(previewBillboardContentsFrame, connector).previewBillboardContentsPanel);
+        previewBillboardContentsFrame.pack();
+        previewBillboardContentsFrame.setLocationRelativeTo(null);
+        previewBillboardContentsFrame.setVisible(true);
 
         backButton.addActionListener(new ActionListener() {
             /**

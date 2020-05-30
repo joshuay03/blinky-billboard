@@ -1,6 +1,7 @@
 package SocketCommunication;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.Schedule;
 import Client.ClientConnector;
 import Server.User;
 
@@ -24,6 +25,7 @@ public class Request implements Serializable {
     User user = null;
     String username = null;
     private Session session; //can be null
+    private Schedule schedule = null;
 
     private Request(ServerRequest requestType, Session session) {
         this.requestType = requestType;
@@ -35,8 +37,17 @@ public class Request implements Serializable {
      *
      * @return Request object to be sent to the server
      */
-    public static Request scheduledBillboardReq() {
+    public static Request viewScheduledBillboardReq() {
         return new Request(ServerRequest.VIEWER_CURRENTLY_SCHEDULED, null);
+    }
+
+    /**
+     * @return
+     */
+    public static Request scheduleBillboardReq(Schedule schedule) {
+        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, null);
+        request.schedule = schedule;
+        return  request;
     }
 
     /**

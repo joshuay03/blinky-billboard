@@ -30,40 +30,9 @@ public class CreateNewUser {
     protected JCheckBox editAllBillboardsCheckBox;
     protected JCheckBox scheduleBillboardsCheckBox;
     protected JCheckBox editUsersCheckBox;
+    private JButton saveUserButton;
 
     public CreateNewUser(JFrame frame, ClientConnector connector) {
-
-        String username = usernameTextField.getText();
-        String password = new String(passwordField.getPassword());
-
-        Credentials newUserCredentials = new Credentials(username, password);
-
-        //Create request
-        Request createNewUser = Request.createUserReq(newUserCredentials, createBillboardsCheckBox.isSelected(),
-                scheduleBillboardsCheckBox.isSelected(), editAllBillboardsCheckBox.isSelected(), editUsersCheckBox.isSelected(), connector.session);
-
-        // Send request to server
-        Response response;
-
-        try {
-            response = createNewUser.Send(connector);
-        } catch (IOException excep) {
-            JOptionPane.showMessageDialog(null, "Cannot save user.");
-            return;
-        }
-
-        // check status of response
-        boolean status = response.isStatus();
-
-        if (!status) {
-            String errorMsg = (String) response.getData();
-            JOptionPane.showMessageDialog(null, "Cannot save user. Error: " + errorMsg);
-        }
-
-        if (status) {
-            JOptionPane.showMessageDialog(null, "User successfully created.");
-        }
-
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -76,6 +45,43 @@ public class CreateNewUser {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+            }
+        });
+
+        saveUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameTextField.getText();
+                String password = new String(passwordField.getPassword());
+
+                Credentials newUserCredentials = new Credentials(username, password);
+
+                //Create request
+                Request createNewUser = Request.createUserReq(newUserCredentials,
+                        createBillboardsCheckBox.isSelected(), scheduleBillboardsCheckBox.isSelected(),
+                        editAllBillboardsCheckBox.isSelected(), editUsersCheckBox.isSelected(), connector.session);
+
+                // Send request to server
+                Response response;
+
+                try {
+                    response = createNewUser.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot save user.");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, "Cannot save user. Error: " + errorMsg);
+                }
+
+                if (status) {
+                    JOptionPane.showMessageDialog(null, "User successfully created.");
+                }
             }
         });
     }
