@@ -151,7 +151,7 @@ public class ClientHandler extends Thread {
                 if (results != null) return new Response(true, results.get(0));
                 else return new Response(false, "Could not find Billboard with that ID");
 
-
+            // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard billboard;
@@ -204,11 +204,12 @@ public class ClientHandler extends Thread {
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
 
+
             case DELETE_BILLBOARD:
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
-                        database.DeleteBillboard(req.getBillboardID());
+                        database.DeleteBillboard(req.getBillboardID()); // TODO - change argument to string
                         return new Response(true, "The billboard has successfully been deleted.");
                     } else
                         return permissionDeniedResponse;
@@ -218,7 +219,7 @@ public class ClientHandler extends Thread {
                 }
 
             case VIEW_SCHEDULED_BILLBOARD:
-
+                // TODO - write using database.getSchedules
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
 
@@ -229,6 +230,11 @@ public class ClientHandler extends Thread {
 
                 break;
             case SCHEDULE_BILLBOARD:
+                // TODO - implement
+                // 1. Query billboards with start time in past
+                // 2. Filter for billboard actually scheduled right now
+                //        - Overlapping rules - find all candidates, select last in time from candidates
+                // 3. Return
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // this request will only happen is user has 'Schedule Billboards' permission
@@ -286,7 +292,7 @@ public class ClientHandler extends Thread {
             }
             case CREATE_USER:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+                // TODO - implement
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
@@ -298,7 +304,7 @@ public class ClientHandler extends Thread {
                     if (database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false) {
 
                     } else {
-                        // FIXME - BlinkyDB logic
+
 
                     }
 
@@ -313,7 +319,7 @@ public class ClientHandler extends Thread {
                 break;
             case GET_USER_PERMISSION:
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
-
+                // TODO - implement
                 // Client will send server a username and valid session token
 
                 // if session user is requesting their own details return details, no permissions required
@@ -372,7 +378,7 @@ public class ClientHandler extends Thread {
 
                 break;
             case SET_USER_PASSWORD:
-
+                // TODO - implement in GUI
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
@@ -413,8 +419,10 @@ public class ClientHandler extends Thread {
                     } else {
                         try {
                             database.DeleteUser(deletionCandidate);
+                            // TODO - respond if deletion successful
                         } catch (SQLException e) {
                             e.printStackTrace();
+                            // TODO - respond if no user exists
                         }
                     }
 
@@ -425,6 +433,7 @@ public class ClientHandler extends Thread {
                 break;
             case LOGOUT:
 
+                // TODO - implement
 
                 // server will expire session token and send back and acknowledgement
                 break;
