@@ -2,23 +2,12 @@ package ControlPanel;
 
 import BillboardSupport.Billboard;
 import Client.ClientConnector;
-import SocketCommunication.Request;
-import SocketCommunication.Response;
-import SocketCommunication.Session;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static SocketCommunication.ServerRequest.LIST_BILLBOARDS;
-import static SocketCommunication.ServerRequest.LOGIN;
 
 public class ListBillboards {
     protected JPanel listBillboardsPanel;
@@ -33,6 +22,13 @@ public class ListBillboards {
 
     public ListBillboards(JFrame frame, ClientConnector connector, Billboard[] billboardList) {
         this.billboardList = billboardList;
+
+        JFrame previewBillboardContentsFrame = new JFrame("Billboard Contents");
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(300, 250));
+        previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(previewBillboardContentsFrame, connector).previewBillboardContentsPanel);
+        previewBillboardContentsFrame.pack();
+        previewBillboardContentsFrame.setLocationRelativeTo(null);
+        previewBillboardContentsFrame.setVisible(true);
 
         backButton.addActionListener(new ActionListener() {
             /**
