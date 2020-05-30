@@ -111,13 +111,16 @@ public class blinkyDB {
         getBillboard.setString(1, name);
         dbconn.setAutoCommit(true);
         ResultSet rs = getBillboard.executeQuery();
-        try {rs.first();} // Go to the result
+        try {
+            boolean found = rs.first();
+            if (!found) throw new BillboardNotFoundException(name); // If there is no result, throw an exception
+        } // Go to the result
         catch (SQLException e) {throw new BillboardNotFoundException(name);} // If there is no result, throw an exception
         // Process billboard data
         Object image;
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
-            ObjectInput in = new ObjectInputStream(bis);
+           ObjectInput in = new ObjectInputStream(bis);
             image = in.readObject();
         } catch (Exception e) {
             image = null;
@@ -160,10 +163,13 @@ public class blinkyDB {
         getBillboard(name); // Will throw an exception if the billboard doesn't exist
         byte[] SerialisedImage;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            new ObjectOutputStream(bos).writeObject(imageData);
-            SerialisedImage = bos.toByteArray();
-        } catch (IOException e) { SerialisedImage = null; }
+        if (imageData != null){
+            try {
+                new ObjectOutputStream(bos).writeObject(imageData);
+                SerialisedImage = bos.toByteArray();
+            } catch (IOException e) { SerialisedImage = null; }
+        }
+        else SerialisedImage = null;
         List<String> updateList = new ArrayList<>();
         if (backgroundColour != null) updateList.add("backgroundColour=?");
         if (messageColour != null) updateList.add("messageColour=?");
@@ -172,8 +178,9 @@ public class blinkyDB {
         if (information != null) updateList.add("information=?");
         if (imageData != null) updateList.add("billboardImage=?");
         String AttrsUpdateString = String.join(", ", updateList);
+        if (AttrsUpdateString.isEmpty()) return;
         String BillboardInsertQuery = "UPDATE Billboards\n" +
-                "SET" + AttrsUpdateString + "\n" +
+                "SET " + AttrsUpdateString + "\n" +
                 "WHERE billboard_name=?;\n";
         dbconn.setAutoCommit(false);
         PreparedStatement updateBillboard = dbconn.prepareStatement(BillboardInsertQuery);
