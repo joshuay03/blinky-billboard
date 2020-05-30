@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -95,7 +96,7 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File xmlFile = chooser.getSelectedFile();
                     billboard = Billboard.getBillboardFromXML(xmlFile);
-
+                    assert billboard != null;
                     messageTextArea.setText(billboard.getMessage());
                     informationTextArea.setText(billboard.getInformation());
 
@@ -126,8 +127,6 @@ public class CreateBillboards {
                         StreamResult streamResult = new StreamResult(fileLocation);
 
                         transformer.transform(domSource, streamResult);
-                    } catch (TransformerConfigurationException ex) {
-                        ex.printStackTrace();
                     } catch (TransformerException ex) {
                         ex.printStackTrace();
                     }
@@ -161,7 +160,7 @@ public class CreateBillboards {
                 }
 
                 if (status) {
-                    JOptionPane.showMessageDialog(null, "Billboard successfully created and saved on server.");
+                    JOptionPane.showMessageDialog(null, response.getData());
                     frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
@@ -217,7 +216,7 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File pictureFile = chooser.getSelectedFile();
                     try {
-                        billboard.setImageData(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes()).toString());
+                        billboard.setImageData(Arrays.toString(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes())));
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
