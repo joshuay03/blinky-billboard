@@ -305,18 +305,27 @@ public class ClientHandler extends Thread {
                     // TODO - Fix spec compliance
                     User newUser = req.getUser();
 
-                    // if username already exist send error
-                    if (database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername()).next() != false) {
+                    // Check if a user with the same username exists
+                    try {
+                        ResultSet resultSet = database.LookUpUserDetails(newUser.getSaltedCredentials().getUsername());
+                        if(resultSet.next() == true) return new Response(false,"User with that username already exists. Please try again");
+                        // else Server will create user and send back acknowledgement of success
+                        else
+                        {
+                            database.RegisterUserInDatabase(   newUser.getSaltedCredentials(),
+                                    newUser.CanCreateBillboards(),
+                                    newUser.CanEditAllBillboards(),
+                                    newUser.CanScheduleBillboards(),
+                                    newUser.CanEditUsers());
 
-                    } else {
-
-
+                            return new Response(true, "User successfully created!");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-
-
-                    // else Server will create user and send back acknowledgement of success
-
-                } else {
+                }
+                // If they do not have permissions to do edit users, reject the request out of hand
+                else {
                     return permissionDeniedResponse;
                 }
 
