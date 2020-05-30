@@ -43,6 +43,8 @@ public class CreateBillboards {
     protected JButton exportButton;
     protected JButton previewBillboardButton;
     protected JPanel createPanel;
+    protected JLabel nameLabel;
+    protected JTextArea nameTextArea;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
     protected JButton messageColourButton;
@@ -54,8 +56,7 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton saveBillboardButton;
-    private JTextArea nameTextArea;
-    private JLabel nameLabel;
+
 
     protected ColourChooser colourChooser = new ColourChooser();
     protected Billboard billboard;
@@ -136,42 +137,22 @@ public class CreateBillboards {
             }
         });
 
-        saveBillboardButton.addActionListener(new ActionListener() {
+        previewBillboardButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
+                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
+                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
+                RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
-                if (billboard.getBillboardName() == null){
-                    JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
-                    return;
-                }
-                //create request
-                Request createBillboard = Request.createBillboardReq(billboard, connector.session);
-
-                // Send request to server
-                Response response;
-
-                try {
-                    response = createBillboard.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server.");
-                    return;
-                }
-
-                // check status of response
-                boolean status = response.isStatus();
-
-                if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server. Error: " + errorMsg);
-                }
-
-                if (status) {
-                    JOptionPane.showMessageDialog(null, response.getData());
-                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
-                }
+                previewFrame = new JFrame();
+                previewFrame.setSize(renderDimension);
+                previewFrame.setContentPane(renderedBillboard);
+                previewFrame.setVisible(true);
             }
         });
 
@@ -306,22 +287,42 @@ public class CreateBillboards {
             }
         });
 
-        previewBillboardButton.addActionListener(new ActionListener() {
-            /**
-             * Invoked when an action occurs.
-             *
-             * @param e the event to be processed
-             */
+        saveBillboardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Dimension renderDimension = new Dimension((int)Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2,
-                        (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
-                RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
-                previewFrame = new JFrame();
-                previewFrame.setSize(renderDimension);
-                previewFrame.setContentPane(renderedBillboard);
-                previewFrame.setVisible(true);
+                if (nameTextArea.getText() == null){
+                    JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
+                    return;
+                }
+                //create request
+                Request createBillboard = Request.createBillboardReq(billboard, connector.session);
+
+                // Send request to server
+                Response response;
+
+                try {
+                    response = createBillboard.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server.");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server. Error: " + errorMsg);
+                }
+
+                if (status) {
+                    JOptionPane.showMessageDialog(null, response.getData());
+                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
         });
     }
