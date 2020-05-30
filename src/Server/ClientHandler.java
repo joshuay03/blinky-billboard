@@ -83,7 +83,7 @@ public class ClientHandler extends Thread {
         final Response permissionDeniedResponse = new Response(false, "Permission denied, please log out and log back in.");
         User authenticatedUser = null;
         List<ServerRequest> authlessRequests = Arrays.asList(LOGIN, VIEWER_CURRENTLY_SCHEDULED);
-        if (!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing, except for LOGIN requests
+        if (!authlessRequests.contains(req.getRequestType())) // Verify the token before continuing for non-authless requests
         {
             try {
                 Token sessionAuthentication = Token.validate(req.getSession().token);

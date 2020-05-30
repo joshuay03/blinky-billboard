@@ -3,13 +3,14 @@ package BillboardViewer;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
+import SocketCommunication.Credentials;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * A subclass of MouseAdapter to handle mouse input
@@ -52,10 +53,11 @@ public class Viewer extends JFrame implements ActionListener {
     public static javax.swing.Timer refreshTimer;
     private static Dimension screenSize;
     public ClientConnector connector;
+    private Credentials ViewerCreds;
     private RenderedBillboard displayedBillboard;
     private Billboard currentBillboard;
 
-    Viewer(String arg0) {
+    Viewer(String arg0, String credsPath) throws IOException {
         super(arg0);
 
         // The viewer must render full screen
@@ -72,6 +74,8 @@ public class Viewer extends JFrame implements ActionListener {
 
         // Initialise the client connector which will be called to interact with the Server
         this.connector = new ClientConnector("properties.txt");
+        // Log in with the viewer's credentials
+        this.connector.sendRequest(Request.loginReq(readCredsFile(credsPath)));
     }
 
     /**
@@ -86,7 +90,12 @@ public class Viewer extends JFrame implements ActionListener {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Viewer viewer = new Viewer("Test");
+                Viewer viewer = null;
+                try {
+                    viewer = new Viewer("Test", "viewer.txt");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 //Register the glass pane for key and mouse events
                 Component component = viewer.getGlassPane();
@@ -99,6 +108,33 @@ public class Viewer extends JFrame implements ActionListener {
                 refreshTimer.start(); //Start rendering ASAP
             }
         });
+    }
+
+    /**
+     * Reads the viewer's credentials from a file and builds a credentials object
+     * @param credsFile The filename of the credentials file
+     * @return A credentials object
+     * @throws IOException if reading the file failed
+     */
+    private Credentials readCredsFile(String credsFile) throws IOException {
+        String username = null;
+        String password = null;
+        File file = new File(credsFile);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String[] arr;
+        String line;
+        while ((line = br.readLine()) != null){
+            if (line.startsWith("viewer:")) {
+                arr = line.split("viewer:", 0);
+                username = arr[1].trim();
+            }
+            else if (line.startsWith("viewerPassword:")) {
+                arr = line.split("viewerPassword:", 0);
+                password = arr[1].trim();
+            }
+        }
+        assert username != null && password != null;
+        return new Credentials(username, password);
     }
 
     /**

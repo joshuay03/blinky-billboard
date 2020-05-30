@@ -40,8 +40,11 @@ public class Server extends SocketConnection {
             server.start();
             try {
                 new User(new Credentials("Root", "root"), true, true, true, true, server.database);
-            } catch (UserAlreadyExistsException ignored) {
-            }
+            } catch (UserAlreadyExistsException ignored) {}
+            // Generate a user for the viewer
+            try {
+                new User(new Credentials("viewer", "view"), false, false, false, false, server.database);
+            } catch (UserAlreadyExistsException ignored) {}
 
             server.serverIsOpen = server.isServerAliveUtil();
             System.out.println("Server Alive: " + server.serverIsOpen);
