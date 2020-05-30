@@ -5,6 +5,7 @@ import Client.ClientConnector;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 public class EditExistingUser {
     protected JPanel editExistingUserPanel;
@@ -38,6 +39,21 @@ public class EditExistingUser {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+            }
+        });
+
+        saveUserButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!Arrays.equals(confirmPasswordField.getPassword(), passwordField.getPassword())) {
+                    JOptionPane.showMessageDialog(null, "Passwords do not match. Try again");
+                    return;
+                }
             }
         });
     }
