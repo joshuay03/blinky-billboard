@@ -39,15 +39,18 @@ public class blinkyDB {
         if (overrideSchemaName != null) props = new DBProps(overrideSchemaName); // Read db.props
         else props = new DBProps();
         // Ensure the schema exists
-        Connection init_schema = DriverManager.getConnection("jdbc:mariadb://" + props.url, props.username, props.password);
-        if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
-        init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
-        init_schema.close();
+        {
+            Connection init_schema = DriverManager.getConnection("jdbc:mariadb://" + props.url, props.username, props.password);
+            if (dropSchema) init_schema.createStatement().executeQuery("DROP DATABASE IF EXISTS " + props.schema);
+            init_schema.createStatement().executeQuery("CREATE DATABASE IF NOT EXISTS " + props.schema);
+            init_schema.close();
+        }
         // Start a database connection
         dbconn = DriverManager.getConnection("jdbc:mariadb://" + props.url + "/" + props.schema, props.username, props.password);
         // Try to initialise based on sql file
         Path sqlInitFile = Paths.get(new File("blinkybillboard.sql").getPath());
         String[] batch = new String(Files.readAllBytes(sqlInitFile)).split("(?<=;)");
+        dbconn.createStatement().executeQuery(String.format("USE %s;", props.schema));
         // Execute all statements in the array
         for (String toExec : batch) {
             if (!toExec.trim().isEmpty()) // (don't execute empty statements)
