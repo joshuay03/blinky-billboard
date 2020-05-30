@@ -93,8 +93,9 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiryDate)) {
-                    return new Response(false, "Token has expired.");
+                if (now.after(sessionAuthentication.expiry) || database.IsTokenBlackListed(req.getSession().token))
+                {
+                    return new Response(false,"Token has expired.");
                 }
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
@@ -434,11 +435,17 @@ public class ClientHandler extends Thread {
             }
                 break;
             case LOGOUT:
-
-                // TODO - implement
-
-                // server will expire session token and send back and acknowledgement
-                break;
+            {
+                // Client will send server valid session token
+                byte[] TokenToExpire = req.getSession().token;
+                try {
+                    // server will expire session token and send back and acknowledgement
+                    database.BlacklistToken(TokenToExpire);
+                    return new Response(true, "Log out successful");
+                } catch (SQLException e) {
+                    return new Response(false, "There was an SQL error");
+                }
+            }
         }
         // If the request is invalid:
         return new Response(false, String.format("%s is not a valid request type", req.getRequestType()));

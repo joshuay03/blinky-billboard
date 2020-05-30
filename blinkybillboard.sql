@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.4.10-MariaDB, for Linux (aarch64)
+-- MariaDB dump 10.17  Distrib 10.4.12-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: blinkyBillboard
 -- ------------------------------------------------------
--- Server version	10.4.10-MariaDB
+-- Server version	10.4.12-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -75,13 +75,17 @@ CREATE TABLE IF NOT EXISTS `Scheduling` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Scheduling`
+-- Table structure for table `TokenBlacklist`
 --
 
-LOCK TABLES `Scheduling` WRITE;
-/*!40000 ALTER TABLE `Scheduling` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Scheduling` ENABLE KEYS */;
-UNLOCK TABLES;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS `TokenBlacklist` (
+  `tokenCode` binary(128) NOT NULL,
+  `expiry` timestamp NOT NULL,
+  PRIMARY KEY (`tokenCode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `Users`
@@ -99,15 +103,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Users`
---
-
-LOCK TABLES `Users` WRITE;
-/*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Viewers`
 --
 
@@ -121,14 +116,6 @@ CREATE TABLE IF NOT EXISTS `Viewers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `Viewers`
---
-
-LOCK TABLES `Viewers` WRITE;
-/*!40000 ALTER TABLE `Viewers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Viewers` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -139,4 +126,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-05-05 22:54:48
+-- Dump completed on 2020-05-30  1:02:45
