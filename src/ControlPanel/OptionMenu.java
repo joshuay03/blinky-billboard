@@ -4,15 +4,13 @@ import BillboardSupport.Billboard;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import SocketCommunication.Session;
-import com.sun.jdi.connect.Connector;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
-import static SocketCommunication.ServerRequest.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
@@ -130,7 +128,11 @@ public class OptionMenu implements Runnable {
 
 
                 if (status) {
-                    Billboard[] billboardList =  ((Billboard[])response.getData());
+                    List<?> billboardObjects = (List<?>) response.getData();
+
+                    List<Billboard> billboardList = new ArrayList<>();
+                    billboardObjects.forEach(x -> billboardList.add((Billboard) x));
+
                     frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);

@@ -156,7 +156,7 @@ class FunctionalityTest {
     void Create_BillBoard() {
 
         Response authedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), session));
-        Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session);
+        Response unAuthedRes = respondTo.apply(Request.createBillboardReq(DummyBillboards.messagePictureAndInformationBillboard(), noperms_session));
         Response noBillboardRes = respondTo.apply(null, session);
         assertTrue(authedRes.isStatus() && !unAuthedRes.isStatus() && !noBillboardRes.isStatus());
     }
@@ -287,7 +287,7 @@ class FunctionalityTest {
         Credentials adminCredentials = session.serverUser.getSaltedCredentials();
 
         //... should fail
-        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session))
+        Response adminRemoveSelfPermissions = respondTo.apply(Request.setUserPermissionsReq(session.serverUser), session);
 
         assertTrue(!adminDeleteSelf.isStatus());
     }

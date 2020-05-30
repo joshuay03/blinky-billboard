@@ -3,6 +3,8 @@ package ControlPanel;
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
@@ -18,7 +20,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -133,7 +138,34 @@ public class CreateBillboards {
         saveBillboardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO Insert save billboard functionality here
+                //create request
+                Request createBillboard = Request.createBillboardReq(billboard, connector.session);
+
+                // Send request to server
+                Response response;
+
+                try {
+                    response = createBillboard.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server.");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server. Error: " + errorMsg);
+                }
+
+                if (status) {
+                    JOptionPane.showMessageDialog(null, "Billboard successfully created and saved on server.");
+                    frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
         });
 
