@@ -301,7 +301,8 @@ public class blinkyDB {
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 String billboardName = rs.getString("billboard_name");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
+                Timestamp scheduledAt = rs.getTimestamp("scheduled_at");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName, scheduledAt));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -331,7 +332,8 @@ public class blinkyDB {
                 int repeatInterval = rs.getInt("interval");
                 int duration = rs.getInt("duration");
                 String billboardName = rs.getString("billboard_name");
-                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName));
+                Timestamp scheduledAt = rs.getTimestamp("scheduled_at");
+                ScheduleList.add(new Schedule(startTime, duration, repeatInterval, billboardName, scheduledAt));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -342,10 +344,10 @@ public class blinkyDB {
     /**
      * Takes a billboard, and assigns a given schedule to it
      *
-     * @param billboard The billboard
+     * @param billboard_name The billboard's name
      * @param schedule  The schedule to assign to the billboard
      */
-    public void ScheduleBillboard(Billboard billboard, Schedule schedule) throws SQLException {
+    public void ScheduleBillboard(String billboard_name, Schedule schedule) throws SQLException {
         String SchedulingString = "INSERT INTO blinkyBillboard.Scheduling\n" +
                 "(billboard_name, viewer_id, start_time, duration, `interval`)\n" +
                 "VALUES(?, ?, ?, ?, ?);\n";
@@ -355,7 +357,7 @@ public class blinkyDB {
         try {
             CreateSchedule = dbconn.prepareStatement(SchedulingString);
 
-            CreateSchedule.setString(1, billboard.getBillboardName());
+            CreateSchedule.setString(1, billboard_name);
             CreateSchedule.setInt(2, 1);
             CreateSchedule.setTimestamp(3, schedule.StartTime);
             CreateSchedule.setInt(4, schedule.duration);
@@ -369,7 +371,6 @@ public class blinkyDB {
             dbconn.rollback();
         }
 
-        billboard.setSchedule(schedule);
         dbconn.setAutoCommit(true);
     }
 

@@ -245,7 +245,7 @@ public class ClientHandler extends Thread {
                     long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
                         while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
-                            database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
+                            database.ScheduleBillboard(req.getBillboardName(), req.getBillboard().getSchedule());
                             milliseconds = currTime.getTime() + ((interval * 60) * 1000);
                             currTime.setTime(milliseconds);
                             req.getBillboard().getSchedule().StartTime = currTime;

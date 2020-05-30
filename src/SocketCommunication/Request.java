@@ -44,10 +44,11 @@ public class Request implements Serializable {
     /**
      * @return
      */
-    public static Request scheduleBillboardReq(Schedule schedule, Session session) {
-        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, session);
+    public static Request scheduleBillboardReq(String billboardName, Schedule schedule) {
+        Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, null);
+        request.billboardName = billboardName;
         request.schedule = schedule;
-        return  request;
+        return request;
     }
 
     /**
