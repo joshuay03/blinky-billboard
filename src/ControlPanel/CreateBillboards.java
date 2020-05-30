@@ -139,6 +139,11 @@ public class CreateBillboards {
         saveBillboardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                if (billboard.getBillboardName() == null){
+                    JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
+                    return;
+                }
                 //create request
                 Request createBillboard = Request.createBillboardReq(billboard, connector.session);
 
