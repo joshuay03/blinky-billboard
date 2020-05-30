@@ -53,5 +53,14 @@ public class EditUsers {
                 frame.setVisible(true);
             }
         });
+        editExistingUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new EditExistingUser(frame, connector).editExistingUserPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
     }
 }
