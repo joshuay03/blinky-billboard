@@ -4,6 +4,8 @@ import BillboardSupport.Billboard;
 import Client.ClientConnector;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,20 +19,15 @@ public class ListBillboards {
     protected JButton backButton;
     protected JLabel listBillboardsLabel;
     protected ClientConnector connector;
+    protected Billboard billboard;
 
     protected List<Billboard> billboardList;
-    protected JList<Billboard> billboardJList;
-    DefaultListModel<Billboard> model;
+    protected JList<String> billboardJList;
+    DefaultListModel<String> model;
 
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
 
-        JFrame previewBillboardContentsFrame = new JFrame("Billboard Contents");
-        previewBillboardContentsFrame.setPreferredSize(new Dimension(300, 250));
-        previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(previewBillboardContentsFrame, connector).previewBillboardContentsPanel);
-        previewBillboardContentsFrame.pack();
-        previewBillboardContentsFrame.setLocationRelativeTo(null);
-        previewBillboardContentsFrame.setVisible(true);
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -46,6 +43,21 @@ public class ListBillboards {
                 frame.setVisible(true);
             }
         });
+        billboardJList.addListSelectionListener(new ListSelectionListener() {
+            /**
+             * Called whenever the value of the selection changes.
+             *
+             * @param e the event that characterizes the change.
+             */
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                Billboard b = billboardList.get(billboardJList.getSelectedIndex());
+                frame.setContentPane(new PreviewBillboardContents(frame, connector, b).previewBillboardContentsPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+        });
     }
 
     private void createUIComponents() {
@@ -53,7 +65,7 @@ public class ListBillboards {
         model = new DefaultListModel<>();
 
         for (Billboard billboard : billboardList) {
-            model.addElement(billboard);
+            model.addElement(billboard.getBillboardName());
         }
 
         billboardJList.setModel(model);
