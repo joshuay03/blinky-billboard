@@ -73,7 +73,69 @@
         </constraints>
         <properties/>
         <border type="none"/>
-        <children/>
+        <children>
+          <splitpane id="4a496">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+            </constraints>
+            <properties>
+              <dividerLocation value="180"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="a9303" class="javax.swing.JComboBox" binding="hourComboBox">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties/>
+              </component>
+              <splitpane id="e1f01">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <dividerLocation value="200"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="a0479" class="javax.swing.JComboBox" binding="minuteComboBox">
+                    <constraints>
+                      <splitpane position="left"/>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <splitpane id="53357">
+                    <constraints>
+                      <splitpane position="right"/>
+                    </constraints>
+                    <properties>
+                      <orientation value="0"/>
+                    </properties>
+                    <border type="none"/>
+                    <children>
+                      <component id="d7f95" class="javax.swing.JLabel" binding="selectDurationLabel">
+                        <constraints>
+                          <splitpane position="left"/>
+                        </constraints>
+                        <properties>
+                          <text value="Enter Duration:"/>
+                        </properties>
+                      </component>
+                      <component id="c1619" class="javax.swing.JFormattedTextField" binding="durationFormattedTextField">
+                        <constraints>
+                          <splitpane position="right"/>
+                        </constraints>
+                        <properties/>
+                      </component>
+                    </children>
+                  </splitpane>
+                </children>
+              </splitpane>
+            </children>
+          </splitpane>
+        </children>
       </grid>
     </children>
   </grid>

@@ -9,6 +9,9 @@ import javax.swing.*;
  * A custom date picker class which displays a calendar view style date picker
  */
 public class DatePicker {
+    protected JButton previous;
+    protected JButton next;
+
     int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
     int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
     JLabel label = new JLabel("", JLabel.CENTER);
@@ -52,6 +55,12 @@ public class DatePicker {
         previous.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 month--;
+                calendar.set(Calendar.MONTH, month - 1);
+                previous.setText("< " + new java.text.SimpleDateFormat(
+                        "MMMM").format(calendar.getTime()));
+                calendar.set(Calendar.MONTH, month + 1);
+                next.setText(new java.text.SimpleDateFormat(
+                        "MMMM").format(calendar.getTime()) + " >");
                 displayDate();
             }
         });
@@ -60,11 +69,17 @@ public class DatePicker {
         optionPanel.add(label);
 
         calendar.set(Calendar.MONTH, month + 1);
-        JButton next = new JButton(new java.text.SimpleDateFormat(
+        next = new JButton(new java.text.SimpleDateFormat(
                 "MMMM").format(calendar.getTime()) + " >");
         next.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 month++;
+                calendar.set(Calendar.MONTH, month + 1);
+                next.setText(new java.text.SimpleDateFormat(
+                        "MMMM").format(calendar.getTime()) + " >");
+                calendar.set(Calendar.MONTH, month - 1);
+                previous.setText("< " + new java.text.SimpleDateFormat(
+                        "MMMM").format(calendar.getTime()));
                 displayDate();
             }
         });
@@ -82,7 +97,7 @@ public class DatePicker {
         for (int x = 7; x < button.length; x++) {
             button[x].setText("");
         }
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat(
                 "MMMM yyyy");
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.set(year, month, 1);
@@ -90,7 +105,7 @@ public class DatePicker {
         int daysInMonth = calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
         for (int x = 6 + dayOfWeek, day = 1; day <= daysInMonth; x++, day++)
             button[x].setText("" + day);
-        label.setText(sdf.format(calendar.getTime()));
+        label.setText(dateFormat.format(calendar.getTime()));
         dialog.setTitle("Pick Date");
     }
 
