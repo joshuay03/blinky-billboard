@@ -21,7 +21,7 @@ public class OptionMenu implements Runnable {
     protected JButton listButton;
     protected JButton scheduleButton;
     protected JButton editButton;
-    protected JButton backButton;
+    protected JButton logoutButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
     protected ClientConnector connector;
@@ -36,7 +36,7 @@ public class OptionMenu implements Runnable {
 
         run();
 
-        backButton.addActionListener(new ActionListener() {
+        logoutButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the back button is clicked.
              *
@@ -44,6 +44,8 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                // TODO: Send request to server to expire token
+                connector.session = null;
                 frame.setContentPane(new Login(frame, connector).loginPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);

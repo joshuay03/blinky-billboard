@@ -111,12 +111,12 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="9dd53" class="javax.swing.JButton" binding="backButton" default-binding="true">
+              <component id="9dd53" class="javax.swing.JButton" binding="logoutButton">
                 <constraints>
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <text value="Back"/>
+                  <text value="Log Out"/>
                 </properties>
               </component>
               <component id="ca959" class="javax.swing.JLabel">
