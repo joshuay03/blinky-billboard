@@ -28,7 +28,7 @@ public class ControlPanel extends ClientConnector implements Runnable {
     public ControlPanel(String propFile) {
         super(propFile);
         frame = new JFrame("Control Panel");
-        frame.setPreferredSize(new Dimension(900, 510));
+        frame.setPreferredSize(new Dimension(900, 500));
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
     }
 

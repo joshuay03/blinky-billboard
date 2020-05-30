@@ -23,6 +23,8 @@ public class ListBillboards {
 
     protected List<Billboard> billboardList;
     protected JList<String> billboardJList;
+    private JButton previewContentsButton;
+    private JButton editBillboardButton;
     protected DefaultListModel<String> model;
 
     protected JFrame previewBillboardContentsFrame;
@@ -45,19 +47,25 @@ public class ListBillboards {
             }
         });
 
-        billboardJList.addListSelectionListener(new ListSelectionListener() {
-            /**
-             * Called whenever the value of the selection changes.
-             *
-             * @param e the event that characterizes the change.
-             */
+        previewContentsButton.addActionListener(new ActionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
                 previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(billboard).previewBillboardContentsPanel);
                 previewBillboardContentsFrame.pack();
                 previewBillboardContentsFrame.setLocationRelativeTo(frame);
                 previewBillboardContentsFrame.setVisible(true);
+            }
+        });
+
+        editBillboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                frame.setContentPane(new EditBillboard(frame, connector, billboardList, billboard).editBillboardPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
     }
@@ -73,6 +81,6 @@ public class ListBillboards {
         billboardJList.setModel(model);
 
         previewBillboardContentsFrame = new JFrame();
-        previewBillboardContentsFrame.setPreferredSize(new Dimension(200, 200));
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(400, 400));
     }
 }

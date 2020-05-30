@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.EditBillboard">
+  <grid id="27dc6" binding="editBillboardPanel" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="830" height="415"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="7407f" binding="optionPanel" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="true"/>
+          <gridbag weightx="1.0" weighty="1.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="75e5c" class="javax.swing.JButton" binding="previewBillboardButton">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Preview Billboard"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="72cf3" binding="createPanel" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="1.0" weighty="1.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <splitpane id="90fc2">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="25315" class="javax.swing.JTextArea" binding="messageTextArea">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="4ceca" class="javax.swing.JLabel" binding="messageLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Message:"/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+          <splitpane id="9260d">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <dividerLocation value="80"/>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="b9167" class="javax.swing.JLabel" binding="pictureURLLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Picture URL:"/>
+                </properties>
+              </component>
+              <component id="8d21c" class="javax.swing.JFormattedTextField" binding="pictureURLFormattedTextField">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+          <splitpane id="3a1a7">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="2470c" class="javax.swing.JLabel" binding="informationLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Information:"/>
+                </properties>
+              </component>
+              <component id="942e2" class="javax.swing.JTextArea" binding="informationTextArea">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+          <component id="1306d" class="javax.swing.JButton" binding="messageColourButton">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Choose Message Colour"/>
+            </properties>
+          </component>
+          <component id="c1e3d" class="javax.swing.JButton" binding="informationColourButton">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Choose Information Colour"/>
+            </properties>
+          </component>
+          <component id="76925" class="javax.swing.JButton" binding="backgroundColourButton">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Choose Background Colour"/>
+            </properties>
+          </component>
+          <component id="333ee" class="javax.swing.JButton" binding="pictureButton">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Select Picture"/>
+            </properties>
+          </component>
+          <component id="c47a9" class="javax.swing.JButton" binding="saveBillboardButton">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="1.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <text value="Save Billboard"/>
+            </properties>
+          </component>
+          <splitpane id="9a214">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="1cae9" class="javax.swing.JLabel" binding="nameLabel">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Name:"/>
+                </properties>
+              </component>
+              <component id="e02f2" class="javax.swing.JTextArea" binding="nameTextArea">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </splitpane>
+        </children>
+      </grid>
+      <grid id="e5220" binding="titlePanel" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <splitpane id="c39bc">
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties>
+              <dividerLocation value="78"/>
+              <dividerSize value="0"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="bad75" class="javax.swing.JLabel" binding="createBillboardsLabel">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties>
+                  <font size="30"/>
+                  <horizontalAlignment value="0"/>
+                  <text value="Edit Billboard          "/>
+                </properties>
+              </component>
+              <component id="10b32" class="javax.swing.JButton" binding="backButton">
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties>
+                  <text value="Back"/>
+                </properties>
+              </component>
+            </children>
+          </splitpane>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
