@@ -184,8 +184,9 @@ public class Request implements Serializable {
     }
 
     /**
-     * A method to generate a request for the server to change a user's password. N.B. Server needs to check whether the user actually exists
-     * Possible to end up with a malformed Credentials Object
+     * A method to generate a request for the server to change a user's password.
+     *
+     * N.B. Server needs to check whether the user actually exists because it is possible to end up with a malformed Credentials Object
      *
      * @param proposedCredentials The proposed credentials of the new user
      * @param session             A Session object for an authenticated user
@@ -284,7 +285,5 @@ public class Request implements Serializable {
         }
         return bos.toByteArray();
     }
-
-
 }
 

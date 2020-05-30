@@ -237,7 +237,6 @@ public class ClientHandler extends Thread {
                 return new Response(false, "No billboards currently scheduled");
             }
             case SCHEDULE_BILLBOARD: {
-                // TODO - implement
                 assert authenticatedUser != null;
                 try {
                     // In minutes i.e int value of 60 represents the billboard being displayed every 60 minutes for x duration

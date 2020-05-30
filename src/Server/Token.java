@@ -15,11 +15,22 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * A class to manage session tokens
+ */
 public class Token implements Serializable {
     String username;
     Timestamp expiry;
     byte[] code;
 
+    //TODO - query utility of encrypting and decrypting tokens
+
+    /**
+     * A private constructor to
+     * @param username
+     * @param expiry
+     * @param code
+     */
     private Token(String username, Timestamp expiry, byte[] code){
         this.expiry = expiry;
         this.username = username;
