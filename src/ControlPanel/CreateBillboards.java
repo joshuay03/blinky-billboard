@@ -294,6 +294,8 @@ public class CreateBillboards {
                 if (nameTextArea.getText() == null){
                     JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
                     return;
+                } else {
+                    billboard.setBillboardName(nameTextArea.getText());
                 }
                 //create request
                 Request createBillboard = Request.createBillboardReq(billboard, connector.session);
