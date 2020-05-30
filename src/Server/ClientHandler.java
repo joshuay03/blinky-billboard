@@ -167,7 +167,7 @@ public class ClientHandler extends Thread {
                     Optional<Billboard> billboardMatch = billboards.stream().filter(x -> x.equals(billboard)).findFirst();
 
                     if (billboardMatch.isEmpty()) {
-                        database.createBillboard(billboard, "test_user");
+                        database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                         return new Response(true, "Success");
                     } else {
                         Billboard existingBillboard = billboardMatch.get();
@@ -176,13 +176,13 @@ public class ClientHandler extends Thread {
 
                         if (schedule == null) {
                             // TODO: need to be able to get username from authUser
-                            database.createBillboard(billboard, authenticatedUser.getUsername());
+                            database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                             return new Response(true, "Success");
                         } else {
                             if (authenticatedUser.CanEditAllBillboards()) {
                                 //replace billboard in db with billboard from request
                                 // TODO: make editBillboard()
-                                database.editBillboard(billboard, "test_user");
+                                database.editBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                             } else {
                                 return new Response(false, "Invalid billboard edit permissions.");
                             }
