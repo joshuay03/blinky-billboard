@@ -53,6 +53,8 @@ public class CreateBillboards {
     protected JButton informationColourButton;
     protected JButton backgroundColourButton;
     protected JButton saveBillboardButton;
+    private JTextArea nameTextArea;
+    private JLabel nameLabel;
 
     protected ColourChooser colourChooser = new ColourChooser();
     protected Billboard billboard;

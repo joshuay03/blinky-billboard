@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.PreviewBillboardContents">
+  <grid id="27dc6" binding="previewBillboardContentsPanel" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <splitpane id="e857b">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+          <preferredSize width="200" height="16"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="15b9d" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Background Colour:"/>
+            </properties>
+          </component>
+          <component id="1db0b" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="8d1d8">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="cab99" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Information Colour:"/>
+            </properties>
+          </component>
+          <component id="83720" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="222f">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="910d5" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Information:"/>
+            </properties>
+          </component>
+          <component id="20e31" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="f32c">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="121ad" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Picture URL:"/>
+            </properties>
+          </component>
+          <component id="fe824" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="7ac9c">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="7d0f4" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Picture Data:"/>
+            </properties>
+          </component>
+          <component id="3f2b6" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="85ae7">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="8c6ca" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Message Colour:"/>
+            </properties>
+          </component>
+          <component id="acd07" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="2d7a7">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="c12ee" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Message:"/>
+            </properties>
+          </component>
+          <component id="80709" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+      <splitpane id="6d586">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <dividerSize value="0"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="1f7df" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Name:"/>
+            </properties>
+          </component>
+          <component id="d1394" class="javax.swing.JLabel">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties>
+              <text value=""/>
+            </properties>
+          </component>
+        </children>
+      </splitpane>
+    </children>
+  </grid>
+</form>
