@@ -5,32 +5,23 @@ import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
 import Exceptions.*;
 import Server.ClientHandler;
-import Server.Token;
 import Server.User;
 import Server.blinkyDB;
 import SocketCommunication.Credentials;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
 import SocketCommunication.Session;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.transform.Result;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.awt.*;
 import java.io.*;
-import java.net.Authenticator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
-
-import static SocketCommunication.ServerRequest.*;
 
 /**
  * A suite of tests to ensure that permissions are being handled according to specification
@@ -42,7 +33,7 @@ class FunctionalityTest {
     blinkyDB database;
 
     @BeforeEach
-    void setUpAndMockData() throws IOException, SQLException {
+    void setUpAndMockData() throws IOException, SQLException, BillboardAlreadyExistsException {
         database = new blinkyDB(true, "testing");
         try {
             new User(new Credentials("Liran", "SeaMonkey123"), true, true, true, true, database);
@@ -72,6 +63,13 @@ class FunctionalityTest {
         }
         database.CreateViewer("localhost:5506");
         respondTo = new ClientHandler(null, null, null, database)::handleInboundRequest;
+        Billboard billboard = DummyBillboards.messageAndInformationBillboard();
+        billboard.setBillboardName("MyBill");
+        database.createBillboard(billboard, "Lira");
+        billboard.setBillboardName("MyOtherBill");
+        database.createBillboard(billboard, "Liran");
+        billboard.setBillboardName("YetAnotherBill");
+        database.createBillboard(billboard, "Lira");
         setupAndLogin();
     }
 

@@ -428,12 +428,12 @@ public class ClientHandler extends Thread {
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
-                if (authenticatedUser.CanEditUsers() || collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) == 0) {
+                if (authenticatedUser.CanEditUsers() || authenticatedUser.getSaltedCredentials().getUsername().equals(req.getCredentials().getUsername())) {
 
                     User userToChange;
 
                     try {
-                        userToChange = new User(req.getUsername(), database);
+                        userToChange = new User(req.getCredentials().getUsername(), database);
                     } catch (NoSuchUserException e) {
                         return new Response(false, "Could not find user");
                     }
@@ -462,8 +462,7 @@ public class ClientHandler extends Thread {
                     String deletionCandidate = req.getUsername();
                     // if username != to username of session user (no user can delete themselves)
                     // Server will delete the user and send back acknowledgement of success
-                    collator = Collator.getInstance(Locale.ENGLISH);
-                    if (collator.compare(req.getSession().serverUser.getSaltedCredentials().getUsername(), deletionCandidate) == 0) {
+                    if (req.getSession().serverUser.getSaltedCredentials().getUsername().equals(deletionCandidate)) {
                         return new Response(false, "User cannot delete their own account");
                     } else {
                         try {
