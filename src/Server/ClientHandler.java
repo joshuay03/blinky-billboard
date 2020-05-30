@@ -246,23 +246,14 @@ public class ClientHandler extends Thread {
                     Timestamp endTime = req.getBillboard().getSchedule().EndTime;
                     Timestamp currTime = startTime;
                     long nanoseconds = 0;
-
-
                     if (authenticatedUser.CanScheduleBillboards()) {
-                        if (duration <= interval) {
-                            {
-                                while (currTime.before(endTime)) {
-                                    database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
-                                    nanoseconds = currTime.getTime() + ((interval * 60) * 1000);
-                                    currTime.setTime(nanoseconds);
-                                    req.getBillboard().getSchedule().StartTime = currTime;
-                                }
-                                return new Response(true, "The billboard has successfully been scheduled.");
-                            }
-                        } else {
-                            return new Response(false, "The billboard is scheduled more than the duration of the billboard");
+                        while (currTime.before(endTime)) {
+                            database.ScheduleBillboard(req.getBillboard(), req.getBillboard().getSchedule());
+                            nanoseconds = currTime.getTime() + ((interval * 60) * 1000);
+                            currTime.setTime(nanoseconds);
+                            req.getBillboard().getSchedule().StartTime = currTime;
                         }
-
+                        return new Response(true, "The billboard has successfully been scheduled.");
                     } else {
                         return permissionDeniedResponse;
                     }
