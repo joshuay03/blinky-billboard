@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 public class EditExistingUser {
     protected JPanel editExistingUserPanel;
     protected JButton backButton;
-    protected JTextField user_idTextField;
     protected JTextField usernameTextField;
     protected JPasswordField passwordField;
     protected JPasswordField confirmPasswordField;
@@ -17,7 +16,6 @@ public class EditExistingUser {
     protected JPanel titlePanel;
     protected JLabel editExistingUserLabel;
     protected JLabel permissionsLabel;
-    protected JLabel user_idLabel;
     protected JLabel usernameLabel;
     protected JLabel passwordLabel;
     protected JLabel confirmPasswordLabel;
