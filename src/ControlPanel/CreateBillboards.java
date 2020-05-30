@@ -138,6 +138,7 @@ public class CreateBillboards {
         saveBillboardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                billboard.setBillboardName("test");
                 //create request
                 Request createBillboard = Request.createBillboardReq(billboard, connector.session);
 

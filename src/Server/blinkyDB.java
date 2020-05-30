@@ -15,13 +15,10 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.time.ZoneOffset;
-import java.util.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class blinkyDB {
     final private DBProps props;
@@ -114,15 +111,15 @@ public class blinkyDB {
         try {rs.first();} // Go to the result
         catch (SQLException e) {throw new BillboardNotFoundException(name);} // If there is no result, throw an exception
         // Process billboard data
-            Object image;
-            try{
-                ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
-                ObjectInput in = new ObjectInputStream(bis);
-                image = in.readObject();
-            }
-            catch (Exception e){
-                image = null;
-            }
+        Object image;
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(rs.getBytes("billboardImage"));
+            ObjectInput in = new ObjectInputStream(bis);
+            image = in.readObject();
+        } catch (Exception e) {
+            image = null;
+        }
+        try {
             Billboard billboard = new Billboard();
             billboard.setBillboardName(rs.getString("billboard_name"));
             billboard.setCreator(rs.getString("creator"));
@@ -132,8 +129,10 @@ public class blinkyDB {
             billboard.setMessage(rs.getString("message"));
             billboard.setInformation(rs.getString("information"));
             billboard.setImageData((String) image);
-
-        return billboard;
+            return billboard;
+        } catch (SQLDataException e) {
+            return null;
+        }
     }
 
     public void CreateViewer(String socket) throws SQLException {

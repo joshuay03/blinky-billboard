@@ -16,9 +16,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
-import static SocketCommunication.ServerRequest.*;
+import static SocketCommunication.ServerRequest.LOGIN;
+import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 
 /**
@@ -160,16 +164,17 @@ public class ClientHandler extends Thread {
                 }
 
                 if (authenticatedUser.CanCreateBillboards()) {
-                    List<Billboard> billboards = database.getBillboards();
+                    Billboard existingBillboard = null;
+                    try {
+                        existingBillboard = database.getBillboard(billboard.getBillboardName());
+                    } catch (BillboardNotFoundException e) {
+                        e.printStackTrace();
+                    }
 
-                    Optional<Billboard> billboardMatch = billboards.stream().filter(x -> x.equals(billboard)).findFirst();
-
-                    if (billboardMatch.isEmpty()) {
+                    if (existingBillboard == null) {
                         database.createBillboard(billboard, authenticatedUser.getSaltedCredentials().getUsername());
                         return new Response(true, "Success");
                     } else {
-                        Billboard existingBillboard = billboardMatch.get();
-
                         Schedule schedule = existingBillboard.getSchedule();
 
                         if (schedule == null) {
