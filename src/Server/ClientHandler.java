@@ -8,10 +8,12 @@ import Exceptions.InvalidTokenException;
 import Exceptions.NoSuchUserException;
 import SocketCommunication.*;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
@@ -218,23 +220,25 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard does not exist.");
                 }
 
-            case VIEW_SCHEDULED_BILLBOARD:
+            case VIEW_SCHEDULED_BILLBOARDS: {
                 // TODO - write using database.getSchedules
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
+                try {
+                    assert authenticatedUser != null;
 
-                // client will send server a valid session
+                    List<Schedule> allScheduledBillboards = database.getSchedules(LocalDateTime.now());
 
-                // if session token is valid server will respond with list of billboards that have been scheduled
-                // including billboardName, creator, time scheduled, and duration
+                    return new Response(true, allScheduledBillboards);
+                } catch (Exception e){}
+
+                return new Response(false, "No billboards currently scheduled");
+            }
 
                 break;
             case SCHEDULE_BILLBOARD:
                 // TODO - implement
-                // 1. Query billboards with start time in past
-                // 2. Filter for billboard actually scheduled right now
-                //        - Overlapping rules - find all candidates, select last in time from candidates
-                // 3. Return
+
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // this request will only happen is user has 'Schedule Billboards' permission
