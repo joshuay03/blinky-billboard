@@ -29,14 +29,7 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
  * A class to handle each client individually on an assigned thread.
  */
 public class ClientHandler extends Thread {
-    private final int BILLBOARD_NAME = 0,
-            CREATOR = 1,
-            BACKGROUND_COLOUR = 2,
-            MESSAGE_COLOUR = 3,
-            INFORMATION_COLOUR = 4,
-            MESSAGE = 5,
-            INFORMATION = 6,
-            IMAGE = 7;
+
     private DataInputStream input;
     private DataOutputStream output;
     private Socket client;
@@ -116,6 +109,7 @@ public class ClientHandler extends Thread {
             case VIEWER_CURRENTLY_SCHEDULED: {
                 return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
             }
+
             case LOGIN: {
                 // EXAMPLE how to use the request given from the client
                 Credentials credentials;
@@ -130,6 +124,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Cannot create session.");
                 }
             }
+
             case LIST_BILLBOARDS: {
                 Response res = null; // null needs to be replaced with the server.
                 // logic to return list of billboards e.g. new Response(true, BillboardList());
@@ -141,6 +136,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "There was an SQL error");
                 }
             }
+
             case GET_BILLBOARD_INFO: {
                 // this is triggered inside the BillboardList()); GUI
                 // The control panel send the server the Billboard Name and valid session
@@ -153,6 +149,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Could not find Billboard with that ID");
                 }
             }
+
             // FIXME - change to Insert/Change after database changes
             case CREATE_BILLBOARD: {
                 assert authenticatedUser != null;
@@ -195,8 +192,8 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
-            break;
-            case EDIT_BILLBOARD:
+
+            case EDIT_BILLBOARD: {
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
 
                 // this request will only happen if User has 'Edit all Billboards' permission
@@ -206,7 +203,7 @@ public class ClientHandler extends Thread {
 
                 // Edit can be made by this user to any billboard on list (even if currently scheduled)
                 // if edit is made replace contents of billboard with new
-
+            }
             case DELETE_BILLBOARD:
             {
                 try {
@@ -221,6 +218,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard does not exist.");
                 }
             }
+
             case VIEW_SCHEDULED_BILLBOARDS: {
                 // this request will only happen is user has 'Schedule Billboards' permission
                 // should be triggered inside the ScheduleBillboards() GUI
@@ -239,6 +237,7 @@ public class ClientHandler extends Thread {
 
                 return new Response(false, "No billboards currently scheduled");
             }
+
             case SCHEDULE_BILLBOARD: {
                 assert authenticatedUser != null;
                 try {
@@ -264,6 +263,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Unable to schedule billboard");
                 }
         }
+
             case REMOVE_SCHEDULED:
             {
                 try {
@@ -278,6 +278,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "Billboard lookup failed.");
                 }
             }
+
             case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
@@ -299,6 +300,7 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
+
             case CREATE_USER:
             {
                 assert authenticatedUser != null;
@@ -336,6 +338,7 @@ public class ClientHandler extends Thread {
 
 
             }
+
             case GET_USER_PERMISSION: {
                 assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
@@ -360,6 +363,7 @@ public class ClientHandler extends Thread {
 
                 // else return false send error
             }
+
             case SET_USER_PERMISSION: {
                 assert authenticatedUser != null;
                 // request only happens if user has 'Edit Users' permission
@@ -370,8 +374,9 @@ public class ClientHandler extends Thread {
 
                     // else if session user is requesting to remove their own "Edit User" permission return error
 
-                    // else Server change that users permissions and send back acknowledgement of success
 
+                    // Client will send server username(user whose permissions are to be changed),
+                    // list of permissions, and valid session token
                     //FIXME - should only be passing credentials object through on this one
                     try {
                         // Client will send server username(user whose permissions are to be changed),
@@ -393,23 +398,21 @@ public class ClientHandler extends Thread {
                             userToModify.setEditUsers(canEditUsers);
                         }
 
+                        // Update the user's permissions accordingly ont he server
                         database.UpdateUserDetails(userToModify);
+                        return new Response(true, "Permissions successfully modified");
 
                     } catch (NoSuchUserException e) {
-                        e.printStackTrace();
+                        return new Response(false, "No such user exists");
                     }
-                } else return permissionDeniedResponse;
-
-                // Client will send server username(user whose permissions are to be changed),
-                // list of permissions, and valid session token
-
+                }
                 // if username does not exist return error
+                else return permissionDeniedResponse;
 
                 // else if session user is requesting to remove their own "Edit User" permission return error
 
                 // else Server change that users permissions and send back acknowledgement of success
             }
-                break;
             case SET_USER_PASSWORD:
             {
                 assert authenticatedUser != null;
