@@ -6,6 +6,7 @@ import javax.swing.colorchooser.DefaultColorSelectionModel;
 
 /**
  * A custom JColorChooser class
+ *
  * @author Joshua Young
  */
 public class ColourChooser extends JColorChooser {
@@ -19,7 +20,7 @@ public class ColourChooser extends JColorChooser {
         AbstractColorChooserPanel[] panels = super.getChooserPanels();
         for (AbstractColorChooserPanel panel : panels) {
             if (panel.getDisplayName().equals("Swatches")) {
-                super.setChooserPanels(new AbstractColorChooserPanel[] {panel});
+                super.setChooserPanels(new AbstractColorChooserPanel[]{panel});
             }
         }
 

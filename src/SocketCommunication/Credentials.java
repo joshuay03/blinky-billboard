@@ -1,6 +1,6 @@
 package SocketCommunication;
 
-import java.io.*;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,20 +11,13 @@ public class Credentials implements Serializable {
     private byte[] passwordHash;
 
 
-    public String getUsername() {
-        return username;
-    }
-
-    public byte[] getPasswordHash() {
-        return passwordHash;
-    }
-
-    /** CONSTRUCTOR - Generates new credentials object appropriate for transmission over network
+    /**
+     * CONSTRUCTOR - Generates new credentials object appropriate for transmission over network
      *
      * @param username The username
      * @param password The password to be hashed
      */
-    public Credentials (String username, String password){
+    public Credentials(String username, String password) {
         this.username = username;
 
         // Hash the provided password and store to member
@@ -35,8 +28,16 @@ public class Credentials implements Serializable {
         }
     }
 
-    public Credentials(String username, byte[] passwordHash){ // Create a credentials object using an already-hashed password (retrieved from the database)
+    public Credentials(String username, byte[] passwordHash) { // Create a credentials object using an already-hashed password (retrieved from the database)
         this.username = username;
         this.passwordHash = passwordHash;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public byte[] getPasswordHash() {
+        return passwordHash;
     }
 }

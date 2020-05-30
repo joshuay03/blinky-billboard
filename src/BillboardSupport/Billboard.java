@@ -1,6 +1,9 @@
 package BillboardSupport;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,11 +19,135 @@ import java.util.Locale;
 
 public class Billboard implements Serializable {
 
+    private static Color DEFAULT_COLOUR = Color.WHITE;
+
+    //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
+    private static int ALPHA_MASK = 0x00FFFFFF;
+    private Color backgroundColour, messageColour, informationColour;
+    private String message, information;
+    private URL imageURL;
+    private String imageData;
+    private String creator;
+    private int billboardDatabaseKey;
+    private Schedule schedule;
+
     // Creates an empty billboard
     public Billboard() {
     }
 
-    //<editor-fold desc="GETTERS, SETTERS & MEMBERS">
+    /**
+     * New Billboard Object from scratch
+     *
+     * @param backgroundColour  The colour of the Billboard background
+     * @param messageColour     The colour of the text which displays the 'message' string.
+     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
+     * @param message           The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
+     * @param information       Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
+     * @param imageURL          The URL of the image to be displayed by the Billboard
+     */
+
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
+        this.backgroundColour = backgroundColour;
+        this.messageColour = messageColour;
+        this.informationColour = informationColour;
+        this.message = message;
+        this.information = information;
+        this.imageURL = imageURL;
+    }
+
+    /**
+     * New Billboard Object from scratch
+     *
+     * @param backgroundColour  The colour of the Billboard background
+     * @param messageColour     The colour of the text which displays the 'message' string.
+     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
+     * @param message           The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
+     * @param information       Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
+     * @param imageData         The Base64 byte string of the image to be displayed by the Billboard
+     */
+
+    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
+        this.backgroundColour = backgroundColour;
+        this.messageColour = messageColour;
+        this.informationColour = informationColour;
+        this.message = message;
+        this.information = information;
+        this.imageData = imageData;
+    }
+
+    /**
+     * Create Billboard from Billboard XML File
+     *
+     * @param billboardXMLFile An XML File which conforms to the Billboard XML Spec.
+     */
+    public static Billboard getBillboardFromXML(File billboardXMLFile) {
+        Billboard billboard = new Billboard();
+
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(billboardXMLFile);
+            doc.getDocumentElement().normalize();
+
+            // Find the billboard element
+            NodeList billboardNodes = doc.getElementsByTagName("billboard");
+            if (billboardNodes.getLength() > 0) {
+
+                // While we're here, get the colour
+                if (billboardNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+            //If there are no elements with "billboard" in the tag name, it's probably a dud file
+            else {
+                System.out.println("Not a valid billboard XML File");
+                return null;
+            }
+
+            NodeList messageNodes = doc.getElementsByTagName("message");
+            if (messageNodes.getLength() > 0) {
+                billboard.message = messageNodes.item(0).getTextContent();
+
+                if (messageNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.messageColour = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+
+            NodeList pictureNodes = doc.getElementsByTagName("picture");
+            if (pictureNodes.getLength() > 0) {
+                if (pictureNodes.item(0).hasAttributes()) {
+                    if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
+                        billboard.imageURL = new URL(pictureNodes.item(0).getAttributes().item(0).getTextContent());
+                    } else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
+                        billboard.imageData = pictureNodes.item(0).getAttributes().item(0).getTextContent();
+                    }
+                }
+            }
+
+            NodeList informationNodes = doc.getElementsByTagName("information");
+            if (informationNodes.getLength() > 0) {
+                billboard.information = informationNodes.item(0).getTextContent();
+
+                if (informationNodes.item(0).getAttributes().getLength() > 0) {
+                    billboard.informationColour = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
+                }
+            }
+
+        } catch (ParserConfigurationException | IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            System.out.println("That does not appear to be valid billboard data!");
+        }
+        return billboard;
+    }
+    //</editor-fold>
+
+    public static Billboard errorBillboard() {
+        Billboard errorBillboard = new Billboard();
+        errorBillboard.message = "Error: Could not connect to server";
+
+        return errorBillboard;
+    }
 
     public int getBillboardDatabaseKey() {
         return billboardDatabaseKey;
@@ -69,11 +196,6 @@ public class Billboard implements Serializable {
     public void setInformationColour(Color informationColour) {
         this.informationColour = informationColour;
     }
-    //</editor-fold>
-
-    private Color backgroundColour, messageColour, informationColour;
-
-    private static Color DEFAULT_COLOUR = Color.WHITE;
 
     public String getMessage() {
         return message;
@@ -81,10 +203,6 @@ public class Billboard implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public void setCreator(String username){
-        this.creator = username;
     }
 
     public String getInformation() {
@@ -95,122 +213,7 @@ public class Billboard implements Serializable {
         this.information = information;
     }
 
-    private String message, information;
-
-    private URL imageURL;
-
-    private String imageData;
-
-    private String creator;
-
-    private int billboardDatabaseKey;
-
-    private Schedule schedule;
-
-    /** New Billboard Object from scratch
-     * @param backgroundColour The colour of the Billboard background
-     * @param messageColour The colour of the text which displays the 'message' string.
-     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
-     * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
-     * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
-     * @param imageURL The URL of the image to be displayed by the Billboard
-     */
-
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, URL imageURL) {
-        this.backgroundColour = backgroundColour;
-        this.messageColour = messageColour;
-        this.informationColour = informationColour;
-        this.message = message;
-        this.information = information;
-        this.imageURL = imageURL;
-    }
-
-    /** New Billboard Object from scratch
-     * @param backgroundColour The colour of the Billboard background
-     * @param messageColour The colour of the text which displays the 'message' string.
-     * @param informationColour The colour of the text which displays the 'information' string. Supplied by the 'colour' node int he XML Schema
-     * @param message The primary text of the billboard. Should be displayed in a clearly visible, large font size which displays on one line with no breaks.
-     * @param information Used tos how larger amounts of text information which can be broken across multiple lines for display purposes.
-     * @param imageData The Base64 byte string of the image to be displayed by the Billboard
-     */
-
-    public Billboard(Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) {
-        this.backgroundColour = backgroundColour;
-        this.messageColour = messageColour;
-        this.informationColour = informationColour;
-        this.message = message;
-        this.information = information;
-        this.imageData = imageData;
-    }
-
-    /** Create Billboard from Billboard XML File
-     *
-     * @param billboardXMLFile An XML File which conforms to the Billboard XML Spec.
-     */
-    public static Billboard getBillboardFromXML(File billboardXMLFile) {
-        Billboard billboard = new Billboard();
-
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(billboardXMLFile);
-            doc.getDocumentElement().normalize();
-
-            // Find the billboard element
-            NodeList billboardNodes = doc.getElementsByTagName("billboard");
-            if (billboardNodes.getLength() > 0) {
-
-                // While we're here, get the colour
-                if (billboardNodes.item(0).getAttributes().getLength() > 0) {
-                    billboard.backgroundColour = Color.decode(billboardNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-            //If there are no elements with "billboard" in the tag name, it's probably a dud file
-            else {
-                System.out.println("Not a valid billboard XML File");
-                return null;
-            }
-
-            NodeList messageNodes = doc.getElementsByTagName("message");
-            if (messageNodes.getLength() > 0) {
-                billboard.message = messageNodes.item(0).getTextContent();
-
-                if (messageNodes.item(0).getAttributes().getLength() > 0) {
-                    billboard.messageColour = Color.decode(messageNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-            NodeList pictureNodes = doc.getElementsByTagName("picture");
-            if (pictureNodes.getLength() > 0) {
-                if (pictureNodes.item(0).hasAttributes()) {
-                    if (pictureNodes.item(0).getAttributes().getNamedItem("url") != null) {
-                        billboard.imageURL = new URL(pictureNodes.item(0).getAttributes().item(0).getTextContent());
-                    }
-                    else if (pictureNodes.item(0).getAttributes().getNamedItem("data") != null) {
-                        billboard.imageData = pictureNodes.item(0).getAttributes().item(0).getTextContent();
-                    }
-                }
-            }
-
-            NodeList informationNodes = doc.getElementsByTagName("information");
-            if (informationNodes.getLength() > 0) {
-                billboard.information = informationNodes.item(0).getTextContent();
-
-                if (informationNodes.item(0).getAttributes().getLength() > 0) {
-                    billboard.informationColour = Color.decode(informationNodes.item(0).getAttributes().item(0).getTextContent());
-                }
-            }
-
-        } catch (ParserConfigurationException | IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            System.out.println("That does not appear to be valid billboard data!");
-        }
-        return billboard;
-    }
-
-    private static int ALPHA_MASK = 0x00FFFFFF;
-    public Document getXMLRepresentation(){
+    public Document getXMLRepresentation() {
 
         Document billboardXMLRep = null;
         try {
@@ -225,7 +228,7 @@ public class Billboard implements Serializable {
             billboardXMLRep.appendChild(root);
 
             // Background colour, if any
-            if(this.backgroundColour != null) {
+            if (this.backgroundColour != null) {
                 Attr backgroundHexRep = billboardXMLRep.createAttribute("background");
                 backgroundHexRep.setValue("#" + Integer.toHexString(this.backgroundColour.getRGB() & ALPHA_MASK)); // Mask out the alpha channel
                 root.setAttributeNode(backgroundHexRep);
@@ -233,7 +236,7 @@ public class Billboard implements Serializable {
 
             //Message ------------------------------------------------
             Element msg = null;
-            if(this.message != null) {
+            if (this.message != null) {
                 msg = billboardXMLRep.createElement("message");
                 msg.appendChild(billboardXMLRep.createTextNode(this.message));
 
@@ -249,7 +252,7 @@ public class Billboard implements Serializable {
 
             // Information ------------------------------------------------
             Element info = null;
-            if(this.information != null) {
+            if (this.information != null) {
                 info = billboardXMLRep.createElement("information");
                 info.appendChild(billboardXMLRep.createTextNode(this.information));
 
@@ -271,18 +274,17 @@ public class Billboard implements Serializable {
                 image = billboardXMLRep.createElement("picture");
                 Attr imageNode = null;
 
-                if(this.imageData != null) {
+                if (this.imageData != null) {
                     // Sort out the data for writing
                     imageNode = billboardXMLRep.createAttribute("data");
                     imageNode.setValue(imageData);
-                } else if(this.imageURL != null){
+                } else if (this.imageURL != null) {
                     imageNode = billboardXMLRep.createAttribute("url");
                     imageNode.setValue(imageURL.toString());
                 }
                 image.setAttributeNode(imageNode);
                 root.appendChild(image);
             }
-
 
 
         } catch (Exception e) {
@@ -292,24 +294,17 @@ public class Billboard implements Serializable {
         return billboardXMLRep;
     }
 
-    public String getBillboardImage(){
-        if(imageURL != null){
+    public String getBillboardImage() {
+        if (imageURL != null) {
             return imageURL.toString();
-        } else if (imageData != null){
+        } else if (imageData != null) {
             return imageData;
         }
         return null;
     }
 
-    public static Billboard errorBillboard(){
-        Billboard errorBillboard = new Billboard();
-        errorBillboard.message = "Error: Could not connect to server";
-
-        return errorBillboard;
-    }
-
     @Override
-    public boolean equals(Object object){
+    public boolean equals(Object object) {
 
         Billboard comparator = (Billboard) object;
 
@@ -321,11 +316,16 @@ public class Billboard implements Serializable {
                 this.informationColour.equals(comparator.informationColour) &&
                 collator.compare(this.message, comparator.message) == 0 &&
                 collator.compare(this.information, comparator.information) == 0 &&
-                imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : false ||
-                imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
+                imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
     }
 
-    public String getCreator() { return creator; }
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String username) {
+        this.creator = username;
+    }
 
     public Schedule getSchedule() {
         return schedule;

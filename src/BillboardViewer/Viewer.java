@@ -2,23 +2,19 @@ package BillboardViewer;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
-import BillboardSupport.DummyBillboards;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import SocketCommunication.ServerRequest;
-import SocketCommunication.Session;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 
-import javax.swing.*;
-
 class MyMouseHandler extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1){
+        if (e.getButton() == MouseEvent.BUTTON1) {
             System.exit(1);
         }
     }
@@ -28,22 +24,21 @@ class MyKeyboardHandler extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(1);
         }
     }
 }
 
-public class Viewer extends JFrame implements ActionListener   {
-
-    private static Dimension screenSize;
-    private RenderedBillboard displayedBillboard;
-    private Billboard currentBillboard;
-    public ClientConnector connector;
+public class Viewer extends JFrame implements ActionListener {
 
     public static javax.swing.Timer refreshTimer;
+    private static Dimension screenSize;
+    public ClientConnector connector;
+    private RenderedBillboard displayedBillboard;
+    private Billboard currentBillboard;
 
-    Viewer (String arg0){
+    Viewer(String arg0) {
         super(arg0);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,8 +46,8 @@ public class Viewer extends JFrame implements ActionListener   {
 
         this.setUndecorated(true);
 
-        Dimension screenSize = new Dimension(   (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-                                                (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+        Dimension screenSize = new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+                (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
         this.setSize(screenSize);
         this.setVisible(true);
@@ -62,8 +57,8 @@ public class Viewer extends JFrame implements ActionListener   {
 
     public static void main(String[] args) {
 
-        screenSize = new Dimension(   (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-                (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+        screenSize = new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+                (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -77,7 +72,7 @@ public class Viewer extends JFrame implements ActionListener   {
 
 
                 // Sort out the refresh timer
-                refreshTimer = new Timer(15*1000, viewer); // 15 * 1000ms = 15 seconds
+                refreshTimer = new Timer(15 * 1000, viewer); // 15 * 1000ms = 15 seconds
                 refreshTimer.setInitialDelay(0); // Start as quick as possible
                 refreshTimer.start(); //Start rendering ASAP
             }
@@ -87,7 +82,7 @@ public class Viewer extends JFrame implements ActionListener   {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Timer handling
-        if(e.getSource() == refreshTimer){
+        if (e.getSource() == refreshTimer) {
             System.out.println("Attempting to refresh");
 
             Response response;
@@ -102,7 +97,7 @@ public class Viewer extends JFrame implements ActionListener   {
             }
 
             // Clear the deck to avoid memory blowout over time
-            if(displayedBillboard != null) this.getContentPane().remove(displayedBillboard);
+            if (displayedBillboard != null) this.getContentPane().remove(displayedBillboard);
 
             // Insert the new Billboard
             displayedBillboard = new RenderedBillboard(currentBillboard, screenSize);

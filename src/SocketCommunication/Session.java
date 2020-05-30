@@ -2,10 +2,11 @@ package SocketCommunication;
 
 import Exceptions.AuthenticationFailedException;
 import Exceptions.NoSuchUserException;
-import Server.Token;
-import Server.blinkyDB;
-import Server.User;
 import Server.AuthenticationHandler;
+import Server.Token;
+import Server.User;
+import Server.blinkyDB;
+
 import java.io.Serializable;
 
 public class Session implements Serializable {
@@ -22,7 +23,7 @@ public class Session implements Serializable {
     public Session(Credentials credentials, blinkyDB database) throws AuthenticationFailedException, NoSuchUserException {
         // The session should only be successfully created if Authentication succeeds
         if (!AuthenticationHandler.Authenticate(credentials, database))
-        throw new AuthenticationFailedException(credentials.getUsername());
+            throw new AuthenticationFailedException(credentials.getUsername());
         else {
             serverUser = new User(credentials.getUsername(), database);
             this.token = Token.Generate(credentials.getUsername());

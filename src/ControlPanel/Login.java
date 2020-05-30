@@ -1,17 +1,19 @@
 package ControlPanel;
 
 import Client.ClientConnector;
-import SocketCommunication.*;
+import SocketCommunication.Credentials;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
+import SocketCommunication.Session;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import static SocketCommunication.ServerRequest.LOGIN;
-
 /**
  * A class to represent a "Login" page which is bound to Login.form
+ *
  * @author Joshua Young
  */
 public class Login {
@@ -27,6 +29,7 @@ public class Login {
 
     /**
      * Authenticates the user and opens an "Option Menu" page on successful login
+     *
      * @param frame the main frame in which the next page is to be placed
      */
     public Login(JFrame frame, ClientConnector connector) {
