@@ -302,7 +302,8 @@ public class CreateBillboards {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (nameTextArea.getText() == null){
+                // Check whether the string is empty
+                if (nameTextArea.getText().length() < 1){
                     JOptionPane.showMessageDialog(frame, "Cannot create billboard without a name.");
                     return;
                 } else {
