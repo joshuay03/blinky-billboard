@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Base64;
 
+/**
+ * This class is used to render a billboard into a JFrame.
+ */
 public class RenderedBillboard extends JPanel {
 
     private static final String DEFAULT_BILLBOARD_FONT = "Trebuchet";
