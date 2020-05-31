@@ -176,26 +176,39 @@ public class Billboard implements Serializable {
         return errorBillboard;
     }
 
+    /**
+     * @return
+     */
     public boolean isScheduled() {
         return schedule != null;
     }
-
+    /**
+     * @return
+     */
     public String getBillboardName() {
         return billboard_name;
     }
-
+    /**
+     * @return
+     */
     public void setBillboardName(String billboard_name) {
         this.billboard_name = billboard_name;
     }
-
+    /**
+     * @return
+     */
     public URL getImageURL() {
         return imageURL;
     }
-
+    /**
+     * @return
+     */
     public void setImageURL(URL imageURL) {
         this.imageURL = imageURL;
     }
-
+    /**
+     * @return
+     */
     public String getImageData() {
         return imageData;
     }
@@ -203,43 +216,63 @@ public class Billboard implements Serializable {
     public void setImageData(String imageData) {
         this.imageData = imageData;
     }
-
+    /**
+     * @return The background color of the billboard
+     */
     public Color getBackgroundColour() {
         return backgroundColour;
     }
-
+    /**
+     * Sets the background color of the billboard
+     */
     public void setBackgroundColour(Color backgroundColour) {
         this.backgroundColour = backgroundColour;
     }
-
+    /**
+     * @return the color of the messages
+     */
     public Color getMessageColour() {
         return messageColour;
     }
-
+    /**
+     * Set the color of the messages
+     */
     public void setMessageColour(Color messageColour) {
         this.messageColour = messageColour;
     }
-
+    /**
+     * @return the color of the information
+     */
     public Color getInformationColour() {
         return informationColour;
     }
-
+    /**
+     * Set the color of the information
+     */
     public void setInformationColour(Color informationColour) {
         this.informationColour = informationColour;
     }
-
+    /**
+     * @return the message data
+     */
     public String getMessage() {
         return message;
     }
-
+    /**
+     * Set the message data
+     */
     public void setMessage(String message) {
         this.message = message;
     }
-
+    /**
+     * @return The information data
+     */
     public String getInformation() {
         return information;
     }
-
+    /**
+     * set the information data
+     */
     public void setInformation(String information) {
         this.information = information;
     }
@@ -339,6 +372,11 @@ public class Billboard implements Serializable {
         return null;
     }
 
+    /**
+     * Compare two billboard objects
+     * @param object
+     * @return true/false
+     */
     @Override
     public boolean equals(Object object) {
 
@@ -355,18 +393,27 @@ public class Billboard implements Serializable {
                 imageData != null ? collator.compare(this.imageData, comparator.imageData) == 0 : imageURL == null || collator.compare(this.imageURL.toString(), comparator.imageURL.toString()) == 0;
     }
 
+    /**
+     * @return the creato of the billboard
+     */
     public String getCreator() {
         return creator;
     }
-
+    /**
+     * Set the creator of the billboard
+     */
     public void setCreator(String username) {
         this.creator = username;
     }
-
+    /**
+     * @return the billboard's schedule
+     */
     public Schedule getSchedule() {
         return schedule;
     }
-
+    /**
+     * Set the billboard's schedule
+     */
     public void setSchedule(Schedule schedule) {
         this.schedule = schedule;
     }

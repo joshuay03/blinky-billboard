@@ -77,18 +77,23 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Response logoutResp = null;
-                try {
-                    logoutResp = Request.logoutReq(connector.session).Send(connector);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                String[] buttons = { "Yes", "No" };
+                int returnValue = JOptionPane.showOptionDialog(frame, "Are you sure you want to logout?", "Confirm Logout",
+                        JOptionPane.WARNING_MESSAGE, 0, null, buttons, buttons[1]);
+                if (returnValue == 0) {
+                    Response logoutResp = null;
+                    try {
+                        logoutResp = Request.logoutReq(connector.session).Send(connector);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
 
-                connector.session = null;
-                frame.setContentPane(new Login(frame, connector).loginPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                    connector.session = null;
+                    frame.setContentPane(new Login(frame, connector).loginPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
         });
 

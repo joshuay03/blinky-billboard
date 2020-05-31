@@ -54,6 +54,7 @@ public class ScheduleBillboards {
             public void actionPerformed(ActionEvent e) {
                 scheduleFrame.setContentPane(new Schedule(scheduleFrame, connector, billboards).schedulePanel);
                 scheduleFrame.pack();
+                scheduleFrame.setLocationRelativeTo(frame);
                 scheduleFrame.setVisible(true);
             }
         });
