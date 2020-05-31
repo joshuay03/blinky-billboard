@@ -135,6 +135,9 @@ public class EditUsers {
                 }
 
                 if (status) {
+                    userObjects.remove(username);
+                    model.removeElement(username);
+                    userList.setModel(model);
                     JOptionPane.showMessageDialog(null, "User successfully deleted.");
                 }
 
