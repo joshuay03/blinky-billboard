@@ -22,7 +22,9 @@
                 <preferred-size width="200" height="200"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <dividerSize value="0"/>
+            </properties>
             <border type="none"/>
             <children>
               <component id="ebd48" class="javax.swing.JLabel" binding="billboardName">
@@ -30,7 +32,7 @@
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <text value="Billboard Name"/>
+                  <text value="Billboard Name: "/>
                 </properties>
               </component>
               <component id="f6a18" class="javax.swing.JComboBox" binding="billboardNames">
