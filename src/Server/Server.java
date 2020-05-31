@@ -15,7 +15,7 @@ import java.sql.SQLException;
 
 /**
  * A class to initiate a server for client-server connection.
- * Extends the FileParse class.
+ * Extends the SocketConnection class.
  *
  * @see SocketConnection
  */

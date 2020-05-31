@@ -26,10 +26,10 @@ public class Token implements Serializable {
     //TODO - query utility of encrypting and decrypting tokens
 
     /**
-     * A private constructor to
-     * @param username
-     * @param expiry
-     * @param code
+     * Instantiates a Token object for a given user, used to identify the user.
+     * @param username The user's username
+     * @param expiry The expire date of the user's token
+     * @param code A byte array of the user's code
      */
     private Token(String username, Timestamp expiry, byte[] code){
         this.expiry = expiry;
@@ -37,6 +37,10 @@ public class Token implements Serializable {
         this.code = code;
     }
 
+    /**
+     * A public constructor which instantiates a token object for a given user.
+     * @param username The user's username
+     */
     Token(String username) {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
         this.expiry = Timestamp.valueOf(tomorrow); // Generate an expiry date
@@ -45,6 +49,12 @@ public class Token implements Serializable {
         new Random().nextBytes(this.code);
     }
 
+    /**
+     * Reads in a secret key from a given file and decodes the key.
+     * @param filePath file containing the secret key
+     * @return SecretKeySpec object
+     * @see SecretKeySpec
+     */
     private static SecretKey getKey(String filePath) {
         // Read the secretKey from a file and create an AES key based on it
         String encodedKey;

@@ -13,12 +13,16 @@ public class DatePicker {
     protected JButton next;
 
     int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
-    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
+    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
     JLabel label = new JLabel("", JLabel.CENTER);
     String day = "";
     JDialog dialog;
     JButton[] button = new JButton[49];
 
+    /**
+     * Constructor for a new DatePicker object.
+     * @param parent the parent JFrame container
+     */
     public DatePicker(JFrame parent) {
         Calendar calendar = Calendar.getInstance();
         dialog = new JDialog();
@@ -93,6 +97,9 @@ public class DatePicker {
         dialog.setVisible(true);
     }
 
+    /**
+     * Display the date
+     */
     public void displayDate() {
         for (int x = 7; x < button.length; x++) {
             button[x].setText("");
@@ -109,6 +116,10 @@ public class DatePicker {
         dialog.setTitle("Pick Date");
     }
 
+    /**
+     * Set the date picked by the user
+     * @return a string of the date picked by the user
+     */
     public String setPickedDate() {
         if (day.equals(""))
             return day;
