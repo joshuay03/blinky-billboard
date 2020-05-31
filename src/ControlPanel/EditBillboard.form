@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.CreateBillboards">
-  <grid id="27dc6" binding="createBillboardsPanel" layout-manager="GridBagLayout">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ControlPanel.EditBillboard">
+  <grid id="27dc6" binding="editBillboardPanel" layout-manager="GridBagLayout">
     <constraints>
       <xy x="20" y="20" width="830" height="415"/>
     </constraints>
@@ -15,39 +15,9 @@
         <properties/>
         <border type="none"/>
         <children>
-          <splitpane id="526ed">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                <preferred-size width="200" height="200"/>
-              </grid>
-              <gridbag weightx="0.0" weighty="0.0"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="833ab" class="javax.swing.JButton" binding="importButton">
-                <constraints>
-                  <splitpane position="left"/>
-                </constraints>
-                <properties>
-                  <horizontalTextPosition value="11"/>
-                  <text value="Import Billboard as XML"/>
-                  <verticalAlignment value="0"/>
-                </properties>
-              </component>
-              <component id="8d801" class="javax.swing.JButton" binding="exportButton">
-                <constraints>
-                  <splitpane position="right"/>
-                </constraints>
-                <properties>
-                  <text value="Export Billboard as XML"/>
-                </properties>
-              </component>
-            </children>
-          </splitpane>
           <component id="75e5c" class="javax.swing.JButton" binding="previewBillboardButton">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
             <properties>
@@ -195,7 +165,7 @@
               </component>
             </children>
           </splitpane>
-          <splitpane id="c2880">
+          <splitpane id="faeae">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
@@ -204,11 +174,10 @@
             </constraints>
             <properties>
               <dividerLocation value="50"/>
-              <dividerSize value="10"/>
             </properties>
             <border type="none"/>
             <children>
-              <grid id="f62a9" binding="messageColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="c67cf" binding="messageColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="left"/>
@@ -227,7 +196,7 @@
               </component>
             </children>
           </splitpane>
-          <splitpane id="e2870">
+          <splitpane id="7120e">
             <constraints>
               <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
@@ -239,16 +208,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <grid id="88b74" binding="informationColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints>
-                  <splitpane position="left"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children/>
-              </grid>
-              <component id="c1e3d" class="javax.swing.JButton" binding="informationColourButton">
+              <component id="3846f" class="javax.swing.JButton" binding="informationColourButton">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
@@ -256,21 +216,38 @@
                   <text value="Choose Information Colour"/>
                 </properties>
               </component>
+              <grid id="c6e69" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="808e9" binding="informationColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children/>
+                  </grid>
+                </children>
+              </grid>
             </children>
           </splitpane>
-          <splitpane id="e1146">
+          <splitpane id="99140">
             <constraints>
               <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="200" height="200"/>
               </grid>
               <gridbag weightx="0.0" weighty="0.0"/>
             </constraints>
-            <properties>
-              <dividerLocation value="50"/>
-            </properties>
+            <properties/>
             <border type="none"/>
             <children>
-              <grid id="d0bd9" binding="backgroundColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="d1139" binding="backgroundColourPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="left"/>
@@ -316,7 +293,7 @@
                 <properties>
                   <font size="30"/>
                   <horizontalAlignment value="0"/>
-                  <text value="Create Billboards           "/>
+                  <text value="Edit Billboard          "/>
                 </properties>
               </component>
               <component id="10b32" class="javax.swing.JButton" binding="backButton">

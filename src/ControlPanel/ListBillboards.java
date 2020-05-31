@@ -23,11 +23,14 @@ public class ListBillboards {
 
     protected List<Billboard> billboardList;
     protected JList<String> billboardJList;
-    DefaultListModel<String> model;
+    private JButton previewContentsButton;
+    private JButton editBillboardButton;
+    protected DefaultListModel<String> model;
+
+    protected JFrame previewBillboardContentsFrame;
 
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
-
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -43,16 +46,24 @@ public class ListBillboards {
                 frame.setVisible(true);
             }
         });
-        billboardJList.addListSelectionListener(new ListSelectionListener() {
-            /**
-             * Called whenever the value of the selection changes.
-             *
-             * @param e the event that characterizes the change.
-             */
+
+        previewContentsButton.addActionListener(new ActionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-                Billboard b = billboardList.get(billboardJList.getSelectedIndex());
-                frame.setContentPane(new PreviewBillboardContents(frame, connector, b).previewBillboardContentsPanel);
+            public void actionPerformed(ActionEvent e) {
+                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                previewBillboardContentsFrame.setTitle("Preview contents: " + billboard.getBillboardName());
+                previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(billboard).previewBillboardContentsPanel);
+                previewBillboardContentsFrame.pack();
+                previewBillboardContentsFrame.setLocationRelativeTo(frame);
+                previewBillboardContentsFrame.setVisible(true);
+            }
+        });
+
+        editBillboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                frame.setContentPane(new EditBillboard(frame, connector, billboardList, billboard).editBillboardPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -69,5 +80,8 @@ public class ListBillboards {
         }
 
         billboardJList.setModel(model);
+
+        previewBillboardContentsFrame = new JFrame();
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(400, 400));
     }
 }

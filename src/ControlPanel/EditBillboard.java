@@ -5,17 +5,11 @@ import BillboardSupport.RenderedBillboard;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
-import org.w3c.dom.Document;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,18 +22,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
-/**
- * A class to represent a "Create Billboards" page which is bound to CreateBillboards.form
- */
-public class CreateBillboards {
-    protected JPanel createBillboardsPanel;
+public class EditBillboard {
+    protected JPanel editBillboardPanel;
     protected JPanel titlePanel;
     protected JButton backButton;
     protected JLabel createBillboardsLabel;
     protected JPanel optionPanel;
-    protected JButton importButton;
-    protected JButton exportButton;
     protected JButton previewBillboardButton;
     protected JPanel createPanel;
     protected JLabel nameLabel;
@@ -62,15 +52,30 @@ public class CreateBillboards {
     protected ColourChooser messageColourChooser = new ColourChooser(Color.BLACK);
     protected ColourChooser informationColourChooser = new ColourChooser(Color.BLACK);
     protected ColourChooser backgroundColourChooser = new ColourChooser(Color.WHITE);
-    protected Billboard billboard;
     protected JFrame previewFrame;
 
-    /**
-     *
-     * @param frame
-     */
-    public CreateBillboards(JFrame frame, ClientConnector connector) {
-        billboard = new Billboard();
+    public EditBillboard(JFrame frame, ClientConnector connector, List<Billboard> billboardList, final Billboard billboard) {
+        if (billboard.getBillboardName() != null) {
+            nameTextArea.setText(billboard.getBillboardName());
+        }
+        if (billboard.getMessage() != null) {
+            messageTextArea.setText(billboard.getMessage());
+        }
+        if (billboard.getMessageColour() != null) {
+            messageColourPanel.setBackground(billboard.getMessageColour());
+        }
+        if (billboard.getImageURL() != null) {
+            pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
+        }
+        if (billboard.getInformation() != null) {
+            informationTextArea.setText(billboard.getInformation());
+        }
+        if (billboard.getInformationColour() != null) {
+            informationColourPanel.setBackground(billboard.getInformationColour());
+        }
+        if (billboard.getBackgroundColour() != null) {
+            backgroundColourPanel.setBackground(billboard.getBackgroundColour());
+        }
 
         backButton.addActionListener(new ActionListener() {
             /**
@@ -80,63 +85,10 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
+                frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-            }
-        });
-
-        importButton.addActionListener(new ActionListener() {
-            /**
-             * Invoked when an action occurs.
-             *
-             * @param e the event to be processed
-             */
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
-                chooser.setFileFilter(filter);
-                int returnVal = chooser.showOpenDialog(null);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File xmlFile = chooser.getSelectedFile();
-                    billboard = Billboard.getBillboardFromXML(xmlFile);
-                    assert billboard != null;
-                    messageTextArea.setText(billboard.getMessage());
-                    informationTextArea.setText(billboard.getInformation());
-
-                    if(billboard.getImageURL() != null) pictureURLFormattedTextField.setText(billboard.getImageURL().toString());
-                }
-            }
-        });
-
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                Document XMLRep = billboard.getXMLRepresentation();
-
-                JFileChooser chooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("XML", "xml");
-                chooser.setFileFilter(filter);
-                int returnVal = chooser.showSaveDialog(null);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File fileLocation = chooser.getSelectedFile();
-
-                    try {
-                        // create the xml file
-                        //transform the DOM Object to an XML File
-                        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                        Transformer transformer = transformerFactory.newTransformer();
-                        DOMSource domSource = new DOMSource(XMLRep);
-                        StreamResult streamResult = new StreamResult(fileLocation);
-
-                        transformer.transform(domSource, streamResult);
-                    } catch (TransformerException ex) {
-                        ex.printStackTrace();
-                    }
-                }
             }
         });
 
@@ -153,7 +105,6 @@ public class CreateBillboards {
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
                 previewFrame = new JFrame();
-                previewFrame.setTitle("Preview: " + nameTextArea.getText());
                 previewFrame.setSize(renderDimension);
                 previewFrame.setContentPane(renderedBillboard);
                 previewFrame.setVisible(true);

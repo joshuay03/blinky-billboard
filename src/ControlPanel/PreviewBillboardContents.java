@@ -18,6 +18,7 @@ public class PreviewBillboardContents {
     private JLabel messageColorLabel;
     private JLabel messageLabel;
     private JLabel billboardNameLabel;
+    private JTextArea informationTextArea;
     private Billboard billboard;
 
     private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
@@ -36,38 +37,32 @@ public class PreviewBillboardContents {
     }
 
 
-    public PreviewBillboardContents(JFrame previewBillboardContentsFrame, ClientConnector connector, Billboard billboard) {
-        Color infoColor = billboard.getInformationColour();
-        if( infoColor != null ) {
-            infoColorLabel.setText(infoColor.toString().replace("java.awt.Color", ""));
+    public PreviewBillboardContents(Billboard billboard) {
+        if(billboard.getBillboardName() != null) {
+            billboardNameLabel.setText(billboard.getBillboardName());
         }
-         Color background = billboard.getBackgroundColour();
-        if(background != null) {
-           backgroundLabel.setText(background.toString().replace("java.awt.Color", ""));
+        if(billboard.getMessage() != null) {
+            messageLabel.setText(billboard.getMessage());
         }
-        String info = billboard.getInformation();
-        if(info != null) {
-            infoLabel.setText(info);
+        if(billboard.getMessageColour() != null) {
+            messageColorLabel.setText(billboard.getMessageColour().toString().replace("java.awt.Color", ""));
         }
-        URL picUrl = billboard.getImageURL();
-        if(picUrl != null) {
-            picUrlLabel.setText(picUrl.toString());
+        if(billboard.getImageURL() != null) {
+            picUrlLabel.setText(billboard.getImageURL().toString());
         }
-        String picData = billboard.getImageData();
-        if(picData != null) {
-            picDataLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromBase64(picData), 200, 100));
+        if(billboard.getInformation() != null) {
+            informationTextArea.setText(billboard.getInformation());
+            informationTextArea.setWrapStyleWord(true);
+            informationTextArea.setLineWrap(true);
         }
-        Color messageColor = billboard.getMessageColour();
-        if(messageColor != null) {
-            messageColorLabel.setText(messageColor.toString().replace("java.awt.Color", ""));
+        if( billboard.getInformationColour() != null ) {
+            infoColorLabel.setText(billboard.getInformationColour().toString().replace("java.awt.Color", ""));
         }
-        String message = billboard.getMessage();
-        if(message != null) {
-            messageLabel.setText(message);
+        if(billboard.getBackgroundColour() != null) {
+           backgroundLabel.setText(billboard.getBackgroundColour().toString().replace("java.awt.Color", ""));
         }
-        String billboardName = billboard.getBillboardName();
-        if(billboardName != null) {
-            billboardNameLabel.setText(billboardName);
+        if(billboard.getImageData() != null) {
+            picDataLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromBase64(billboard.getImageData()), 200, 100));
         }
     }
 }
