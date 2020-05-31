@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Frame for editing an existing user
+ */
 public class EditExistingUser {
     protected JPanel editExistingUserPanel;
     protected JButton backButton;

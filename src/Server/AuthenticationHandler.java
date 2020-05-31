@@ -6,6 +6,9 @@ import SocketCommunication.Credentials;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Class used for authenticating a user.
+ */
 public class AuthenticationHandler {
 
     /**

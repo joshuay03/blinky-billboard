@@ -340,6 +340,12 @@ public class CreateBillboards {
         });
     }
 
+    /**
+     * Encode a gien file to base64 text
+     * @param file
+     * @return the encoded text
+     * @throws IOException
+     */
     private static String encodeFileToBase64Binary(File file) throws IOException {
         byte[] bytes = loadFile(file);
         byte[] encoded = Base64.getEncoder().encode(bytes);
@@ -348,6 +354,12 @@ public class CreateBillboards {
         return encodedString;
     }
 
+    /**
+     * Loads a given file, rreads the file into a byte array.
+     * @param file
+     * @return A byte aray of the file contents.
+     * @throws IOException
+     */
     private static byte[] loadFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);
 

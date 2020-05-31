@@ -24,6 +24,9 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 /**
  * A class to handle each client individually on an assigned thread.
+ * Handles incoming responses from the client and returns a rresponse.
+ * Extends Thread
+ * @see Thread
  */
 public class ClientHandler extends Thread {
     private final int BILLBOARD_NAME = 0,
@@ -39,6 +42,13 @@ public class ClientHandler extends Thread {
     private Socket client;
     private blinkyDB database;
 
+    /**
+     * Instantiates a new ClientHandler object for an individual client
+     * @param client The client's socket
+     * @param input The input stream
+     * @param output The output stream
+     * @param database The database used for querying
+     */
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;
         this.input = input;
@@ -46,6 +56,9 @@ public class ClientHandler extends Thread {
         this.database = database;
     }
 
+    /**
+     * Runs the thread
+     */
     @Override
     public void run() {
         Response outputData;
@@ -72,7 +85,7 @@ public class ClientHandler extends Thread {
     }
 
     /**
-     * A function which takes a request and returns a response object, to be sent back
+     * A function which takes a request and returns a response object to the client.
      *
      * @param req The request to handle
      * @return A response
@@ -506,6 +519,10 @@ public class ClientHandler extends Thread {
 
     //</editor-fold>
 
+    /**
+     * Closes the client connector object
+     * @return returns true/false as to whether the object has been closed.
+     */
     public boolean closeConnection() {
         boolean closed = false; // For testing purposes only
         try {

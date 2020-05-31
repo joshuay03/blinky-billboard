@@ -78,8 +78,14 @@ public class User implements Serializable {
         this.salt = user.salt;
     }
 
-    // Creates a user object without registering it. Only for the request builder to use. Do not use anywhere else.
-    // Can break everything if used anywhere else.
+    /**
+     * Creates a user object without registering it. Used in the request builder.
+     * @param credentials Username and hashed password
+     * @param CreateBillboards permission
+     * @param EditAllBillBoards permission
+     * @param ScheduleBillboards permission
+     * @param EditUsers permission
+     */
     public User(Credentials credentials, boolean CreateBillboards, boolean EditAllBillBoards, boolean ScheduleBillboards, boolean EditUsers){
         this.saltedCredentials = credentials;
         this.CanCreateBillboards = CreateBillboards;
@@ -88,22 +94,37 @@ public class User implements Serializable {
         this.EditUsers = EditUsers;
     }
 
+    /**
+     * @return the salted credentials
+     */
     public Credentials getSaltedCredentials() {
         return saltedCredentials;
     }
 
+    /**
+     * @return the salted credentials
+     */
     public boolean CanCreateBillboards() {
         return CanCreateBillboards;
     }
 
+    /**
+     * @return whether the user can edit the billboards
+     */
     public boolean CanEditAllBillboards() {
         return EditAllBillBoards;
     }
 
+    /**
+     * @return whether the user can schedule billboards
+     */
     public boolean CanScheduleBillboards() {
         return CanCreateBillboards;
     }
 
+    /**
+     * @return whether the user can edit users
+     */
     public boolean CanEditUsers() {
         return EditUsers;
     }
@@ -121,28 +142,50 @@ public class User implements Serializable {
     }
 
     /**
-     * Setters
-     **/
+     * Change the user's password given a new credentials object.
+     * @param newCredentials new credentials assigned to the user
+     * @param database
+     */
     public void setPasswordFromCredentials(Credentials newCredentials, blinkyDB database) { // Change user password. Changing the user's username is not allowed.
         this.saltedCredentials = new Credentials(this.saltedCredentials.getUsername(), AuthenticationHandler.HashPasswordHashSalt(newCredentials.getPasswordHash(), salt));
     }
 
+    /**
+     * Set the salt given a byte array.
+     * @param salt byte array of salt
+     */
     public void setSalt(byte[] salt) {
         this.salt = salt;
     }
 
+    /**
+     * Set the permission of the user
+     * @param canCreateBillboards true/false
+     */
     public void setCanCreateBillboards(boolean canCreateBillboards) {
         CanCreateBillboards = canCreateBillboards;
     }
 
+    /**
+     * Set the permission of the user
+     * @param editAllBillBoards true/false
+     */
     public void setEditAllBillBoards(boolean editAllBillBoards) {
         EditAllBillBoards = editAllBillBoards;
     }
 
+    /**
+     * Set the permission of the user
+     * @param scheduleBillboards true/false
+     */
     public void setScheduleBillboards(boolean scheduleBillboards) {
         ScheduleBillboards = scheduleBillboards;
     }
 
+    /**
+     * Set the permission of the user
+     * @param editUsers true/false
+     */
     public void setEditUsers(boolean editUsers) {
         EditUsers = editUsers;
     }

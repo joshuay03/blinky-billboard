@@ -1,5 +1,8 @@
 package Exceptions;
 
+/**
+ * Exception used if the user does not exist
+ */
 public class NoSuchUserException extends Exception {
     String username;
 
