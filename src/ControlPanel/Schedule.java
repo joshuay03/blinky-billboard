@@ -160,7 +160,7 @@ public class Schedule {
                         Integer.parseInt(date[0]), hour, minute, 0, 0);
 
 
-                BillboardSupport.Schedule schedule = new BillboardSupport.Schedule(timestamp, duration, frequency, "test", new Timestamp(System.currentTimeMillis()));
+                BillboardSupport.Schedule schedule = new BillboardSupport.Schedule(timestamp, duration, frequency, (String) billboardNames.getSelectedItem(), new Timestamp(System.currentTimeMillis()));
                 Request scheduleBillboardReq = Request.scheduleBillboardReq(schedule, connector.session);
 
                 Response response;
