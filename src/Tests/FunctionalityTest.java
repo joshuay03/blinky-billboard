@@ -209,13 +209,11 @@ class FunctionalityTest {
     }
 
     @Test
-    void Schedule_Billboard() throws BillboardNotFoundException, SQLException, BillboardUnscheduledException {
+    void Schedule_Billboard() {
         // Set a schedule for the billboard
         Schedule sched = new Schedule(Timestamp.valueOf(LocalDateTime.now()), 10, 30, "MyBill", Timestamp.valueOf(LocalDateTime.now()));
         Response scheduleRes = respondTo.apply(Request.scheduleBillboard(sched, session));
         Response scheduleScheduledRes = respondTo.apply(Request.scheduleBillboard(sched, session));
-        Object When = sched.extrapolate(Timestamp.valueOf(LocalDateTime.now().plusDays(6)));
-        database.UnscheduleBillboard("Mybill");
         Response scheduleResNoPerms = respondTo.apply(Request.scheduleBillboard(sched, noperms_session));
 
         assertTrue(scheduleRes.isStatus() && !scheduleScheduledRes.isStatus() && !scheduleResNoPerms.isStatus());
@@ -260,7 +258,7 @@ class FunctionalityTest {
         // Try to change someone else's password - should succeed
         Response changeOtherUser = respondTo.apply(Request.setPasswordReq(new Credentials(userCredentials.getUsername(), "Test"), session));
 
-        assertTrue(changeSelf.isStatus() && !changeOtherUser.isStatus());
+        assertTrue(changeSelf.isStatus() && changeOtherUser.isStatus());
     }
 
     @Test
@@ -299,9 +297,9 @@ class FunctionalityTest {
         user.setCanCreateBillboards(true);
         Response adminChangeOther = respondTo.apply(Request.setUserPermissionsReq(user, session));
         user.setScheduleBillboards(true);
-        Response userChangeOwn = respondTo.apply(Request.setUserPermissionsReq(admin, session));
+        Response userChangeOwn = respondTo.apply(Request.setUserPermissionsReq(admin, noperms_session));
         admin.setEditUsers(false);
-        Response userChangeOther = respondTo.apply(Request.setUserPermissionsReq(admin, session));
+        Response userChangeOther = respondTo.apply(Request.setUserPermissionsReq(admin, noperms_session));
         assertTrue(adminChangeOwn.isStatus() && adminChangeOther.isStatus() && !userChangeOwn.isStatus() && !userChangeOther.isStatus());
     }
 

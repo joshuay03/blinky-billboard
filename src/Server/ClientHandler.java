@@ -26,6 +26,7 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
  * Extends Thread
  * @see Thread
  */
+@SuppressWarnings("EnhancedSwitchMigration") // Not enabled by default yet and therefore won't be done
 public class ClientHandler extends Thread {
     private final int BILLBOARD_NAME = 0,
             CREATOR = 1,
@@ -240,7 +241,6 @@ public class ClientHandler extends Thread {
                     } else
                         return permissionDeniedResponse;
                 } catch (BillboardNotFoundException e) {
-                    e.printStackTrace();
                     return new Response(false, "Billboard does not exist.");
                 } catch (SQLException e) {
                     return new Response(false, "Database lookup or deletion failed.");
@@ -273,21 +273,14 @@ public class ClientHandler extends Thread {
                     Timestamp currTime = schedule.StartTime;
                     long milliseconds;
                     if (authenticatedUser.CanScheduleBillboards()) {
-                        /* Great work on the logic, it works brilliantly, but this isn't supposed to get written into the database.
-                        ** The database needs only store the first occurrence, it's then on the server to calculate each occurrence of a schedule.
-                        * Instead of using this, use the new method Schedule.extrapolate(Timestamp until) on an existing schedule object
-                        while (currTime.before(Timestamp.valueOf(LocalDateTime.now().plusWeeks(4)))) { // Since there's no end time, I'm hardcoding 4 weeks from now
-                            database.ScheduleBillboard(schedule.billboardName, schedule);
-                            milliseconds = currTime.getTime() + ((interval * 60) * 1000);
-                            currTime.setTime(milliseconds);
-                            schedule.StartTime = currTime;
-                        }*/
+                        if (database.getBillboard(req.getSchedule().billboardName).getSchedule() != null)
+                            return new Response(false, "This billboard is already scheduled.");
                         database.ScheduleBillboard(schedule.billboardName, schedule);
                         return new Response(true, "The billboard has successfully been scheduled.");
                     } else {
                         return permissionDeniedResponse;
                     }
-                } catch (SQLException e) {
+                } catch (SQLException | BillboardNotFoundException e) {
                     return new Response(false, "Unable to schedule billboard");
                 }
             }
@@ -434,15 +427,16 @@ public class ClientHandler extends Thread {
                         userToModify.setScheduleBillboards(req.getUser().CanScheduleBillboards());
                         userToModify.setCanCreateBillboards(req.getUser().CanCreateBillboards());
                         // Special case - can't remove own admin permissions
-                        // FIXME - need to implement a nuanced response which explains that the rest of the perms changes were successful
                         if (!authenticatedUser.getSaltedCredentials().getUsername().equals(req.getUser().getSaltedCredentials().getUsername())) {
                             userToModify.setEditUsers(req.getUser().CanEditUsers());
                             // If no other permission changes were requested
+
+                        } else {
+                            partialsuccess = ", however, you cannot change your own permission to edit users.";
                             if (userToModify.CanEditAllBillboards() == authenticatedUser.CanEditAllBillboards() &&
                                     userToModify.CanScheduleBillboards() == authenticatedUser.CanScheduleBillboards() &&
                                     userToModify.CanCreateBillboards() == authenticatedUser.CanCreateBillboards()
-                            ) return new Response(false, "You cannot edit your own permission to edit users.");
-                        } else partialsuccess = ", however, you cannot change your own permission to edit users.";
+                            ) return new Response(false, "You cannot edit your own permission to edit users.");}
                         database.UpdateUserDetails(userToModify);
                         return new Response(true, "User permissions have been edited successfully" + partialsuccess + ".");
                     } catch (NoSuchUserException e) {
@@ -455,7 +449,6 @@ public class ClientHandler extends Thread {
             case SET_USER_PASSWORD:
             {
                 assert authenticatedUser != null;
-                // TODO - implement in GUI
 
                 //If the user has the edit users permission, or if they are just trying to change their own password,
                 // they may....
@@ -472,14 +465,13 @@ public class ClientHandler extends Thread {
                     userToChange.setPasswordFromCredentials(userToChange.getSaltedCredentials(), database);
                     try {
                         database.UpdateUserDetails(userToChange);
+                        return new Response(true, "Password updated.");
                     } catch (SQLException e) {
                         return new Response(false, "There was a database error.");
                     }
 
                 } // else return false send error
                 else return permissionDeniedResponse;
-
-
             }
             case DELETE_USER: {
                 assert authenticatedUser != null;
