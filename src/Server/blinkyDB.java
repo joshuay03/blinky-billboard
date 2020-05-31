@@ -463,10 +463,10 @@ public class blinkyDB {
      */
     public void DeleteUser(String username) throws SQLException {
         String UserDeletionString = "DELETE FROM Users\n" +
-                "WHERE user_name='?';\n";
+                "WHERE user_name=?;\n";
         String BillboardDisassociationString = "UPDATE Billboards\n" +
                 "SET creator=NULL\n" +
-                "WHERE creator = '?';";
+                "WHERE creator = ?;";
 
         PreparedStatement UserDeleter = dbconn.prepareStatement(UserDeletionString);
         PreparedStatement BillboardDisassociator = dbconn.prepareStatement(BillboardDisassociationString);
