@@ -100,17 +100,55 @@ class FunctionalityTest {
     @Test
     void ViewerCurrentlyScheduled(){
         Request ScheduledBillboardRequest = Request.viewScheduledBillboardReq();
-
-        // Retrieve billboard from request
-        Response res = respondTo.apply(ScheduledBillboardRequest);
-        try{
-            @SuppressWarnings("unused") Billboard ScheduledBillboard = (Billboard) res.getData(); // Statement is necessary to verify that a valid billboard was received
-            assertTrue(res.isStatus());
-        }
-        catch (NullPointerException e){
-            // If response wasn't a valid billboard
+        try {
+            database.ScheduleBillboard("MyBill", new Schedule(Timestamp.valueOf(LocalDateTime.now().minusMinutes(4)), 10, 12, "MyBill"));
+        } catch (SQLException e) {
             fail();
         }
+        try {
+            Thread.sleep(1500); // Sleep to create a delay between the creation time of the schedules, causing a preference to occur
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            database.ScheduleBillboard("MyOtherBill", new Schedule(Timestamp.valueOf(LocalDateTime.now().minusMinutes(4)), 10, 12, "MyOtherBill"));
+        } catch (SQLException e) {
+            fail();
+        }
+        // Retrieve billboard from request
+        Response res = respondTo.apply(ScheduledBillboardRequest);
+        assertTrue(res.isStatus() && ((Billboard) res.getData()).getBillboardName().equals("MyOtherBill"));
+    }
+
+    @Test
+    void NoSchedules(){
+        Request ScheduledBillboardRequest = Request.viewScheduledBillboardReq();
+        // Retrieve billboard from request
+        Response res = respondTo.apply(ScheduledBillboardRequest);
+        assertFalse(res.isStatus());
+    }
+
+    @Test
+    void NoCurrentSchedules(){
+        Request ScheduledBillboardRequest = Request.viewScheduledBillboardReq();
+        try {
+            database.ScheduleBillboard("MyBill", new Schedule(Timestamp.valueOf(LocalDateTime.now().minusHours(2)), 1, 180, "MyBill"));
+        } catch (SQLException e) {
+            fail();
+        }
+        try {
+            Thread.sleep(1500); // Sleep to create a delay between the creation time of the schedules, causing a preference to occur
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            database.ScheduleBillboard("MyOtherBill", new Schedule(Timestamp.valueOf(LocalDateTime.now().minusHours(3)), 10, 120, "MyOtherBill"));
+        } catch (SQLException e) {
+            fail();
+        }
+        // Retrieve billboard from request
+        Response res = respondTo.apply(ScheduledBillboardRequest);
+        assertFalse(res.isStatus());
     }
 
     @Test
@@ -119,12 +157,8 @@ class FunctionalityTest {
 
         Response res = respondTo.apply(BillboardsRequest);
 
-        try {
-            @SuppressWarnings({"unused", "unchecked"}) List<Billboard> billboards = (List<Billboard>) res.getData();
-            assertTrue(res.isStatus());
-        } catch (NullPointerException e) {
-            fail();
-        }
+        @SuppressWarnings({"unused", "unchecked"}) List<Billboard> billboards = (List<Billboard>) res.getData();
+        assertTrue(res.isStatus());
     }
 
     @Test

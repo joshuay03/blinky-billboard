@@ -77,7 +77,7 @@ public class Schedule implements Serializable, Comparable<Schedule>, Iterable<Oc
         if (timestamp.before(StartTime)) return false;
         long timestampMins = timestamp.getTime() / 60000;
         long startTimeMins = this.StartTime.getTime() / 60000;
-        long minutesSinceStartOfLastOccurrence = (timestampMins % repeatInterval) - (startTimeMins % repeatInterval);
+        long minutesSinceStartOfLastOccurrence = (timestampMins - startTimeMins) % repeatInterval;
         return minutesSinceStartOfLastOccurrence <= duration; // If it's been less than or as many {duration} minutes since the time of the last
         // occurrence, the schedule's billboard should show
     }
