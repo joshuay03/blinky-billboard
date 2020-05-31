@@ -87,9 +87,9 @@ public class RenderedBillboard extends JPanel {
 
         boolean hasImage = board.getImageURL() != null ^ board.getImageData() != null;
 
-        boolean hasInformation = board.getInformation() != null;
+        boolean hasInformation = board.getInformation().length() > 0;
 
-        boolean hasMessage = board.getMessage() != null;
+        boolean hasMessage = board.getMessage().length() > 0;
 
         // ----------------------------------
         // HANDLE RENDERING PROPORTIONS SETUP
@@ -319,6 +319,8 @@ public class RenderedBillboard extends JPanel {
         Font boardFont = new Font(DEFAULT_BILLBOARD_FONT, Font.BOLD, 10);
 
         int renderedStringWidth, renderedStringHeight;
+
+        if(stringToRender.length() == 0) return boardFont;
 
         while (true) {
             boardFont = boardFont.deriveFont((float) (boardFont.getSize() + FONT_SIZE_INCREASE_RATE));
