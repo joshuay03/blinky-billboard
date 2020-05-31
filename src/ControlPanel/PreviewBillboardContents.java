@@ -8,16 +8,13 @@ import java.awt.*;
 
 public class PreviewBillboardContents {
     protected JPanel previewBillboardContentsPanel;
-    private JLabel infoColorLabel;
-    private JLabel backgroundLabel;
-    private JLabel infoLabel;
-    private JLabel picUrlLabel;
     private JLabel pictureLabel;
-    private JLabel messageColorLabel;
-    private JLabel messageLabel;
     private JLabel billboardNameLabel;
     private JTextArea informationTextArea;
-    private Billboard billboard;
+    private JPanel messageColourPanel;
+    private JPanel informationColourPanel;
+    private JPanel backgroundColourPanel;
+    private JTextArea messageTextArea;
 
     private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
 
@@ -40,13 +37,10 @@ public class PreviewBillboardContents {
             billboardNameLabel.setText(billboard.getBillboardName());
         }
         if (billboard.getMessage() != null) {
-            messageLabel.setText(billboard.getMessage());
+            messageTextArea.setText(billboard.getMessage());
         }
         if (billboard.getMessageColour() != null) {
-            messageColorLabel.setText(billboard.getMessageColour().toString().replace("java.awt.Color", ""));
-        }
-        if (billboard.getImageURL() != null) {
-            picUrlLabel.setText(billboard.getImageURL().toString());
+            messageColourPanel.setBackground(billboard.getMessageColour());
         }
         if (billboard.getInformation() != null) {
             informationTextArea.setText(billboard.getInformation());
@@ -54,10 +48,10 @@ public class PreviewBillboardContents {
             informationTextArea.setLineWrap(true);
         }
         if (billboard.getInformationColour() != null ) {
-            infoColorLabel.setText(billboard.getInformationColour().toString().replace("java.awt.Color", ""));
+            informationColourPanel.setBackground(billboard.getInformationColour());
         }
         if (billboard.getBackgroundColour() != null) {
-           backgroundLabel.setText(billboard.getBackgroundColour().toString().replace("java.awt.Color", ""));
+            backgroundColourPanel.setBackground(billboard.getBackgroundColour());
         }
         if (billboard.getImageData() != null) {
             pictureLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromBase64(billboard.getImageData()), 200, 100));
