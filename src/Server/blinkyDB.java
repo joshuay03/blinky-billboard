@@ -3,10 +3,7 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
-import Exceptions.BillboardAlreadyExistsException;
-import Exceptions.BillboardNotFoundException;
-import Exceptions.BillboardUnscheduledException;
-import Exceptions.InvalidTokenException;
+import Exceptions.*;
 import SocketCommunication.Credentials;
 
 import java.awt.*;
@@ -15,10 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -497,6 +492,12 @@ public class blinkyDB {
      * @throws SQLException when the update fails
      */
     public void UpdateUserDetails(User user) throws SQLException {
+        User orig;
+        try {
+            orig = new User(user.getSaltedCredentials().getUsername(), this);
+        } catch (NoSuchUserException e) {
+            throw new SQLException("User not found");
+        }
         char[] permissions = new char[4];
         if (user.CanCreateBillboards()) permissions[0] = 'B';
         if (user.CanEditAllBillboards()) permissions[1] = 'E';
@@ -507,12 +508,26 @@ public class blinkyDB {
                 "SET user_permissions=?, password_hash=?, salt=?\n" +
                 "WHERE user_name=?;";
 
+        byte[] passwordHashToSet;
+        byte[] salt = new byte[100];
+        // If the new password is "" - use the existing one
+        if (Arrays.equals(new Credentials("", "").getPasswordHash(), user.getSaltedCredentials().getPasswordHash())){
+            passwordHashToSet = orig.getSaltedCredentials().getPasswordHash();
+            salt = orig.salt;
+        }
+        else {
+            // Generate a new salt
+            new Random().nextBytes(salt);
+            // Use the new salt to salt the provided passwordhash
+            passwordHashToSet = AuthenticationHandler.HashPasswordHashSalt(user.getSaltedCredentials().getPasswordHash(), salt);
+        }
+
         dbconn.setAutoCommit(false);
         PreparedStatement updateUser = dbconn.prepareStatement(userUpdateString);
         try {
             updateUser.setString(1, new String(permissions));
-            updateUser.setBytes(2, user.getSaltedCredentials().getPasswordHash());
-            updateUser.setBytes(3, user.salt);
+            updateUser.setBytes(2, passwordHashToSet);
+            updateUser.setBytes(3, salt);
             updateUser.setString(4, user.getSaltedCredentials().getUsername());
 
             updateUser.executeUpdate();
