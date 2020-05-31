@@ -25,6 +25,7 @@ public class OptionMenu {
     protected JButton logoutButton;
     protected JPanel titlePanel;
     protected JPanel optionsPanel;
+    private JButton changePasswordButton;
     protected ClientConnector connector;
 
     /**
@@ -194,6 +195,15 @@ public class OptionMenu {
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
 
+            }
+        });
+        changePasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new ChangePassword(frame, connector).changePasswordPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
     }

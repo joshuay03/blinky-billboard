@@ -104,11 +104,16 @@ public class EditUsers {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = userList.getSelectedValue();
-                frame.setContentPane(new EditExistingUser(frame, connector, username).editExistingUserPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                if (userList.getSelectedValue() == null) {
+                    JOptionPane.showMessageDialog(frame, "Select a user to edit");
+                }
+                else {
+                    String username = userList.getSelectedValue();
+                    frame.setContentPane(new EditExistingUser(frame, connector, username).editExistingUserPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
         });
         deleteUserButton.addActionListener(new ActionListener() {
