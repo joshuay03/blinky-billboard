@@ -72,14 +72,12 @@ public class OptionMenu {
     public OptionMenu(JFrame frame, ClientConnector connector) {
         this.connector = connector;
 
-        createButton.setVisible(connector.session.canCreateBillboards);
-        scheduleButton.setVisible(connector.session.scheduleBillboards);
-        editButton.setVisible(connector.session.editUsers);
+
 
         logoutButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the back button is clicked.
-             *
+             * Logout button.
              * @param e the event to be processed
              */
             @Override
@@ -107,7 +105,7 @@ public class OptionMenu {
         createButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the create billboards button is clicked.
-             *
+             * Instantiate the createBillboard panel
              * @param e the event to be processed
              */
             @Override
@@ -122,7 +120,7 @@ public class OptionMenu {
         scheduleButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the schedule billboard button is clicked.
-             *
+             * Make a request for currently scheduled billboards.
              * @param e the event to be processed
              */
             @Override
@@ -167,7 +165,7 @@ public class OptionMenu {
         editButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the edit billboard button is clicked.
-             *
+             * Instantiate the editUsers panel
              * @param e the event to be processed
              */
             @Override
@@ -183,7 +181,7 @@ public class OptionMenu {
         listButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the list billboard button is clicked.
-             *
+             * Instantiate the listBillboards panel.
              * @param e the event to be processed
              */
             @Override
@@ -198,5 +196,14 @@ public class OptionMenu {
 
             }
         });
+    }
+
+    private void createUIComponents() {
+        createButton = new JButton();
+        scheduleButton = new JButton();
+        editButton = new JButton();
+        createButton.setEnabled(connector.session.canCreateBillboards);
+        scheduleButton.setEnabled(connector.session.scheduleBillboards);
+        editButton.setEnabled(connector.session.editUsers);
     }
 }

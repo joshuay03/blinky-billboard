@@ -38,7 +38,7 @@ public class Server extends SocketConnection {
         Server server = new Server("properties.txt");
         try {
             server.start();
-            try {
+            try { // Create root user credentials
                 new User(new Credentials("Root", "root"), true, true, true, true, server.database);
             } catch (UserAlreadyExistsException ignored) {
             }
@@ -53,7 +53,7 @@ public class Server extends SocketConnection {
                 System.out.println("Try starting the server again...");
 
             while (server.serverIsOpen) {
-                server.createClientThread();
+                server.createClientThread(); // Wait for a client to connect to the server
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,11 +67,13 @@ public class Server extends SocketConnection {
         super.start();
         try {
             server = new ServerSocket(getPort());
-            if (connectToDB(0) == false) {
+            if (connectToDB(0) == false) { // Try connect to the database
                 close();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -79,22 +81,21 @@ public class Server extends SocketConnection {
      * Method which tries instantiating a database connection.
      *
      * @param numTries
-     * @return
+     * @return true/false value - whether the server could connect to the database
      */
     private boolean connectToDB(int numTries) {
-        int tries = numTries;
+        int tries = numTries; // Number of times tried connecting to the database
         try {
-            this.database = new blinkyDB();
+            this.database = new blinkyDB(); // create new database
         } catch (SQLException e) {
-            e.printStackTrace();
             System.out.println("Connection to database failed. Attempting connection again in 10 seconds.");
             if (tries < 2) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(10000); // Sleep for 10 seconds
                 } catch (InterruptedException t) {
                 }
                 tries++;
-                connectToDB(tries);
+                connectToDB(tries); // Try connecting again
             } else {
                 System.out.println("The connection has been attempted multiple times. Closing the server.");
                 return false;
@@ -102,6 +103,8 @@ public class Server extends SocketConnection {
         } catch (IOException e) {
             System.out.println("db.props file not found. Closing server.");
             return false;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return true;
     }
@@ -114,13 +117,15 @@ public class Server extends SocketConnection {
     public boolean isServerAliveUtil() {
         boolean isAlive = false;
         String host = "localhost"; // pass host in
-        try {
+        try { // try connecting to the serversocket
             InetAddress ip = InetAddress.getByName(host);
             Socket testSocket = new Socket(ip, getPort());
             testSocket.close();
             isAlive = true;
-        } catch (Exception e) {
+        } catch (IOException e) { // Socket cannot connect to the server
             System.out.println(e + " - cannot connect to " + host + " on port " + getPort() + ".");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return isAlive;
     }
