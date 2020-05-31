@@ -139,7 +139,7 @@ public class ScheduleBillboards {
         defaultFont = defaultFont.deriveFont(20.0f);
 
         scheduleFrame = new JFrame("Schedule a Billboard");
-        scheduleFrame.setPreferredSize(new Dimension(600, 300));
+        scheduleFrame.setPreferredSize(new Dimension(700, 300));
     }
 }
 
