@@ -12,9 +12,10 @@ import java.util.Base64;
 
 public class RenderedBillboard extends JPanel {
 
-    private static final String defaultBillboardFont = "Trebuchet";
+    private static final String DEFAULT_BILLBOARD_FONT = "Trebuchet";
     private static final double PADDING_PERCENTAGE = 0.90;
     private static final double FONT_SIZE_INCREASE_RATE = 2;
+    private static final Color DEFAULT_COLOUR = Color.WHITE;
 
     static Canvas headlessCanvas = new Canvas();
 
@@ -58,8 +59,14 @@ public class RenderedBillboard extends JPanel {
         imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         imageContainer.setHorizontalAlignment(JLabel.CENTER);
 
-        // Paint the plain default background colour
-        this.setBackground(board.getBackgroundColour());
+        // Paint the background colour, if any
+        if (board.getBackgroundColour() != null) {
+            this.setBackground(board.getBackgroundColour());
+        }
+        // Otherwise, use a default
+        else {
+            this.setBackground(DEFAULT_COLOUR);
+        }
 
         // ----------------------------------
         // GET CONTENT FROM THE BILLBOARD OBJECT
@@ -80,9 +87,9 @@ public class RenderedBillboard extends JPanel {
 
         boolean hasImage = board.getImageURL() != null ^ board.getImageData() != null;
 
-        boolean hasInformation = board.getInformation() != null;
+        boolean hasInformation = board.getInformation().length() > 0;
 
-        boolean hasMessage = board.getMessage() != null;
+        boolean hasMessage = board.getMessage().length() > 0;
 
         // ----------------------------------
         // HANDLE RENDERING PROPORTIONS SETUP
@@ -309,9 +316,11 @@ public class RenderedBillboard extends JPanel {
      * @return A font object representing a font of default size
      */
     Font getScaledFontForArea(int widthLimit, int heightLimit, String stringToRender, boolean allowWrap) {
-        Font boardFont = new Font(defaultBillboardFont, Font.BOLD, 10);
+        Font boardFont = new Font(DEFAULT_BILLBOARD_FONT, Font.BOLD, 10);
 
         int renderedStringWidth, renderedStringHeight;
+
+        if(stringToRender.length() == 0) return boardFont;
 
         while (true) {
             boardFont = boardFont.deriveFont((float) (boardFont.getSize() + FONT_SIZE_INCREASE_RATE));

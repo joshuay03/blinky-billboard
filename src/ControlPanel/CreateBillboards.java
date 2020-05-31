@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -233,7 +234,9 @@ public class CreateBillboards {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File pictureFile = chooser.getSelectedFile();
                     try {
-                        billboard.setImageData(Arrays.toString(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes())));
+                        byte[] imageData = Files.readAllBytes(pictureFile.toPath());
+                        String imageString = Base64.getEncoder().encodeToString(imageData);
+                        billboard.setImageData(imageString);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -251,6 +254,7 @@ public class CreateBillboards {
             public void insertUpdate(DocumentEvent e) {
                 try {
                     billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                    billboard.setImageData(null);
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -265,6 +269,7 @@ public class CreateBillboards {
             public void removeUpdate(DocumentEvent e) {
                 try {
                     billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                    billboard.setImageData(null);
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -279,6 +284,7 @@ public class CreateBillboards {
             public void changedUpdate(DocumentEvent e) {
                 try {
                     billboard.setImageURL(new URL(pictureURLFormattedTextField.getText()));
+                    billboard.setImageData(null);
                 } catch (MalformedURLException malformedURLException) {
                     malformedURLException.printStackTrace();
                 }
@@ -358,7 +364,8 @@ public class CreateBillboards {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (nameTextArea.getText() == null){
+                // Check whether the string is empty
+                if (nameTextArea.getText().length() < 1){
                     JOptionPane.showMessageDialog(frame, "Cannot create billboard without a name.");
                     return;
                 } else {

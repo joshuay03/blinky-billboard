@@ -115,7 +115,7 @@ public class ClientHandler extends Thread {
         Collator collator = Collator.getInstance(Locale.ENGLISH);
 
         // *************************************************************************************
-        // LOGIC SWITCHING
+        // REQUEST TYPE SWITCHING
         // *************************************************************************************
         //<editor-fold desc="REQUEST TYPE SWITCHING">
         switch (req.getRequestType()) {
@@ -219,7 +219,7 @@ public class ClientHandler extends Thread {
                     return new Response(false, "There was a database error.");
                 }
                 // If the user is allowed to edit this billboard
-                if (orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) ||
+                if ((orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) && orig.getSchedule() == null) ||
                         authenticatedUser.CanEditAllBillboards()) {
                     try {
                         database.editBillboard(req.getBillboardName(), modifiedBillboard.getBackgroundColour(), modifiedBillboard.getMessageColour(), modifiedBillboard.getInformationColour(), modifiedBillboard.getMessage(), modifiedBillboard.getInformation(), modifiedBillboard.getImageData());

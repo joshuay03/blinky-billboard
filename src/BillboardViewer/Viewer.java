@@ -117,7 +117,15 @@ public class Viewer extends JFrame implements ActionListener {
                 connector.start();
                 response = connector.sendRequest(Request.viewScheduledBillboardReq());
                 connector.close();
-                currentBillboard = (Billboard) response.getData();
+
+                // If the server says there is a billboard, use it
+                if(response.isStatus()) currentBillboard = (Billboard) response.getData();
+
+                //If the server says there is no billboard, make that obvious
+                else{
+                    currentBillboard = new Billboard();
+                    currentBillboard.setMessage("Error: " + response.getData());
+                }
             }
             // If we could not get a Billboard because of connectivity issues, no matter the reason, display an error
             catch (IOException ex) {
