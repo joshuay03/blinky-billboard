@@ -76,8 +76,13 @@ public class ScheduleBillboards {
         }
 
         Object[][] scheduledBillboards = new Object[][] {
-                daysOfTheWeek,
-                {"Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"}
+                {daysOfTheWeek[0]},
+                {daysOfTheWeek[1]},
+                {daysOfTheWeek[2]},
+                {daysOfTheWeek[3]},
+                {daysOfTheWeek[4]},
+                {daysOfTheWeek[5]},
+                {daysOfTheWeek[6]}
         };
 
 
