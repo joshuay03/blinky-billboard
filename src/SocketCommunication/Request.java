@@ -42,6 +42,15 @@ public class Request implements Serializable {
     }
 
     /**
+     * A method to generate a request that the server provide the currently scheduled billboard
+     *
+     * @return Request object to be sent to the server
+     */
+    public static Request viewCurrentlyScheduledBillboardReq(Session session) {
+        return new Request(ServerRequest.VIEW_SCHEDULED_BILLBOARDS, session);
+    }
+
+    /**
      * @return
      */
     public static Request scheduleBillboardReq(Schedule schedule, Session session) {
