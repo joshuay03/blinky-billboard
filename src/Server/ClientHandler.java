@@ -3,11 +3,9 @@ package Server;
 import BillboardSupport.Billboard;
 import BillboardSupport.DummyBillboards;
 import BillboardSupport.Schedule;
-import ControlPanel.CreateBillboards;
 import Exceptions.*;
 import SocketCommunication.*;
 
-import javax.xml.transform.Result;
 import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -95,9 +93,8 @@ public class ClientHandler extends Thread {
                 // Get current timestamp
                 Timestamp now = Timestamp.valueOf(LocalDateTime.now());
                 // Check if the token is expired
-                if (now.after(sessionAuthentication.expiry) || database.IsTokenBlackListed(req.getSession().token))
-                {
-                    return new Response(false,"Token has expired.");
+                if (now.after(sessionAuthentication.expiry) || database.IsTokenBlackListed(req.getSession().token)) {
+                    return new Response(false, "Token has expired.");
                 }
             } catch (InvalidTokenException e) {
                 return new Response(false, "Token verification failed.");
@@ -168,26 +165,24 @@ public class ClientHandler extends Thread {
                     } catch (BillboardAlreadyExistsException e) {
                         // If there's already a billboard
                         // If the user can edit all billboards, or if they're the creator of the existing billboard
-                        if(authenticatedUser.CanEditAllBillboards() || e.getBillboard().getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()))
-                        {
+                        if (authenticatedUser.CanEditAllBillboards() || e.getBillboard().getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername())) {
                             try {
                                 database.editBillboard(billboard.getBillboardName(), billboard.getBackgroundColour(), billboard.getMessageColour(), billboard.getInformationColour(), billboard.getMessage(), billboard.getInformation(), billboard.getImageData());
-                            } catch (BillboardNotFoundException ignored) {} catch (SQLException throwables) {
+                            } catch (BillboardNotFoundException ignored) {
+                            } catch (SQLException throwables) {
                                 return new Response(true, "Database error");
                             }
                             return new Response(true, "Existing billboard was found and edited successfully.");
-                        }
-                        else return new Response(false, "There's already an existing billboard with that name, which you may not edit.");
-                    }
-                    catch (SQLException e) {
+                        } else
+                            return new Response(false, "There's already an existing billboard with that name, which you may not edit.");
+                    } catch (SQLException e) {
                         return new Response(false, "There was a database error.");
                     }
                 } else {
                     return permissionDeniedResponse;
                 }
             }
-            case EDIT_BILLBOARD:
-            {
+            case EDIT_BILLBOARD: {
                 assert authenticatedUser != null;
                 Billboard modifiedBillboard = req.getBillboard();
                 Billboard orig;
@@ -200,8 +195,7 @@ public class ClientHandler extends Thread {
                 }
                 // If the user is allowed to edit this billboard
                 if (orig.getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername()) ||
-                authenticatedUser.CanEditAllBillboards())
-                {
+                        authenticatedUser.CanEditAllBillboards()) {
                     try {
                         database.editBillboard(req.getBillboardName(), modifiedBillboard.getBackgroundColour(), modifiedBillboard.getMessageColour(), modifiedBillboard.getInformationColour(), modifiedBillboard.getMessage(), modifiedBillboard.getInformation(), modifiedBillboard.getImageData());
                     } catch (BillboardNotFoundException e) {
@@ -210,11 +204,9 @@ public class ClientHandler extends Thread {
                         return new Response(false, "There was a database error.");
                     }
                     return new Response(true, String.format("Billboard %s was changed successfully", req.getBillboardName()));
-                }
-                else return permissionDeniedResponse;
+                } else return permissionDeniedResponse;
             }
-            case DELETE_BILLBOARD:
-            {
+            case DELETE_BILLBOARD: {
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
@@ -270,13 +262,11 @@ public class ClientHandler extends Thread {
                     } else {
                         return permissionDeniedResponse;
                     }
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     return new Response(false, "Unable to schedule billboard");
                 }
-        }
-            case REMOVE_SCHEDULED:
-            {
+            }
+            case REMOVE_SCHEDULED: {
                 try {
                     assert authenticatedUser != null;
                     if (authenticatedUser.CanEditAllBillboards()) {
@@ -293,6 +283,34 @@ public class ClientHandler extends Thread {
                     return new Response(false, String.format("Billboard \"%s\" was not found.", req.getBillboardName()));
                 }
             }
+            case EDIT_USER: {
+                assert authenticatedUser != null;
+                if (authenticatedUser.CanEditUsers()) {
+                    User user = req.getUser();
+
+                    // Check if a user with the same username exists
+                    try {
+                        if (user.getSaltedCredentials().getUsername().length() < 1)
+                            return new Response(false, "Username cannot be empty.");
+                        if (user.getSaltedCredentials().getUsername().length() > 100)
+                            return new Response(false, "Usernames must be up to 100 characters long");
+
+                        database.RegisterUserInDatabase(user.getSaltedCredentials(),
+                                user.CanCreateBillboards(),
+                                user.CanEditAllBillboards(),
+                                user.CanScheduleBillboards(),
+                                user.CanEditUsers());
+
+                        return new Response(true, "User successfully saved!");
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    return permissionDeniedResponse;
+                }
+            }
+
             case LIST_USERS: {
                 // request only happens if user has 'Edit Users' permission
                 assert authenticatedUser != null;
@@ -314,8 +332,7 @@ public class ClientHandler extends Thread {
                     return permissionDeniedResponse;
                 }
             }
-            case CREATE_USER:
-            {
+            case CREATE_USER: {
                 assert authenticatedUser != null;
                 // check if session is valid e.g. expired, if not return failure and trigger relogin
                 // request only happens if user has 'Edit Users' permission
@@ -332,8 +349,8 @@ public class ClientHandler extends Thread {
                             return new Response(false, "User with that username already exists. Please try again");
                             // else Server will create user and send back acknowledgement of success
                         else {
-                            if(newUser.getSaltedCredentials().getUsername().length() < 1)
-                                return new Response(false,"Username cannot be empty.");
+                            if (newUser.getSaltedCredentials().getUsername().length() < 1)
+                                return new Response(false, "Username cannot be empty.");
                             if (newUser.getSaltedCredentials().getUsername().length() > 100)
                                 return new Response(false, "Usernames must be up to 100 characters long");
                             database.RegisterUserInDatabase(newUser.getSaltedCredentials(),
@@ -430,9 +447,8 @@ public class ClientHandler extends Thread {
 
                 // else Server change that users permissions and send back acknowledgement of success
             }
-                break;
-            case SET_USER_PASSWORD:
-            {
+            break;
+            case SET_USER_PASSWORD: {
                 assert authenticatedUser != null;
                 // TODO - implement in GUI
 
@@ -491,9 +507,8 @@ public class ClientHandler extends Thread {
 
                 } else return new Response(false, permissionDeniedResponse);
             }
-                break;
-            case LOGOUT:
-            {
+            break;
+            case LOGOUT: {
                 // Client will send server valid session token
                 byte[] TokenToExpire = req.getSession().token;
                 try {

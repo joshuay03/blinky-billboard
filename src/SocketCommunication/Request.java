@@ -192,6 +192,22 @@ public class Request implements Serializable {
     }
 
     /**
+     * Method for editing a new user.
+     * @param credentials The credentials belonging to the user.
+     * @param CreateBillboards true/false permission
+     * @param ScheduleBillboards true/false permission
+     * @param EditAllBillboards true/false permission
+     * @param EditUsers true/false permission
+     * @param session The session belongin to the user.
+     * @return A request to be sent to the server.
+     */
+    public static Request editUserReq(Credentials credentials, boolean CreateBillboards, boolean ScheduleBillboards, boolean EditAllBillboards, boolean EditUsers, Session session) {
+        Request newUserReq = new Request(ServerRequest.EDIT_USER, session);
+        newUserReq.user = new User(credentials, CreateBillboards, EditAllBillboards, ScheduleBillboards, EditUsers);
+        return newUserReq;
+    }
+
+    /**
      * A method to generate a request for the server to provide a user's permissions
      *
      * @param username The username of the user whose permissions are requested
