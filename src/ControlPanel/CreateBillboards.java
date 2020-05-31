@@ -12,7 +12,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -47,18 +46,22 @@ public class CreateBillboards {
     protected JTextArea nameTextArea;
     protected JLabel messageLabel;
     protected JTextArea messageTextArea;
+    protected JPanel messageColourPanel;
     protected JButton messageColourButton;
     protected JButton pictureButton;
     protected JLabel pictureURLLabel;
     protected JFormattedTextField pictureURLFormattedTextField;
     protected JLabel informationLabel;
     protected JTextArea informationTextArea;
+    protected JPanel informationColourPanel;
     protected JButton informationColourButton;
+    protected JPanel backgroundColourPanel;
     protected JButton backgroundColourButton;
     protected JButton saveBillboardButton;
 
-
-    protected ColourChooser colourChooser = new ColourChooser();
+    protected ColourChooser messageColourChooser = new ColourChooser(Color.BLACK);
+    protected ColourChooser informationColourChooser = new ColourChooser(Color.BLACK);
+    protected ColourChooser backgroundColourChooser = new ColourChooser(Color.WHITE);
     protected Billboard billboard;
     protected JFrame previewFrame;
 
@@ -181,9 +184,10 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                int res = JOptionPane.showOptionDialog(frame, messageColourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    billboard.setMessageColour(colourChooser.getColor());
+                    messageColourPanel.setBackground(messageColourChooser.getColor());
+                    billboard.setMessageColour(messageColourChooser.getColor());
                 }
             }
         });
@@ -265,9 +269,10 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                int res = JOptionPane.showOptionDialog(frame, informationColourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    billboard.setInformationColour(colourChooser.getColor());
+                    informationColourPanel.setBackground(informationColourChooser.getColor());
+                    billboard.setInformationColour(informationColourChooser.getColor());
                 }
             }
         });
@@ -280,9 +285,10 @@ public class CreateBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                int res = JOptionPane.showOptionDialog(null, colourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                int res = JOptionPane.showOptionDialog(frame, backgroundColourChooser, "Choose colour", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
                 if (res == 0) {
-                    billboard.setBackgroundColour(colourChooser.getColor());
+                    backgroundColourPanel.setBackground(backgroundColourChooser.getColor());
+                    billboard.setBackgroundColour(backgroundColourChooser.getColor());
                 }
             }
         });
@@ -292,7 +298,7 @@ public class CreateBillboards {
             public void actionPerformed(ActionEvent e) {
 
                 if (nameTextArea.getText() == null){
-                    JOptionPane.showMessageDialog(null, "Cannot create billboard without a name.");
+                    JOptionPane.showMessageDialog(frame, "Cannot create billboard without a name.");
                     return;
                 } else {
                     billboard.setBillboardName(nameTextArea.getText());
@@ -306,7 +312,7 @@ public class CreateBillboards {
                 try {
                     response = createBillboard.Send(connector);
                 } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server.");
+                    JOptionPane.showMessageDialog(frame, "Cannot save billboard on server.");
                     return;
                 }
 
@@ -315,11 +321,11 @@ public class CreateBillboards {
 
                 if (!status) {
                     String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, "Cannot save billboard on server. Error: " + errorMsg);
+                    JOptionPane.showMessageDialog(frame, "Cannot save billboard on server. Error: " + errorMsg);
                 }
 
                 if (status) {
-                    JOptionPane.showMessageDialog(null, response.getData());
+                    JOptionPane.showMessageDialog(frame, response.getData());
                     frame.setContentPane(new OptionMenu(frame, connector).optionMenuPanel);
                     frame.pack();
                     frame.setLocationRelativeTo(null);
