@@ -51,7 +51,9 @@ public class Request implements Serializable {
     }
 
     /**
-     * @return
+     * A method to generate a request for scheduling a billboard.
+     *
+     * @return Request object to be sent to the server
      */
     public static Request scheduleBillboardReq(Schedule schedule, Session session) {
         Request request = new Request(ServerRequest.SCHEDULE_BILLBOARD, session);
@@ -344,7 +346,10 @@ public class Request implements Serializable {
         return connector.sendRequest(this);
     }
 
-
+    /**
+     * Serialise the request object.
+     * @return a byte array
+     */
     public byte[] serialise() {
         // TODO - determine if this code is redundant.
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -357,7 +362,9 @@ public class Request implements Serializable {
         return bos.toByteArray();
     }
 
-
+    /**
+     * @return the schedule associated with the request
+     */
     public Schedule getSchedule() {
         return schedule;
     }
