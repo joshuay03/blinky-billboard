@@ -110,8 +110,8 @@ public class Schedule {
 
         durationFormattedTextField.addPropertyChangeListener(new PropertyChangeListener() {
             /**
-             *
-             * @param evt
+             *  
+             * @param evt the event to be processed
              */
             @Override
             public void propertyChange(PropertyChangeEvent evt) {

@@ -183,7 +183,7 @@ public class OptionMenu {
         listButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the list billboard button is clicked.
-             * Instantiate the listBillboards panel. 
+             * Instantiate the listBillboards panel.
              * @param e the event to be processed
              */
             @Override
