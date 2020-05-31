@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Schedule {
@@ -156,11 +157,10 @@ public class Schedule {
                     frequency = Integer.parseInt(customFrequencyFormattedTextField.getText());
                 }
 
-                Timestamp timestamp = new Timestamp(Integer.parseInt(date[2]), Integer.parseInt(date[1]),
-                        Integer.parseInt(date[0]), hour, minute, 0, 0);
+                Timestamp timestamp = Timestamp.valueOf(LocalDateTime.of(Integer.parseInt(date[2]), Integer.parseInt(date[1]), Integer.parseInt(date[0]), hour, minute));
 
 
-                BillboardSupport.Schedule schedule = new BillboardSupport.Schedule(timestamp, duration, frequency, (String) billboardNames.getSelectedItem(), new Timestamp(System.currentTimeMillis()));
+                BillboardSupport.Schedule schedule = new BillboardSupport.Schedule(timestamp, duration, frequency, (String) billboardNames.getSelectedItem(), Timestamp.valueOf(LocalDateTime.now()));
                 Request scheduleBillboardReq = Request.scheduleBillboardReq(schedule, connector.session);
 
                 Response response;

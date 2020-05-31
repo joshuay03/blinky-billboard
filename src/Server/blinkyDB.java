@@ -84,8 +84,8 @@ public class blinkyDB {
      * Method used for obtaining a list of all currently listed billboards
      * @param searchQuery mat billboards against this query
      * @param searchType type off billboard
-     * @return
-     * @throws SQLException
+     * @return A list of the billboards
+     * @throws SQLException If the query fails
      */
     public List<Billboard> getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
@@ -128,8 +128,8 @@ public class blinkyDB {
     /***
      * List all billboards.
      * Calls first getBillboards() method with null values inserted.
-     * @return
-     * @throws SQLException
+     * @return The list of all billboards
+     * @throws SQLException If the lookup fails
      */
     public List<Billboard> getBillboards() throws SQLException {
         return this.getBillboards(null, null);
@@ -138,9 +138,9 @@ public class blinkyDB {
     /**
      * Gets a specific billboard from the database.
      * @param name The name of the billboard.
-     * @return
-     * @throws BillboardNotFoundException
-     * @throws SQLException
+     * @return The requested billboard object
+     * @throws BillboardNotFoundException If the billboard doesn't exist
+     * @throws SQLException If the lookup fails
      */
     public Billboard getBillboard(String name) throws BillboardNotFoundException, SQLException {
         PreparedStatement getBillboard;
@@ -183,7 +183,7 @@ public class blinkyDB {
     /**
      * Creates a new viewer object within the database
      * @param socket string value of the socket which the viewer is operating on.
-     * @throws SQLException
+     * @throws SQLException If the lookup fails
      */
     public void CreateViewer(String socket) throws SQLException {
         String ViewerCreationString = "INSERT INTO blinkyBillboard.Viewers\n" +
@@ -210,8 +210,8 @@ public class blinkyDB {
      * @param message The message associated with the billboard
      * @param information The information associated with the billboard
      * @param imageData The image data
-     * @throws SQLException
-     * @throws BillboardNotFoundException
+     * @throws SQLException If the lookup fails
+     * @throws BillboardNotFoundException If the billboard cannot be found
      */
     @SuppressWarnings("ConstantConditions")
     public void editBillboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) throws SQLException, BillboardNotFoundException {
@@ -333,7 +333,7 @@ public class blinkyDB {
     /**
      * Retrieves the details of all users contained within the database.
      * @return A result set of all user details.
-     * @throws SQLException
+     * @throws SQLException If the lookup fails
      */
     protected ResultSet LookUpAllUserDetails() throws SQLException {
         PreparedStatement UserLookUp; // Create the prepared statement object
@@ -435,6 +435,7 @@ public class blinkyDB {
 
         } catch (SQLException e) {
             dbconn.rollback();
+            throw e;
         }
 
         dbconn.setAutoCommit(true);
