@@ -29,8 +29,9 @@ public class EditUsers {
     protected DefaultListModel<String> model;
 
     /**
-     *  @param frame
-     *
+     * Edit a range of users.
+     * @param frame A JFrame object.
+     * @param connector A ClientConnector object.
      */
     public EditUsers(JFrame frame, ClientConnector connector) {
         Request userRequest = Request.listUsersReq(connector.session);
@@ -96,6 +97,11 @@ public class EditUsers {
             }
         });
         editUserButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = userList.getSelectedValue();

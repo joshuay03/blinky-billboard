@@ -60,6 +60,11 @@ public class ListBillboards {
         });
 
         previewContentsButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
@@ -72,6 +77,11 @@ public class ListBillboards {
         });
 
         editBillboardButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());

@@ -20,6 +20,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+
+/**
+ * This class allows a user to view the schedule for all the billboards which are currently scheduled.
+ */
 public class Schedule {
     protected JPanel schedulePanel;
     protected JPanel datePanel;
@@ -41,6 +45,12 @@ public class Schedule {
     private JComboBox<String> billboardNames;
     protected DefaultComboBoxModel<String> model;
 
+    /**
+     * Create a view of the currently scheduled billboards.
+     * @param scheduleFrame The frame which contains the schedule
+     * @param connector A ClientConnector object
+     * @param billboards A list of all billboards containec within the database.
+     */
     Schedule(JFrame scheduleFrame, ClientConnector connector, List<Billboard> billboards) {
 
         model = new DefaultComboBoxModel<>();
@@ -86,6 +96,11 @@ public class Schedule {
         customFrequencyFormattedTextField.setValue(1);
 
         selectDateButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the date given by the user.
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 dateTextField.setText(new DatePicker(scheduleFrame).setPickedDate());
@@ -93,6 +108,10 @@ public class Schedule {
         });
 
         durationFormattedTextField.addPropertyChangeListener(new PropertyChangeListener() {
+            /**
+             *
+             * @param evt
+             */
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 customFrequencyFormatter.setMaximum((int) durationFormattedTextField.getValue());
@@ -102,6 +121,11 @@ public class Schedule {
         });
 
         dailyRadioButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the schedule time by the day.
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 hourlyRadioButton.setSelected(false);
@@ -110,6 +134,11 @@ public class Schedule {
         });
 
         hourlyRadioButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the schedule time by the hour.
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 dailyRadioButton.setSelected(false);
@@ -118,6 +147,11 @@ public class Schedule {
         });
 
         customMinutesRadioButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the schedule time by the minute.
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 dailyRadioButton.setSelected(false);
@@ -127,7 +161,7 @@ public class Schedule {
         doneButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
-             *
+             * When the user is done entering their scheduling details, schedule the billboard.
              * @param e the event to be processed
              */
             @Override

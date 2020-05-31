@@ -27,6 +27,10 @@ public class OptionMenu {
     protected JPanel optionsPanel;
     protected ClientConnector connector;
 
+    /**
+     * Get a list of all billboards currently contained within the database.
+     * @return A list of billboards.
+     */
     private List<Billboard> getBillboards() {
         List<Billboard> billboards = new ArrayList<>();
 
@@ -61,6 +65,7 @@ public class OptionMenu {
     }
 
     /**
+     * A form containing the UI i.e buttons for the user to use.
      * @param frame:     JPanel Frame
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
