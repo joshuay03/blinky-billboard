@@ -33,7 +33,7 @@
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <text value="username:"/>
+                  <text value="Username:"/>
                 </properties>
               </component>
               <component id="9911e" class="javax.swing.JTextField" binding="usernameTextField">
@@ -61,7 +61,7 @@
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <text value="password:"/>
+                  <text value="Password:"/>
                 </properties>
               </component>
               <component id="62757" class="javax.swing.JPasswordField" binding="passwordField">
@@ -89,7 +89,7 @@
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <text value="confirm password:"/>
+                  <text value="Confirm Password:"/>
                 </properties>
               </component>
               <component id="4b5c1" class="javax.swing.JPasswordField" binding="confirmPasswordField">
