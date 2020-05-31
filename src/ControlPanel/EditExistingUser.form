@@ -36,13 +36,11 @@
                   <text value="username:"/>
                 </properties>
               </component>
-              <component id="9911e" class="javax.swing.JTextField" binding="usernameTextField">
+              <component id="cd3b0" class="javax.swing.JComboBox" binding="usernameCombo">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
-                <properties>
-                  <editable value="false"/>
-                </properties>
+                <properties/>
               </component>
             </children>
           </splitpane>

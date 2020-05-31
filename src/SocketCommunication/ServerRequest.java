@@ -20,5 +20,6 @@ public enum ServerRequest {
     SET_USER_PERMISSION,
     SET_USER_PASSWORD,
     DELETE_USER,
+    EDIT_USER,
     LOGOUT
 }

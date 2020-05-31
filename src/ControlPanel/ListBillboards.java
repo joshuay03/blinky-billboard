@@ -2,6 +2,8 @@ package ControlPanel;
 
 import BillboardSupport.Billboard;
 import Client.ClientConnector;
+import SocketCommunication.Request;
+import SocketCommunication.Response;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -11,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -76,6 +79,41 @@ public class ListBillboards {
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+            }
+        });
+        deleteBillboardButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+
+                Request deleteBillboard = Request.deleteBillboardReq(billboard.getBillboardName(), connector.session);
+
+                Response response;
+
+                try {
+                    response = deleteBillboard.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot delete billboard");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, "Cannot delete billboard. Error: " + errorMsg);
+                }
+
+                if (status) {
+                    JOptionPane.showMessageDialog(null, "Billboard successfully deleted.");
+                }
+
             }
         });
     }

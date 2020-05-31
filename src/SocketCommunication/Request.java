@@ -42,6 +42,15 @@ public class Request implements Serializable {
     }
 
     /**
+     * A method to generate a request that the server provide the currently scheduled billboard
+     *
+     * @return Request object to be sent to the server
+     */
+    public static Request viewCurrentlyScheduledBillboardReq(Session session) {
+        return new Request(ServerRequest.VIEW_SCHEDULED_BILLBOARDS, session);
+    }
+
+    /**
      * @return
      */
     public static Request scheduleBillboardReq(Schedule schedule, Session session) {
@@ -178,6 +187,22 @@ public class Request implements Serializable {
      */
     public static Request createUserReq(Credentials credentials, boolean CreateBillboards, boolean ScheduleBillboards, boolean EditAllBillboards, boolean EditUsers, Session session) {
         Request newUserReq = new Request(ServerRequest.CREATE_USER, session);
+        newUserReq.user = new User(credentials, CreateBillboards, EditAllBillboards, ScheduleBillboards, EditUsers);
+        return newUserReq;
+    }
+
+    /**
+     * Method for editing a new user.
+     * @param credentials The credentials belonging to the user.
+     * @param CreateBillboards true/false permission
+     * @param ScheduleBillboards true/false permission
+     * @param EditAllBillboards true/false permission
+     * @param EditUsers true/false permission
+     * @param session The session belongin to the user.
+     * @return A request to be sent to the server.
+     */
+    public static Request editUserReq(Credentials credentials, boolean CreateBillboards, boolean ScheduleBillboards, boolean EditAllBillboards, boolean EditUsers, Session session) {
+        Request newUserReq = new Request(ServerRequest.EDIT_USER, session);
         newUserReq.user = new User(credentials, CreateBillboards, EditAllBillboards, ScheduleBillboards, EditUsers);
         return newUserReq;
     }

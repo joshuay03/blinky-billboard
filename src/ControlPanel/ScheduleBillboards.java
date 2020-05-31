@@ -1,5 +1,6 @@
 package ControlPanel;
 
+import BillboardSupport.Billboard;
 import Client.ClientConnector;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A class to represent a "Schedule Billboards" page which is bound to ScheduleBillboards.form
@@ -22,14 +24,16 @@ public class ScheduleBillboards {
     protected JPanel titlePanel;
     protected JButton backButton;
     protected JButton scheduleButton;
+    protected List<BillboardSupport.Schedule> schedule;
 
     protected JFrame scheduleFrame;
 
     /**
-     *
-     * @param frame
+     *  @param frame
      */
-    public ScheduleBillboards(JFrame frame, ClientConnector connector) {
+    public ScheduleBillboards(JFrame frame, ClientConnector connector, List<BillboardSupport.Schedule> schedule) {
+        this.schedule = schedule;
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
@@ -74,6 +78,7 @@ public class ScheduleBillboards {
                 daysOfTheWeek,
                 {"Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"}
         };
+
 
         DefaultTableModel model = new DefaultTableModel(scheduledBillboards, daysOfTheWeek);
         scheduleTable = new JTable(model);

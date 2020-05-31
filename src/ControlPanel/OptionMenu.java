@@ -1,6 +1,7 @@
 package ControlPanel;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.Schedule;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
@@ -26,9 +27,41 @@ public class OptionMenu implements Runnable {
     protected JPanel optionsPanel;
     protected ClientConnector connector;
 
+    private List<Billboard> getBillboards() {
+        List<Billboard> billboards = new ArrayList<>();
+
+        Request listRequest = Request.listAllBillboardsReq(connector.session);
+
+        // Send request to server
+        Response response;
+        // use global input stream, this is just to show how it works
+
+        try {
+            response = listRequest.Send(connector);
+        } catch (IOException excep) {
+            JOptionPane.showMessageDialog(null, "Cannot connect to server");
+            return billboards;
+        }
+
+        // check status of response
+        boolean status = response.isStatus();
+
+        if (!status) {
+            String errorMsg = (String) response.getData();
+            JOptionPane.showMessageDialog(null, errorMsg);
+            return billboards;
+        }
+
+
+        List<?> billboardObjects = (List<?>) response.getData();
+
+        billboardObjects.forEach(x -> billboards.add((Billboard) x));
+        return billboards;
+
+    }
+
     /**
-     *
-     * @param frame: JPanel Frame
+     * @param frame:     JPanel Frame
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
@@ -67,10 +100,10 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                    frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
+                frame.setContentPane(new CreateBillboards(frame, connector).createBillboardsPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
 
@@ -82,7 +115,35 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new ScheduleBillboards(frame, connector).scheduleBillboardsPanel);
+                List<Schedule> schedule = new ArrayList<>();
+
+                Request listRequest = Request.viewCurrentlyScheduledBillboardReq(connector.session);
+
+                // Send request to server
+                Response response;
+                // use global input stream, this is just to show how it works
+
+                try {
+                    response = listRequest.Send(connector);
+                } catch (IOException excep) {
+                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
+                    return;
+                }
+
+                // check status of response
+                boolean status = response.isStatus();
+
+                if (!status) {
+                    String errorMsg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, errorMsg);
+                    return;
+                }
+
+                List<?> scheduleObjects = (List<?>) response.getData();
+
+                scheduleObjects.forEach(x -> schedule.add((Schedule) x));
+
+                frame.setContentPane(new ScheduleBillboards(frame, connector, schedule).scheduleBillboardsPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -104,6 +165,7 @@ public class OptionMenu implements Runnable {
             }
         });
 
+
         listButton.addActionListener(new ActionListener() {
             /**
              * Invoked when the list billboard button is clicked.
@@ -112,40 +174,14 @@ public class OptionMenu implements Runnable {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Request listRequest = Request.listAllBillboardsReq(connector.session);
 
-                // Send request to server
-                Response response;
-                // use global input stream, this is just to show how it works
+                List<Billboard> billboardList = getBillboards();
 
-                try {
-                    response = listRequest.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot connect to server");
-                    return;
-                }
+                frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
 
-                // check status of response
-                boolean status = response.isStatus();
-
-                if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, errorMsg);
-                    // return some error response if status is false
-                }
-
-
-                if (status) {
-                    List<?> billboardObjects = (List<?>) response.getData();
-
-                    List<Billboard> billboardList = new ArrayList<>();
-                    billboardObjects.forEach(x -> billboardList.add((Billboard) x));
-
-                    frame.setContentPane(new ListBillboards(frame, connector, billboardList).listBillboardsPanel);
-                    frame.pack();
-                    frame.setLocationRelativeTo(null);
-                    frame.setVisible(true);
-                }
             }
         });
     }

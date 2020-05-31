@@ -12,12 +12,12 @@ import java.awt.event.ActionListener;
 public class EditUsers {
     protected JPanel editUsersPanel;
     private JPanel editPanel;
-    private JPanel optionPanel;
     private JLabel editUsersLabel;
     private JButton createNewUserButton;
-    private JButton editExistingUserButton;
+    private JButton editUserButton;
     private JButton backButton;
     private JPanel titlePanel;
+    private JButton deleteUserButton;
 
     /**
      * The edit users functionality packed into the given frame.
@@ -53,7 +53,7 @@ public class EditUsers {
                 frame.setVisible(true);
             }
         });
-        editExistingUserButton.addActionListener(new ActionListener() {
+        editUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setContentPane(new EditExistingUser(frame, connector).editExistingUserPanel);

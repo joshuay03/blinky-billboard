@@ -72,6 +72,10 @@ public class CreateBillboards {
     public CreateBillboards(JFrame frame, ClientConnector connector) {
         billboard = new Billboard();
 
+        messageColourPanel.setBackground(Color.BLACK);
+        informationColourPanel.setBackground(Color.BLACK);
+        backgroundColourPanel.setBackground(Color.WHITE);
+
         backButton.addActionListener(new ActionListener() {
             /**
              * Invoked when an action occurs.
