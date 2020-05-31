@@ -31,7 +31,7 @@ public class SocketConnection {
     /**
      * Retrieve the port number from the given properties file.
      *
-     * @throws IOException
+     * @throws IOException When the file cannot be read
      */
     private void retrievePort() throws IOException {
         try {
@@ -52,7 +52,7 @@ public class SocketConnection {
                 System.out.println("Was not able to obtain the port number from the given properties file.");
             }
         } catch (FileNotFoundException e) {
-            System.out.println("The properties file you have entered does not exist.");
+            System.out.println(String.format("File \"%s\" couldn't be found.", propFile));
         }
     }
 
@@ -61,7 +61,7 @@ public class SocketConnection {
      * Will most likely be overriden as functionality for this method is dependent
      * on what type of socket is used and how it will be used.
      *
-     * @throws IOException
+     * @throws IOException When the connect cannot initialise
      */
     public void start() throws IOException {
         retrievePort();
@@ -73,7 +73,7 @@ public class SocketConnection {
      * Will most likely be overriden as functionality for this method is dependent
      * on what type of socket is used and how it will be used.
      *
-     * @throws IOException
+     * @throws IOException When closing the connection fails
      */
     public void close() throws IOException {
         System.out.println("The connection has been closed...");

@@ -91,6 +91,10 @@ public class Schedule implements Serializable, Comparable<Schedule>, Iterable<Oc
         return this.scheduledAt.compareTo(schedule.scheduledAt);
     }
 
+    /**
+     * Just in case it's needed, an iterator that goes through each occurrence of a schedule
+     * @return An iterator
+     */
     @Override
     public Iterator<Occurrence> iterator() {
         return new Iterator<>() {
