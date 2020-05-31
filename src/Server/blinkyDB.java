@@ -358,7 +358,7 @@ public class blinkyDB {
      * @throws SQLException If the lookup fails
      */
     public List<Schedule> getSchedules(Timestamp time) throws SQLException {
-        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time < ?";
+        String scheduleLookup = "SELECT * FROM Scheduling WHERE start_time > ?";
         PreparedStatement ScheduleLookUp;
         dbconn.setAutoCommit(false);
         ScheduleLookUp = dbconn.prepareStatement(scheduleLookup);

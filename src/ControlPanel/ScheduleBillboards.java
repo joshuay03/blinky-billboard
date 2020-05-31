@@ -1,6 +1,7 @@
 package ControlPanel;
 
 import BillboardSupport.Billboard;
+import BillboardSupport.Occurrence;
 import Client.ClientConnector;
 
 import javax.swing.*;
@@ -8,9 +9,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -30,9 +31,10 @@ public class ScheduleBillboards {
 
     /**
      * Set the schedule of all billboards given a list of all schedules and billboards
-     * @param frame A JFrame object
-     * @param connector A ClientConnector object
-     * @param schedule A list of schedules
+     *
+     * @param frame      A JFrame object
+     * @param connector  A ClientConnector object
+     * @param schedule   A list of schedules
      * @param billboards A list of billboards
      */
     public ScheduleBillboards(JFrame frame, ClientConnector connector, List<BillboardSupport.Schedule> schedule, List<Billboard> billboards) {
@@ -78,24 +80,49 @@ public class ScheduleBillboards {
 
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
         Calendar calendar = Calendar.getInstance();
+        List<List<String>> data = new ArrayList<>();
 
         for (int i = 0; i < daysInAWeek; i++) {
+            data.add(new ArrayList<>());
             daysOfTheWeek[i] = simpleDateformat.format(calendar.getTime());
+            data.get(i).add(daysOfTheWeek[i]);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
 
-        Object[][] scheduledBillboards = new Object[][] {
-                {daysOfTheWeek[0]},
-                {daysOfTheWeek[1]},
-                {daysOfTheWeek[2]},
-                {daysOfTheWeek[3]},
-                {daysOfTheWeek[4]},
-                {daysOfTheWeek[5]},
-                {daysOfTheWeek[6]}
-        };
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // as inclusive of today
 
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DATE);
+        calendar.set(year, month, day, 23, 59, 59);
 
-        DefaultTableModel model = new DefaultTableModel(scheduledBillboards, daysOfTheWeek);
+        Collections.sort(schedule);
+        // extrapolate schedules over the next week
+        schedule.forEach(x -> {
+            List<Occurrence> occurrences = Arrays.asList(x.extrapolate(new Timestamp(calendar.getTime().getTime())));
+            occurrences.forEach(o -> {
+                Calendar cal = Calendar.getInstance();
+                int d = cal.get(Calendar.DATE);
+                int m = cal.get(Calendar.MONTH);
+                int y = cal.get(Calendar.YEAR);
+                cal.set(y, m, d, 23, 59, 59);
+                for (int i = 0; i < daysInAWeek - 1; i++) {
+                    Timestamp endOfday = new Timestamp(cal.getTime().getTime());
+                    Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000));
+                    if (startOfDay.before(o.start) && endOfday.after(o.start)) {
+                        data.get(i).add("Name: " + o.name + "\nStart: " + o.start.toString() + " End:" + o.end.toString());
+                    }
+                    cal.add(Calendar.DATE, i);
+                }
+            });
+        });
+
+        DefaultTableModel model = new DefaultTableModel(0, 0);
+
+        for (int i =0; i < 7; i++) {
+            model.addColumn(daysOfTheWeek[i], data.get(i).toArray());
+        }
+
         scheduleTable = new JTable(model);
 
         scheduleFrame = new JFrame("Schedule a Billboard");
