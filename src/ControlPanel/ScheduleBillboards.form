@@ -24,6 +24,7 @@
             </constraints>
             <properties>
               <opaque value="true"/>
+              <rowHeight value="55"/>
               <showHorizontalLines value="true"/>
               <showVerticalLines value="true"/>
             </properties>
