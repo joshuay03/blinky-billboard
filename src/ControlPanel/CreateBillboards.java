@@ -313,7 +313,7 @@ public class CreateBillboards {
                 try {
                     response = createBillboard.Send(connector);
                 } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(frame, "Cannot save billboard on server.");
+                    JOptionPane.showMessageDialog(frame, "There was an error communicating with the server");
                     return;
                 }
 

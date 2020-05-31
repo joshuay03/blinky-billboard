@@ -135,12 +135,11 @@ public class OptionMenu implements Runnable {
                 boolean status = response.isStatus();
 
                 if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, errorMsg);
+                    JOptionPane.showMessageDialog(null, response.getData());
                     // return some error response if status is false
                 }
 
-
+                // If the query succeeded, show the billboard list
                 if (status) {
                     List<?> billboardObjects = (List<?>) response.getData();
 
