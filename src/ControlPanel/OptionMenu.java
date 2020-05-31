@@ -6,6 +6,7 @@ import SocketCommunication.Request;
 import SocketCommunication.Response;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -50,12 +51,17 @@ public class OptionMenu implements Runnable {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                if(logoutResp.isStatus() == true) {
+                    connector.session = null;
+                    frame.setContentPane(new Login(frame, connector).loginPanel);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
 
-                connector.session = null;
-                frame.setContentPane(new Login(frame, connector).loginPanel);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
+                    JOptionPane.showMessageDialog(frame, "Logout complete");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Logout was unsuccessful");
+                }
             }
         });
 

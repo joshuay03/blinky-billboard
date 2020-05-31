@@ -270,6 +270,7 @@ public class RenderedBillboard extends JPanel {
      * @return An ImageIcon if decoding was successful, null in all other cases
      */
     public static ImageIcon getImageIconFromBase64(String imageString) {
+        // TODO - not working
 
         if (imageString == null) return null;
 
