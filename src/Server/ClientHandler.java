@@ -168,8 +168,7 @@ public class ClientHandler extends Thread {
                         if (authenticatedUser.CanEditAllBillboards() || e.getBillboard().getCreator().equals(authenticatedUser.getSaltedCredentials().getUsername())) {
                             try {
                                 database.editBillboard(billboard.getBillboardName(), billboard.getBackgroundColour(), billboard.getMessageColour(), billboard.getInformationColour(), billboard.getMessage(), billboard.getInformation(), billboard.getImageData());
-                            } catch (BillboardNotFoundException ignored) {
-                            } catch (SQLException throwables) {
+                            } catch (BillboardNotFoundException ignored) {} catch (SQLException throwables) {
                                 return new Response(true, "Database error");
                             }
                             return new Response(true, "Existing billboard was found and edited successfully.");
@@ -363,6 +362,7 @@ public class ClientHandler extends Thread {
                         }
                     } catch (SQLException e) {
                         e.printStackTrace();
+                        return new Response(true, "There was an error while retrieving data.");
                     }
                 }
                 // If they do not have permissions to do edit users, reject the request out of hand
@@ -401,54 +401,36 @@ public class ClientHandler extends Thread {
                 // request only happens if user has 'Edit Users' permission
                 // triggered inside EditUsers() GUI
                 if (authenticatedUser.CanEditUsers()) {
-
-                    // if username does not exist return error
-
-                    // else if session user is requesting to remove their own "Edit User" permission return error
-
-                    // else Server change that users permissions and send back acknowledgement of success
-
-                    //FIXME - should only be passing credentials object through on this one
                     try {
+                        String partialsuccess = "";
                         // Client will send server username(user whose permissions are to be changed),
                         // list of permissions, and valid session token
-                        User userToModify = new User(req.getUsername(), database);
+                        User userToModify = new User(req.getUser().getSaltedCredentials().getUsername(), database);
 
-                        boolean canEditUsers = userToModify.CanEditUsers();
-                        boolean canEditAllBillboards = userToModify.CanEditAllBillboards();
-                        boolean canScheduleBillboards = userToModify.CanScheduleBillboards();
-                        boolean canCreateBillboards = userToModify.CanCreateBillboards();
-
-                        userToModify.setEditAllBillBoards(canEditAllBillboards);
-                        userToModify.setScheduleBillboards(canScheduleBillboards);
-                        userToModify.setCanCreateBillboards(canCreateBillboards);
-
+                        userToModify.setEditAllBillBoards(req.getUser().CanEditAllBillboards());
+                        userToModify.setScheduleBillboards(req.getUser().CanScheduleBillboards());
+                        userToModify.setCanCreateBillboards(req.getUser().CanCreateBillboards());
                         // Special case - can't remove own admin permissions
                         // FIXME - need to implement a nuanced response which explains that the rest of the perms changes were successful
-                        if (collator.compare(authenticatedUser.getSaltedCredentials().getUsername(), req.getUsername()) != 0) {
-                            userToModify.setEditUsers(canEditUsers);
-                        }
-
+                        if (!authenticatedUser.getSaltedCredentials().getUsername().equals(req.getUser().getSaltedCredentials().getUsername())) {
+                            userToModify.setEditUsers(req.getUser().CanEditUsers());
+                            // If no other permission changes were requested
+                            if (userToModify.CanEditAllBillboards() == authenticatedUser.CanEditAllBillboards() &&
+                                    userToModify.CanScheduleBillboards() == authenticatedUser.CanScheduleBillboards() &&
+                                    userToModify.CanCreateBillboards() == authenticatedUser.CanCreateBillboards()
+                            ) return new Response(false, "You cannot edit your own permission to edit users.");
+                        } else partialsuccess = ", however, you cannot change your own permission to edit users.";
                         database.UpdateUserDetails(userToModify);
-
+                        return new Response(true, "User permissions have been edited successfully" + partialsuccess + ".");
                     } catch (NoSuchUserException e) {
-                        e.printStackTrace();
+                        return new Response(false, "Cannot set user permissions, the requested user does not exist in the database.");
                     } catch (SQLException e) {
                         return new Response(false, "There was a database error.");
                     }
                 } else return permissionDeniedResponse;
-
-                // Client will send server username(user whose permissions are to be changed),
-                // list of permissions, and valid session token
-
-                // if username does not exist return error
-
-                // else if session user is requesting to remove their own "Edit User" permission return error
-
-                // else Server change that users permissions and send back acknowledgement of success
             }
-            break;
-            case SET_USER_PASSWORD: {
+            case SET_USER_PASSWORD:
+            {
                 assert authenticatedUser != null;
                 // TODO - implement in GUI
 
