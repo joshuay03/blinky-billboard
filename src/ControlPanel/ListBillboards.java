@@ -15,19 +15,19 @@ import java.util.List;
 
 public class ListBillboards {
     protected JPanel listBillboardsPanel;
-    protected JPanel listPanel;
+    protected JPanel titlePanel;
     protected JButton backButton;
     protected JLabel listBillboardsLabel;
-    protected ClientConnector connector;
-    protected Billboard billboard;
+    protected JPanel listPanel;
+    protected JList<String> billboardJList;
+    protected JButton previewContentsButton;
+    protected JButton editBillboardButton;
+    protected JButton deleteBillboardButton;
+    protected JFrame previewBillboardContentsFrame;
 
     protected List<Billboard> billboardList;
-    protected JList<String> billboardJList;
-    private JButton previewContentsButton;
-    private JButton editBillboardButton;
     protected DefaultListModel<String> model;
-
-    protected JFrame previewBillboardContentsFrame;
+    protected Billboard billboard;
 
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
