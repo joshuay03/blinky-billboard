@@ -163,8 +163,8 @@ public class CreateBillboards {
                         (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()/2);
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
-                previewFrame = new JFrame();
-                previewFrame.setTitle("Preview: " + nameTextArea.getText());
+                previewFrame = new JFrame("Preview: " + nameTextArea.getText());
+
                 previewFrame.setSize(renderDimension);
                 previewFrame.setContentPane(renderedBillboard);
                 previewFrame.setVisible(true);

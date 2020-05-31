@@ -30,6 +30,8 @@ public class RenderedBillboard extends JPanel {
         super();
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
+
+
         //Initialise member objects
         this.messageContainer = new JTextPane();
         this.informationContainer = new JTextPane();
@@ -39,21 +41,26 @@ public class RenderedBillboard extends JPanel {
         // HANDLE COMMON FORMATTING
         // ----------------------------
         // Formatting and colour handling for the message container
-        SimpleAttributeSet messageAttributes = new SimpleAttributeSet();
+        /*SimpleAttributeSet messageAttributes = new SimpleAttributeSet();
         StyleConstants.setAlignment(messageAttributes, StyleConstants.ALIGN_CENTER);
         StyleConstants.setSpaceAbove(messageAttributes, 0);
         StyleConstants.setForeground(messageAttributes, board.getMessageColour());
         messageContainer.setParagraphAttributes(messageAttributes, false);
-        messageContainer.setOpaque(false);
+        messageContainer.setOpaque(false);*/
 
         // Formatting and colour handling for the information container
-        SimpleAttributeSet informationAttributes = new SimpleAttributeSet();
-        StyleConstants.setAlignment(informationAttributes, StyleConstants.ALIGN_CENTER);
-        StyleConstants.setSpaceAbove(informationAttributes, 0);
-        StyleConstants.setForeground(informationAttributes, board.getInformationColour());
+        SimpleAttributeSet textAttributes = new SimpleAttributeSet();
+        StyleConstants.setAlignment(textAttributes, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setSpaceAbove(textAttributes, 0);
+        StyleConstants.setBackground(textAttributes, new Color(0,0,0,0.0f));
 
-        informationContainer.setParagraphAttributes(informationAttributes, false);
+        StyleConstants.setForeground(textAttributes, board.getInformationColour());
+        informationContainer.setParagraphAttributes(textAttributes, false);
         informationContainer.setOpaque(false);
+
+        StyleConstants.setForeground(textAttributes, board.getMessageColour());
+        messageContainer.setOpaque(false);
+        messageContainer.setParagraphAttributes(textAttributes, false);
 
         // Formatting for the image container
         imageContainer.setAlignmentX(JLabel.CENTER_ALIGNMENT);
@@ -87,9 +94,11 @@ public class RenderedBillboard extends JPanel {
 
         boolean hasImage = board.getImageURL() != null ^ board.getImageData() != null;
 
-        boolean hasInformation = board.getInformation().length() > 0;
+        boolean hasInformation = false;
+        if(board.getInformation() != null) hasInformation = board.getInformation().length() > 0;
 
-        boolean hasMessage = board.getMessage().length() > 0;
+        boolean hasMessage = false;
+        if(board.getMessage() != null) hasMessage = board.getMessage().length() > 0;
 
         // ----------------------------------
         // HANDLE RENDERING PROPORTIONS SETUP

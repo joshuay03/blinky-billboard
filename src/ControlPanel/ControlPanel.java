@@ -54,6 +54,8 @@ public class ControlPanel extends ClientConnector implements Runnable {
      * @param args unused
      */
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+
+        //FIXME - this layout manager causes
         UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         ControlPanel controlPanel = new ControlPanel
                 ("properties.txt");
