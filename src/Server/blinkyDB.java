@@ -214,9 +214,6 @@ public class blinkyDB {
             Billboard existingBillboard = getBillboard(billboard_in.getBillboardName());
             throw new BillboardAlreadyExistsException(existingBillboard);
         } catch (BillboardNotFoundException ex) {
-            // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
-            Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
-                    Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
             String BillboardInsertQuery = "INSERT INTO Billboards\n" +
                     "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
                     "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
@@ -224,7 +221,7 @@ public class blinkyDB {
             byte[] SerialisedImage;
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try {
-                new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+                new ObjectOutputStream(bos).writeObject(billboard_in.getImageData());
                 SerialisedImage = bos.toByteArray();
             } catch (IOException e) {
                 SerialisedImage = new byte[0];
@@ -233,16 +230,17 @@ public class blinkyDB {
             try {
                 insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
                 insertBillboard.setString(2, creator);
-                insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-                insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-                insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-                insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
-                insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
+                insertBillboard.setInt(3, billboard_in.getBackgroundColour().getRGB());
+                insertBillboard.setInt(4, billboard_in.getMessageColour().getRGB());
+                insertBillboard.setInt(5, billboard_in.getInformationColour().getRGB());
+                insertBillboard.setString(6, billboard_in.getMessage());
+                insertBillboard.setString(7, billboard_in.getInformation());
                 insertBillboard.setBytes(8, SerialisedImage);
                 insertBillboard.executeUpdate();
                 dbconn.commit();
             } catch (SQLException e) {
                 dbconn.rollback();
+                throw e;
             }
             dbconn.setAutoCommit(true);
         }
