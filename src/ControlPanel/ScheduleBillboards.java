@@ -125,6 +125,9 @@ public class ScheduleBillboards {
 
         scheduleTable = new JTable(model);
 
+        Font defaultFont = scheduleTable.getFont();
+        defaultFont = defaultFont.deriveFont(20.0f);
+
         scheduleFrame = new JFrame("Schedule a Billboard");
         scheduleFrame.setPreferredSize(new Dimension(600, 300));
     }
