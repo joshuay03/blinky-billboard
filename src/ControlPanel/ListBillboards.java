@@ -51,6 +51,7 @@ public class ListBillboards {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                previewBillboardContentsFrame.setTitle("Preview contents: " + billboard.getBillboardName());
                 previewBillboardContentsFrame.setContentPane(new PreviewBillboardContents(billboard).previewBillboardContentsPanel);
                 previewBillboardContentsFrame.pack();
                 previewBillboardContentsFrame.setLocationRelativeTo(frame);

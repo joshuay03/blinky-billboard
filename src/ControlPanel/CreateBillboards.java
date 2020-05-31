@@ -153,6 +153,7 @@ public class CreateBillboards {
                 RenderedBillboard renderedBillboard = new RenderedBillboard(billboard, renderDimension);
 
                 previewFrame = new JFrame();
+                previewFrame.setTitle("Preview: " + nameTextArea.getText());
                 previewFrame.setSize(renderDimension);
                 previewFrame.setContentPane(renderedBillboard);
                 previewFrame.setVisible(true);
