@@ -21,6 +21,12 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
 
+/**
+ * This class is used for instantiating a new database object and
+ * specifies the various queries which can be made to the database.
+ * Used heavily by the ClientHandler class.
+ * @see ClientHandler
+ */
 public class blinkyDB {
     final private DBProps props;
     final private Connection dbconn;
@@ -62,12 +68,24 @@ public class blinkyDB {
         } catch (SQLException ignored){} // Only try to insert if it's not already there
     }
 
+    /**
+     * Instantiates a new blinkyDB object
+     * @throws IOException  If db.props isn't found
+     * @throws SQLException If there's a problem connecting to the database
+     */
     public blinkyDB() throws IOException, SQLException {
         blinkyDB newDB = new blinkyDB(false, null);
         this.dbconn = newDB.dbconn;
         this.props = newDB.props;
     }
 
+    /**
+     * Method used for obtaining a list of all currently listed billboards
+     * @param searchQuery mat billboards against this query
+     * @param searchType type off billboard
+     * @return
+     * @throws SQLException
+     */
     public List<Billboard> getBillboards(String searchQuery, String searchType) throws SQLException {
         PreparedStatement getBillboards;
         final String billboardLookUpString = (searchQuery != null && searchType != null) ?
@@ -106,10 +124,23 @@ public class blinkyDB {
         return BillboardList;
     }
 
+    /***
+     * List all billboards.
+     * Calls first getBillboards() method with null values inserted.
+     * @return
+     * @throws SQLException
+     */
     public List<Billboard> getBillboards() throws SQLException {
         return this.getBillboards(null, null);
     }
 
+    /**
+     * Gets a specific billboard from the database.
+     * @param name The name of the billboard.
+     * @return
+     * @throws BillboardNotFoundException
+     * @throws SQLException
+     */
     public Billboard getBillboard(String name) throws BillboardNotFoundException, SQLException {
         PreparedStatement getBillboard;
         final String billboardLookUpString = "select * from Billboards where billboard_name = ?";
@@ -148,6 +179,11 @@ public class blinkyDB {
         }
     }
 
+    /**
+     * Creates a new viewer object within the database
+     * @param socket string value of the socket which the viewer is operating on.
+     * @throws SQLException
+     */
     public void CreateViewer(String socket) throws SQLException {
         String ViewerCreationString = "INSERT INTO blinkyBillboard.Viewers\n" +
                 "(socket)\n" +
@@ -164,6 +200,18 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
     }
 
+    /**
+     * Method used to edit or override a billboard from within the database.
+     * @param name The name of the billboard
+     * @param backgroundColour The background color of the billboard
+     * @param messageColour The message color of the billboard
+     * @param informationColour The information color of the billboard
+     * @param message The message associated with the billboard
+     * @param information The information associated with the billboard
+     * @param imageData The image data
+     * @throws SQLException
+     * @throws BillboardNotFoundException
+     */
     @SuppressWarnings("ConstantConditions")
     public void editBillboard(String name, Color backgroundColour, Color messageColour, Color informationColour, String message, String information, String imageData) throws SQLException, BillboardNotFoundException {
         // Takes billboard properties, and applies them to the given id
@@ -275,6 +323,11 @@ public class blinkyDB {
         return UserLookUp.executeQuery(); // Run the query
     }
 
+    /**
+     * Retrieves the details of all users contained within the database.
+     * @return A result set of all user details.
+     * @throws SQLException
+     */
     protected ResultSet LookUpAllUserDetails() throws SQLException {
         PreparedStatement UserLookUp; // Create the prepared statement object
         String userLookUpString = "select * from Users"; // Define the query to run
@@ -638,6 +691,11 @@ public class blinkyDB {
         dbconn.setAutoCommit(true);
     }
 
+    /**
+     * Check whether a token is currently blacklisted within the database.
+     * @param token A byte array of the token.
+     * @return true/false whether the token is blacklisted.
+     */
     protected boolean IsTokenBlackListed(byte[] token){
         String AttemptTokenLookup = "SELECT *\n" +
                 "FROM TokenBlacklist WHERE tokenCode = ?;\n";

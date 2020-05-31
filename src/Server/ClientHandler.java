@@ -59,7 +59,7 @@ public class ClientHandler extends Thread {
     }
 
     /**
-     *
+     * Runs the thread
      */
     @Override
     public void run() {
@@ -525,6 +525,10 @@ public class ClientHandler extends Thread {
 
     //</editor-fold>
 
+    /**
+     * Closes the client connector object
+     * @return returns true/false as to whether the object has been closed.
+     */
     public boolean closeConnection() {
         boolean closed = false; // For testing purposes only
         try {
