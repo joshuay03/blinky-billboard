@@ -35,6 +35,11 @@ public class EditExistingUser {
     private JButton saveUserButton;
     private JComboBox<String> usernameCombo;
 
+    /**
+     * Form to retrieve user information.
+     * @param username The username of the user.
+     * @param connector A ClientConnector object.
+     */
     private void getUserInfo(String username, ClientConnector connector) {
         Request getUserRequest = Request.getUserPermissionsReq(username, connector.session);
         Response response;
@@ -74,6 +79,12 @@ public class EditExistingUser {
         }
     }
 
+    /**
+     * Edit an existing user's information.
+     * @param frame The current frame.
+     * @param connector A ClientConnector object
+     * @param username The user's username.
+     */
     public EditExistingUser(JFrame frame, ClientConnector connector, String username) {
         Request userRequest = Request.listUsersReq(connector.session);
 

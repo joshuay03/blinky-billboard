@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
  */
-public class OptionMenu implements Runnable {
+public class OptionMenu {
     protected JPanel optionMenuPanel;
     protected JButton createButton;
     protected JButton listButton;
@@ -27,6 +27,10 @@ public class OptionMenu implements Runnable {
     protected JPanel optionsPanel;
     protected ClientConnector connector;
 
+    /**
+     * Get a list of all billboards currently contained within the database.
+     * @return A list of billboards.
+     */
     private List<Billboard> getBillboards() {
         List<Billboard> billboards = new ArrayList<>();
 
@@ -61,13 +65,16 @@ public class OptionMenu implements Runnable {
     }
 
     /**
+     * A form containing the UI i.e buttons for the user to use.
      * @param frame:     JPanel Frame
      * @param connector: client connector object initialized when the client makes a connection with the server.
      */
     public OptionMenu(JFrame frame, ClientConnector connector) {
         this.connector = connector;
 
-        run();
+        createButton.setVisible(connector.session.canCreateBillboards);
+        scheduleButton.setVisible(connector.session.scheduleBillboards);
+        editButton.setVisible(connector.session.editUsers);
 
         logoutButton.addActionListener(new ActionListener() {
             /**
@@ -191,24 +198,5 @@ public class OptionMenu implements Runnable {
 
             }
         });
-    }
-
-    /**
-     * When an object implementing interface {@code Runnable} is used
-     * to create a thread, starting the thread causes the object's
-     * {@code run} method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method {@code run} is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    @Override
-    public void run() {
-        createButton.setVisible(connector.session.canCreateBillboards);
-        scheduleButton.setVisible(connector.session.scheduleBillboards);
-        editButton.setVisible(connector.session.editUsers);
-
     }
 }
