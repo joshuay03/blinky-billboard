@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class blinkyDB {
     final private DBProps props;
@@ -221,35 +222,41 @@ public class blinkyDB {
             Billboard existingBillboard = getBillboard(billboard_in.getBillboardName());
             throw new BillboardAlreadyExistsException(existingBillboard);
         } catch (BillboardNotFoundException ex) {
-            // Takes a property retriever for Billboards, and applies it to either the given billboard, or a default billboard object
-            Function<Function<Billboard, Object>, Object> getPropertySafely = (Function<Billboard, Object> m) ->
-                    Objects.requireNonNullElse(m.apply(billboard_in), m.apply(DummyBillboards.defaultBillboard()));
+            List<String> creationList = new ArrayList<>();
+            if (billboard_in.getBackgroundColour() != null) creationList.add(", backgroundColour");
+            if (billboard_in.getMessageColour() != null) creationList.add(", messageColour");
+            if (billboard_in.getInformationColour() != null) creationList.add(", informationColour");
+            if (billboard_in.getMessage() != null) creationList.add(", message");
+            if (billboard_in.getInformation() != null) creationList.add(", information");
+            if (billboard_in.getImageData() != null) creationList.add(", billboardImage");
+            String AttrsToInsertString = String.join("", creationList);
             String BillboardInsertQuery = "INSERT INTO Billboards\n" +
-                    "(billboard_name, creator, backgroundColour, messageColour, informationColour, message, information, billboardImage)\n" +
-                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?);\n";
+                    "(billboard_name, creator" + AttrsToInsertString + ")\n" +
+                    "VALUES(?, ?" + creationList.stream().map(s -> ", ?").collect(Collectors.joining()) + ");\n";
             dbconn.setAutoCommit(false);
             byte[] SerialisedImage;
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try {
-                new ObjectOutputStream(bos).writeObject(getPropertySafely.apply(Billboard::getBillboardImage));
+                new ObjectOutputStream(bos).writeObject(billboard_in.getImageData());
                 SerialisedImage = bos.toByteArray();
             } catch (IOException e) {
-                SerialisedImage = new byte[0];
+                SerialisedImage = null;
             }
             PreparedStatement insertBillboard = dbconn.prepareStatement(BillboardInsertQuery);
             try {
-                insertBillboard.setString(1, billboard_in.getBillboardName()); // This is only okay because I require the submitted billboard to have a name
+                insertBillboard.setString(1, billboard_in.getBillboardName());
                 insertBillboard.setString(2, creator);
-                insertBillboard.setInt(3, ((Color) getPropertySafely.apply(Billboard::getBackgroundColour)).getRGB());
-                insertBillboard.setInt(4, ((Color) getPropertySafely.apply(Billboard::getMessageColour)).getRGB());
-                insertBillboard.setInt(5, ((Color) getPropertySafely.apply(Billboard::getInformationColour)).getRGB());
-                insertBillboard.setString(6, ((String) getPropertySafely.apply(Billboard::getMessage)));
-                insertBillboard.setString(7, ((String) getPropertySafely.apply(Billboard::getInformation)));
-                insertBillboard.setBytes(8, SerialisedImage);
+                {int index = creationList.indexOf(", backgroundColour"); if (index != -1) insertBillboard.setInt(index+3, billboard_in.getBackgroundColour().getRGB());}
+                {int index = creationList.indexOf(", messageColour"); if (index != -1) insertBillboard.setInt(index+3, billboard_in.getMessageColour().getRGB());}
+                {int index = creationList.indexOf(", informationColour"); if (index != -1) insertBillboard.setInt(index+3, billboard_in.getInformationColour().getRGB());}
+                {int index = creationList.indexOf(", message"); if (index != -1) insertBillboard.setString(index+3, billboard_in.getMessage());}
+                {int index = creationList.indexOf(", information"); if (index != -1) insertBillboard.setString(index+3, billboard_in.getInformation());}
+                {int index = creationList.indexOf(", billboardImage"); if (index != -1) insertBillboard.setBytes(index+3, SerialisedImage);}
                 insertBillboard.executeUpdate();
                 dbconn.commit();
             } catch (SQLException e) {
                 dbconn.rollback();
+                throw e;
             }
             dbconn.setAutoCommit(true);
         }
