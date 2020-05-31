@@ -29,7 +29,7 @@ create TABLE IF NOT EXISTS `Billboards` (
   `informationColour` int(11) DEFAULT NULL,
   `message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `information` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `billboardImage` blob DEFAULT NULL,
+  `billboardImage` MEDIUMBLOB DEFAULT NULL,
   PRIMARY KEY (`billboard_name`),
   KEY `fk_creator_idx` (`creator`),
   CONSTRAINT `Billboards_FK` FOREIGN KEY (`creator`) REFERENCES `Users` (`user_name`)
