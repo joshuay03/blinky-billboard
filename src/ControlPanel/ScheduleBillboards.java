@@ -110,7 +110,7 @@ public class ScheduleBillboards {
                     Timestamp endOfday = new Timestamp(cal.getTime().getTime());
                     Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000));
                     if (startOfDay.before(o.start) && endOfday.after(o.start)) {
-                        data.get(i).add("Name: " + o.name + "\nStart: " + o.start.toString() + " End:" + o.end.toString());
+                        data.get(i).add(o.name + " " + o.start.toString() + ":" + o.end.toString());
                     }
                     cal.add(Calendar.DATE, i);
                 }
