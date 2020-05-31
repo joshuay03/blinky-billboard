@@ -174,6 +174,9 @@ public class blinkyDB {
             billboard.setMessage(rs.getString("message"));
             billboard.setInformation(rs.getString("information"));
             billboard.setImageData((String) image);
+            try {
+                billboard.setSchedule(getScheduleForBillboard(rs.getString("billboard_name")));
+            } catch (SQLException | BillboardUnscheduledException ignored) {}
             return billboard;
         } catch (SQLDataException e) {
             return null;
@@ -384,7 +387,7 @@ public class blinkyDB {
      * @return The schedule of that billboard
      * @throws SQLException if the lookup fails
      */
-    public Schedule getScheduleForBillboard(String name) throws SQLException {
+    public Schedule getScheduleForBillboard(String name) throws SQLException, BillboardNotFoundException, BillboardUnscheduledException {
         String scheduleLookup = "SELECT * FROM Scheduling WHERE billboard_name = ?";
         PreparedStatement scheduleLookUpForBillboard;
         dbconn.setAutoCommit(false);
@@ -405,7 +408,10 @@ public class blinkyDB {
                 e.printStackTrace();
             }
         }
-        return ScheduleList.get(0);
+        try {return ScheduleList.get(0);} catch (IndexOutOfBoundsException e) {
+            throw new BillboardUnscheduledException(getBillboard(name));
+        }
+
     }
 
     /**
