@@ -41,6 +41,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="mariadb-java-client-2.6.0" level="project" />
-    <orderEntry type="library" name="org.mariadb.jdbc:mariadb-java-client:2.5.4" level="application" />
+    <orderEntry type="library" name="mariadb-java-client-2.6.0 (1)" level="application" />
   </component>
 </module>

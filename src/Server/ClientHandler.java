@@ -116,7 +116,7 @@ public class ClientHandler extends Thread {
         Collator collator = Collator.getInstance(Locale.ENGLISH);
 
         // *************************************************************************************
-        // LOGIC SWITCHING
+        // REQUEST TYPE SWITCHING
         // *************************************************************************************
         //<editor-fold desc="REQUEST TYPE SWITCHING">
         switch (req.getRequestType()) {

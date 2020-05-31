@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -81,9 +82,13 @@ public class ScheduleBillboards {
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
         Calendar calendar = Calendar.getInstance();
         List<List<String>> data = new ArrayList<>();
-
+        List<List<Occurrence>> occurrenceData = new ArrayList<>();
+        
+        // Add the days of the week to an array for later use as a header row
         for (int i = 0; i < daysInAWeek; i++) {
             data.add(new ArrayList<>());
+            occurrenceData.add(new ArrayList<>());
+
             daysOfTheWeek[i] = simpleDateformat.format(calendar.getTime());
             data.get(i).add(daysOfTheWeek[i]);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -106,11 +111,17 @@ public class ScheduleBillboards {
                 int m = cal.get(Calendar.MONTH);
                 int y = cal.get(Calendar.YEAR);
                 cal.set(y, m, d, 23, 59, 59);
+                
+                // Consider each day separately
                 for (int i = 0; i < daysInAWeek - 1; i++) {
+                    // Determine when a given day begins and ends, expressed as a timestamp
                     Timestamp endOfday = new Timestamp(cal.getTime().getTime());
-                    Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000));
+                    Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000)); // 24 hrs * 60 m * 60 s * 1000ms
+                    
+                    // If a given occurrence's start time falls within the bounds of a day, add it to the list
+                    // of occurrences on that day
                     if (startOfDay.before(o.start) && endOfday.after(o.start)) {
-                        data.get(i).add(o.name + " " + o.start.toString() + ":" + o.end.toString());
+                        occurrenceData.get(i).add(o);
                     }
                     cal.add(Calendar.DATE, i);
                 }
@@ -118,15 +129,26 @@ public class ScheduleBillboards {
         });
 
         DefaultTableModel model = new DefaultTableModel(0, 0);
+        DateFormat format = new SimpleDateFormat("HH:mm");
 
-        for (int i =0; i < 7; i++) {
+        // Add all the data to the Table
+        // TODO - consider refactoring into one large loop?
+        for (int i = 0; i < 7; i++) {
+            List<Occurrence> dayData = occurrenceData.get(i);
+            Collections.sort(dayData);
+            for (Occurrence o : dayData) {
+                data.get(i).add(o.name + " " + format.format(o.start) + "-" + format.format(o.end));
+            }
             model.addColumn(daysOfTheWeek[i], data.get(i).toArray());
         }
 
         scheduleTable = new JTable(model);
 
+        Font defaultFont = scheduleTable.getFont();
+        defaultFont = defaultFont.deriveFont(20.0f);
+
         scheduleFrame = new JFrame("Schedule a Billboard");
-        scheduleFrame.setPreferredSize(new Dimension(600, 300));
+        scheduleFrame.setPreferredSize(new Dimension(700, 300));
     }
 }
 
