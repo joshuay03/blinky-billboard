@@ -73,7 +73,7 @@ public class Schedule {
         }
 
         minuteComboBox.addItem("Select Minute");
-        for (int i = 1; i <= 60; i++) {
+        for (int i = 0; i <= 59; i++) {
             if (i < 10) {
                 minuteComboBox.addItem("0" + i);
             } else {
