@@ -8,6 +8,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
+/**
+ * A frame which allows a preview of a billboard's contents.
+ */
 public class PreviewBillboardContents {
     protected JPanel previewBillboardContentsPanel;
     private JLabel infoColorLabel;
@@ -21,8 +24,14 @@ public class PreviewBillboardContents {
     private JTextArea informationTextArea;
     private Billboard billboard;
 
+    /**
+     * Scales a given image
+     * @param src The image source
+     * @param maxWidth The max width of the image
+     * @param maxHeight The max height of the image
+     * @return The new scaled image
+     */
     private ImageIcon getScaledImage(ImageIcon src, int maxWidth, int maxHeight) {
-
         // Determine which side to bound the scaling on
         float scalingFactor = 0.0f;
         if (maxHeight <= maxWidth) {
@@ -36,7 +45,10 @@ public class PreviewBillboardContents {
         return new ImageIcon(newImg);
     }
 
-
+    /**
+     * Takes in a billboard and displays its contents onto the page.
+     * @param billboard
+     */
     public PreviewBillboardContents(Billboard billboard) {
         if(billboard.getBillboardName() != null) {
             billboardNameLabel.setText(billboard.getBillboardName());

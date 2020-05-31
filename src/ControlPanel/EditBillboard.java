@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+/**
+ * Frame used for editing a billboard.
+ */
 public class EditBillboard {
     protected JPanel editBillboardPanel;
     protected JPanel titlePanel;

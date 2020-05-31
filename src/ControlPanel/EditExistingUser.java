@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 
+/**
+ * Frame for editing an existing user
+ */
 public class EditExistingUser {
     protected JPanel editExistingUserPanel;
     protected JButton backButton;

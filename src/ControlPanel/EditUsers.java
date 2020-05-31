@@ -20,8 +20,8 @@ public class EditUsers {
     private JPanel titlePanel;
 
     /**
-     *
-     * @param frame
+     * The edit users functionality packed into the given frame.
+     * @param frame The given frame.
      */
     public EditUsers(JFrame frame, ClientConnector connector) {
         backButton.addActionListener(new ActionListener() {
