@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * A class to represent an "Option Menu" page which is bound to OptionMenu.form
  */
-public class OptionMenu implements Runnable {
+public class OptionMenu {
     protected JPanel optionMenuPanel;
     protected JButton createButton;
     protected JButton listButton;
@@ -67,7 +67,9 @@ public class OptionMenu implements Runnable {
     public OptionMenu(JFrame frame, ClientConnector connector) {
         this.connector = connector;
 
-        run();
+        createButton.setVisible(connector.session.canCreateBillboards);
+        scheduleButton.setVisible(connector.session.scheduleBillboards);
+        editButton.setVisible(connector.session.editUsers);
 
         logoutButton.addActionListener(new ActionListener() {
             /**
@@ -191,24 +193,5 @@ public class OptionMenu implements Runnable {
 
             }
         });
-    }
-
-    /**
-     * When an object implementing interface {@code Runnable} is used
-     * to create a thread, starting the thread causes the object's
-     * {@code run} method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method {@code run} is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    @Override
-    public void run() {
-        createButton.setVisible(connector.session.canCreateBillboards);
-        scheduleButton.setVisible(connector.session.scheduleBillboards);
-        editButton.setVisible(connector.session.editUsers);
-
     }
 }
