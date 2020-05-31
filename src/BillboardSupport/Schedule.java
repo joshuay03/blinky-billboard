@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Class for instantiating a schedule for a given billboard.
+ * Associates a start time, duration, interval, and a date with a billboard.
+ */
 public class Schedule implements Serializable, Comparable<Schedule>, Iterable<Occurrence> {
     public Timestamp StartTime;
     public int duration; // Minutes
@@ -18,10 +22,25 @@ public class Schedule implements Serializable, Comparable<Schedule>, Iterable<Oc
     public String billboardName;
     public Timestamp scheduledAt;
 
+    /**
+     * Instantiates a schedule object.
+     * @param startTime The time the billboard should display at
+     * @param duration The duration of the billboard
+     * @param repeatInterval How often the billboard should display
+     * @param billboardName The name of the billboard
+     */
     public Schedule(Timestamp startTime, int duration, int repeatInterval, String billboardName) {
         this(startTime, duration, repeatInterval, billboardName, Timestamp.valueOf(LocalDateTime.now()));
     }
 
+    /**
+     * Instantiates a schedule object with a schedule date
+     * @param startTime The time the billboard should display at
+     * @param duration The duration of the billboard
+     * @param repeatInterval How often the billboard should display
+     * @param billboardName The name of the billboard
+     * @param scheduledAt The date the billboard should be displayed
+     */
     public Schedule(Timestamp startTime, int duration, int repeatInterval, String billboardName, Timestamp scheduledAt) {
         this.StartTime = startTime;
         this.duration = duration;
