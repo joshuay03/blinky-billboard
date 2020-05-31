@@ -168,9 +168,16 @@ public class Schedule {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String[] date = dateTextField.getText().split("-");
-                int hour = Integer.parseInt(String.valueOf(hourComboBox.getSelectedItem()));
-                int minute = Integer.parseInt(String.valueOf(minuteComboBox.getSelectedItem()));
+                int hour;
+                int minute;
                 int duration = Integer.parseInt(durationFormattedTextField.getText());
+                try{
+                    hour = Integer.parseInt(String.valueOf(hourComboBox.getSelectedItem()));
+                    minute = Integer.parseInt(String.valueOf(minuteComboBox.getSelectedItem()));
+                } catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(null, "You must select an hour and minute to continue.");
+                    return;
+                }
 
                 SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
