@@ -1,6 +1,7 @@
 package ControlPanel;
 
 import Client.ClientConnector;
+import Server.User;
 import SocketCommunication.Credentials;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
@@ -31,7 +32,46 @@ public class EditExistingUser {
     private JButton saveUserButton;
     private JComboBox<String> usernameCombo;
 
-    public EditExistingUser(JFrame frame, ClientConnector connector) {
+    private void getUserInfo(String username, ClientConnector connector) {
+        Request getUserRequest = Request.getUserPermissionsReq(username, connector.session);
+        Response response;
+
+        try {
+            response = getUserRequest.Send(connector);
+        } catch (IOException excep) {
+            JOptionPane.showMessageDialog(null, "Cannot connect to server");
+            return;
+        }
+
+        // check status of response
+        boolean status = response.isStatus();
+
+        if (!status) {
+            String errorMsg = (String) response.getData();
+            JOptionPane.showMessageDialog(null, errorMsg);
+            return;
+        }
+
+        User user = (User) response.getData();
+
+        if (user.CanEditAllBillboards()) {
+            editAllBillboardsCheckBox.setSelected(true);
+        }
+        if (user.CanCreateBillboards()) {
+            createBillboardsCheckBox.setSelected(true);
+        }
+        if(user.CanScheduleBillboards()) {
+            scheduleBillboardsCheckBox.setSelected(true);
+        }
+        if(user.CanEditUsers()) {
+            editUsersCheckBox.setSelected(true);
+            if (username.equals(connector.session.username)) {
+                editUsersCheckBox.setEnabled(false);
+            }
+        }
+    }
+
+    public EditExistingUser(JFrame frame, ClientConnector connector, String username) {
         Request userRequest = Request.listUsersReq(connector.session);
 
         // Send request to server
@@ -55,7 +95,7 @@ public class EditExistingUser {
         }
 
 
-        java.util.List<?> userObjects = (List<?>) response.getData();
+        List<?> userObjects = (List<?>) response.getData();
 
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 
@@ -64,6 +104,10 @@ public class EditExistingUser {
         );
 
         usernameCombo.setModel(model);
+
+        usernameCombo.setSelectedItem(username);
+
+        getUserInfo(username, connector);
 
 
         backButton.addActionListener(new ActionListener() {
@@ -125,6 +169,17 @@ public class EditExistingUser {
                 if (status) {
                     JOptionPane.showMessageDialog(null, "User successfully updated.");
                 }
+            }
+        });
+        usernameCombo.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getUserInfo((String) usernameCombo.getSelectedItem(), connector);
             }
         });
     }
