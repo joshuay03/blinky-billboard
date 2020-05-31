@@ -119,7 +119,7 @@ public class User implements Serializable {
      * @return whether the user can schedule billboards
      */
     public boolean CanScheduleBillboards() {
-        return CanCreateBillboards;
+        return ScheduleBillboards;
     }
 
     /**
