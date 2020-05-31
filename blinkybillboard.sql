@@ -55,7 +55,7 @@ create TABLE IF NOT EXISTS `Scheduling` (
   KEY `billboard_name_idx` (`billboard_name`),
   KEY `viewer_id_idx` (`viewer_id`),
   CONSTRAINT `Scheduling_FK` FOREIGN KEY (`viewer_id`) REFERENCES `Viewers` (`viewer_id`),
-  CONSTRAINT `billboard_name` FOREIGN KEY (`billboard_name`) REFERENCES `Billboards` (`billboard_name`) ON delete NO ACTION
+  CONSTRAINT `billboard_name` FOREIGN KEY (`billboard_name`) REFERENCES `Billboards` (`billboard_name`) ON delete RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
