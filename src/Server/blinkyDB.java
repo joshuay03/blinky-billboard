@@ -143,13 +143,13 @@ public class blinkyDB {
      * @throws SQLException If the lookup fails
      */
     public Billboard getBillboard(String name) throws BillboardNotFoundException, SQLException {
-        PreparedStatement getBillboard;
+        PreparedStatement billboardGetter;
         final String billboardLookUpString = "select * from Billboards where billboard_name = ?";
         dbconn.setAutoCommit(false);
-        getBillboard = dbconn.prepareStatement(billboardLookUpString);
-        getBillboard.setString(1, name);
+        billboardGetter = dbconn.prepareStatement(billboardLookUpString);
+        billboardGetter.setString(1, name);
         dbconn.setAutoCommit(true);
-        ResultSet rs = getBillboard.executeQuery();
+        ResultSet rs = billboardGetter.executeQuery();
         try {
             boolean found = rs.first();
             if (!found) throw new BillboardNotFoundException(name); // If there is no result, throw an exception
@@ -175,7 +175,8 @@ public class blinkyDB {
             billboard.setInformation(rs.getString("information"));
             billboard.setImageData((String) image);
             try {
-                billboard.setSchedule(getScheduleForBillboard(rs.getString("billboard_name")));
+                Schedule schedule = getScheduleForBillboard(rs.getString("billboard_name"));
+                billboard.setSchedule(schedule);
             } catch (SQLException | BillboardUnscheduledException ignored) {}
             return billboard;
         } catch (SQLDataException e) {
@@ -387,7 +388,7 @@ public class blinkyDB {
      * @return The schedule of that billboard
      * @throws SQLException if the lookup fails
      */
-    public Schedule getScheduleForBillboard(String name) throws SQLException, BillboardNotFoundException, BillboardUnscheduledException {
+    public Schedule getScheduleForBillboard(String name) throws SQLException, BillboardUnscheduledException {
         String scheduleLookup = "SELECT * FROM Scheduling WHERE billboard_name = ?";
         PreparedStatement scheduleLookUpForBillboard;
         dbconn.setAutoCommit(false);
@@ -409,7 +410,7 @@ public class blinkyDB {
             }
         }
         try {return ScheduleList.get(0);} catch (IndexOutOfBoundsException e) {
-            throw new BillboardUnscheduledException(getBillboard(name));
+            throw new BillboardUnscheduledException(name);
         }
 
     }
@@ -619,7 +620,7 @@ public class blinkyDB {
                 } catch (BillboardNotFoundException e) {
                     throw new BillboardNotFoundException(name);
                 }
-                throw new BillboardUnscheduledException(billboard);
+                throw new BillboardUnscheduledException(billboard.getBillboardName());
             }
             dbconn.commit();
         } catch (SQLException e) {
