@@ -16,6 +16,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Frame for listing all billboards.
+ */
 public class ListBillboards {
     protected JPanel listBillboardsPanel;
     protected JPanel titlePanel;
@@ -32,6 +35,12 @@ public class ListBillboards {
     protected DefaultListModel<String> model;
     protected Billboard billboard;
 
+    /**
+     * Constructs the frame/page for listing all of the billboards
+     * @param frame A given frame object
+     * @param connector A ClientConnector object
+     * @param billboardList A list of billboards
+     */
     public ListBillboards(JFrame frame, ClientConnector connector, List<Billboard> billboardList) {
         this.billboardList = billboardList;
 
@@ -112,6 +121,9 @@ public class ListBillboards {
         });
     }
 
+    /**
+     * Method to initialise the UI components.
+     */
     private void createUIComponents() {
         billboardJList = new JList<>();
         model = new DefaultListModel<>();
@@ -123,6 +135,6 @@ public class ListBillboards {
         billboardJList.setModel(model);
 
         previewBillboardContentsFrame = new JFrame();
-        previewBillboardContentsFrame.setPreferredSize(new Dimension(600, 600));
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(500, 500));
     }
 }

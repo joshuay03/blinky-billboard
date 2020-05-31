@@ -2,6 +2,9 @@ package Exceptions;
 
 import BillboardSupport.Billboard;
 
+/**
+ * Exception used if the billboard could not be unscheduled.
+ */
 public class BillboardUnscheduledException extends Exception {
     Billboard billboard;
     public BillboardUnscheduledException(Billboard billboard) {

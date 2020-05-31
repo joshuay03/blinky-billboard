@@ -85,6 +85,10 @@ public class ClientConnector extends SocketConnection {
         }
     }
 
+    /**
+     * Method for closing the ClientConnector object
+     * @throws IOException
+     */
     public void close() throws IOException {
         super.close();
         socket.close();

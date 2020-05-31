@@ -11,6 +11,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Frame used for creating a new user.
+ */
 public class CreateNewUser {
 
     protected JPanel createNewUserPanel;

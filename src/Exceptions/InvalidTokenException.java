@@ -1,5 +1,8 @@
 package Exceptions;
 
+/**
+ * Exception used if the token is not valid
+ */
 public class InvalidTokenException extends Exception {
     byte[] token;
 
