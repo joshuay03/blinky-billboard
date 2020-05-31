@@ -398,6 +398,11 @@ public class ClientHandler extends Thread {
                         // FIXME - need to implement a nuanced response which explains that the rest of the perms changes were successful
                         if (!authenticatedUser.getSaltedCredentials().getUsername().equals(req.getUser().getSaltedCredentials().getUsername())) {
                             userToModify.setEditUsers(req.getUser().CanEditUsers());
+                            // If no other permission changes were requested
+                            if (userToModify.CanEditAllBillboards() == authenticatedUser.CanEditAllBillboards() &&
+                                    userToModify.CanScheduleBillboards() == authenticatedUser.CanScheduleBillboards() &&
+                                    userToModify.CanCreateBillboards() == authenticatedUser.CanCreateBillboards()
+                            ) return new Response(false, "You cannot edit your own permission to edit users.");
                         } else partialsuccess = ", however, you cannot change your own permission to edit users.";
                         database.UpdateUserDetails(userToModify);
                         return new Response(true, "User permissions have been edited successfully" + partialsuccess + ".");
