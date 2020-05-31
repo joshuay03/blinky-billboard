@@ -20,6 +20,7 @@ import java.io.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -157,8 +158,8 @@ class FunctionalityTest {
 
         Response res = respondTo.apply(BillboardsRequest);
 
-        @SuppressWarnings({"unused", "unchecked"}) List<Billboard> billboards = (List<Billboard>) res.getData();
-        assertTrue(res.isStatus());
+        @SuppressWarnings("unchecked") List<Billboard> billboards = (res.isStatus()) ? (List<Billboard>) res.getData() : new ArrayList<>();
+        assertTrue(res.isStatus() && billboards.size() > 1);
     }
 
     @Test
