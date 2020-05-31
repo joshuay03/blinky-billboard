@@ -70,8 +70,10 @@ public class Server extends SocketConnection {
             if (connectToDB(0) == false) { // Try connect to the database
                 close();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("The port " + getPort() + " is currently already in use.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -101,6 +103,8 @@ public class Server extends SocketConnection {
         } catch (IOException e) {
             System.out.println("db.props file not found. Closing server.");
             return false;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return true;
     }
