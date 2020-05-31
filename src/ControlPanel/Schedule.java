@@ -1,5 +1,6 @@
 package ControlPanel;
 
+import BillboardSupport.Billboard;
 import Client.ClientConnector;
 import SocketCommunication.Request;
 import SocketCommunication.Response;
@@ -17,6 +18,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class Schedule {
     protected JPanel schedulePanel;
@@ -35,8 +37,21 @@ public class Schedule {
     protected JPanel frequencyPanel;
     protected JFormattedTextField customFrequencyFormattedTextField;
     private JButton doneButton;
+    private JLabel billboardName;
+    private JComboBox<String> billboardNames;
+    protected DefaultComboBoxModel<String> model;
 
-    Schedule(JFrame scheduleFrame, ClientConnector connector) {
+    Schedule(JFrame scheduleFrame, ClientConnector connector, List<Billboard> billboards) {
+
+        model = new DefaultComboBoxModel<>();
+
+        billboards.forEach(x ->
+                model.addElement(x.getBillboardName())
+        );
+
+        billboardNames.setModel(model);
+
+
         hourComboBox.addItem("Select Hour");
         for (int i = 0; i <= 23; i++) {
             if (i < 10) {
