@@ -83,7 +83,8 @@ public class ScheduleBillboards {
         Calendar calendar = Calendar.getInstance();
         List<List<String>> data = new ArrayList<>();
         List<List<Occurrence>> occurrenceData = new ArrayList<>();
-
+        
+        // Add the days of the week to an array for later use as a header row
         for (int i = 0; i < daysInAWeek; i++) {
             data.add(new ArrayList<>());
             occurrenceData.add(new ArrayList<>());
@@ -110,13 +111,19 @@ public class ScheduleBillboards {
                 int m = cal.get(Calendar.MONTH);
                 int y = cal.get(Calendar.YEAR);
                 cal.set(y, m, d, 23, 59, 59);
-                for (int i = 0; i < daysInAWeek - 1; i++) {
+                
+                // Consider each day separately
+                for (int d = 0; d < daysInAWeek - 1; d++) {
+                    // Determine when a given day begins and ends, expressed as a timestamp
                     Timestamp endOfday = new Timestamp(cal.getTime().getTime());
-                    Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000));
+                    Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000)); // 24 hrs * 60 m * 60 s * 1000ms
+                    
+                    // If a given occurrence's start time falls within the bounds of a day, add it to the list
+                    // of occurrences on that day
                     if (startOfDay.before(o.start) && endOfday.after(o.start)) {
-                        occurrenceData.get(i).add(o);
+                        occurrenceData.get(d).add(o);
                     }
-                    cal.add(Calendar.DATE, i);
+                    cal.add(Calendar.DATE, d);
                 }
             });
         });
@@ -124,7 +131,9 @@ public class ScheduleBillboards {
         DefaultTableModel model = new DefaultTableModel(0, 0);
         DateFormat format = new SimpleDateFormat("HH:mm");
 
-        for (int i =0; i < 7; i++) {
+        // Add all the data to the Table
+        // TODO - consider refactoring into one large loop?
+        for (int i = 0; i < 7; i++) {
             List<Occurrence> dayData = occurrenceData.get(i);
             Collections.sort(dayData);
             for (Occurrence o : dayData) {
