@@ -21,6 +21,11 @@ public class Response implements Serializable {
     // generic data object for passing data back to client
     private Object data;
 
+    /**
+     * Constructor for a new response object
+     * @param status true/false value depending if the request made by the client was successful or not
+     * @param data any data type permissible. Generally a string or a billboard object. 
+     */
     public Response(boolean status, Object data) {
         this.data = data;
         this.status = status;
