@@ -163,6 +163,7 @@ public class EditBillboard {
                     File pictureFile = chooser.getSelectedFile();
                     try {
                         billboard.setImageData(Arrays.toString(Base64.getDecoder().decode(encodeFileToBase64Binary(pictureFile).getBytes())));
+                        billboard.setImageURL(null);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
