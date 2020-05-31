@@ -26,7 +26,6 @@ public class EditUsers {
     private JButton deleteUserButton;
     private JList<String> userList;
 
-    protected List<String> usernames;
     protected DefaultListModel<String> model;
 
     /**

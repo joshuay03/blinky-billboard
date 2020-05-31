@@ -143,7 +143,9 @@ public class OptionMenu implements Runnable {
 
                 scheduleObjects.forEach(x -> schedule.add((Schedule) x));
 
-                frame.setContentPane(new ScheduleBillboards(frame, connector, schedule).scheduleBillboardsPanel);
+                List<Billboard> billboardList = getBillboards();
+
+                frame.setContentPane(new ScheduleBillboards(frame, connector, schedule, billboardList).scheduleBillboardsPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
