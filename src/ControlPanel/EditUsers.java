@@ -29,8 +29,9 @@ public class EditUsers {
     protected DefaultListModel<String> model;
 
     /**
-     *  @param frame
-     *
+     * Edit a range of users.
+     * @param frame A JFrame object.
+     * @param connector A ClientConnector object.
      */
     public EditUsers(JFrame frame, ClientConnector connector) {
         Request userRequest = Request.listUsersReq(connector.session);
@@ -96,6 +97,11 @@ public class EditUsers {
             }
         });
         editUserButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = userList.getSelectedValue();
@@ -113,35 +119,41 @@ public class EditUsers {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = userList.getSelectedValue();
+                String[] buttons = { "Yes", "No" };
+                int returnValue = JOptionPane.showOptionDialog(frame, "Are you sure you want to delete this user?", "Confirm Deletion",
+                        JOptionPane.WARNING_MESSAGE, 0, null, buttons, buttons[1]);
 
-                Request deleteUser = Request.deleteUserReq(username, connector.session);
+                if (returnValue == 0) {
+                    String username = userList.getSelectedValue();
 
-                Response response;
+                    Request deleteUser = Request.deleteUserReq(username, connector.session);
 
-                try {
-                    response = deleteUser.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot delete user");
-                    return;
+                    Response response;
+
+                    try {
+                        response = deleteUser.Send(connector);
+                    } catch (IOException excep) {
+                        JOptionPane.showMessageDialog(null, "Cannot delete user");
+                        return;
+                    }
+
+                    // check status of response
+                    boolean status = response.isStatus();
+
+                    if (!status) {
+                        String errorMsg = (String) response.getData();
+                        JOptionPane.showMessageDialog(null, "Cannot delete user. Error: " + errorMsg);
+                    }
+
+                    if (status) {
+                        userObjects.remove(username);
+                        model.removeElement(username);
+                        userList.setModel(model);
+                        String msg = (String) response.getData();
+                        JOptionPane.showMessageDialog(null, msg);
+                    }
+
                 }
-
-                // check status of response
-                boolean status = response.isStatus();
-
-                if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, "Cannot delete user. Error: " + errorMsg);
-                }
-
-                if (status) {
-                    userObjects.remove(username);
-                    model.removeElement(username);
-                    userList.setModel(model);
-                    String msg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, msg);
-                }
-
             }
         });
     }

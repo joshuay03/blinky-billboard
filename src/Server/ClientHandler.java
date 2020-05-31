@@ -13,10 +13,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
@@ -24,6 +22,9 @@ import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
 
 /**
  * A class to handle each client individually on an assigned thread.
+ * Handles incoming responses from the client and returns a rresponse.
+ * Extends Thread
+ * @see Thread
  */
 public class ClientHandler extends Thread {
     private final int BILLBOARD_NAME = 0,
@@ -39,6 +40,13 @@ public class ClientHandler extends Thread {
     private Socket client;
     private blinkyDB database;
 
+    /**
+     * Instantiates a new ClientHandler object for an individual client
+     * @param client The client's socket
+     * @param input The input stream
+     * @param output The output stream
+     * @param database The database used for querying
+     */
     public ClientHandler(Socket client, DataInputStream input, DataOutputStream output, blinkyDB database) {
         this.client = client;
         this.input = input;
@@ -46,6 +54,9 @@ public class ClientHandler extends Thread {
         this.database = database;
     }
 
+    /**
+     * Runs the thread
+     */
     @Override
     public void run() {
         Response outputData;
@@ -72,7 +83,7 @@ public class ClientHandler extends Thread {
     }
 
     /**
-     * A function which takes a request and returns a response object, to be sent back
+     * A function which takes a request and returns a response object to the client.
      *
      * @param req The request to handle
      * @return A response
@@ -109,7 +120,21 @@ public class ClientHandler extends Thread {
         //<editor-fold desc="REQUEST TYPE SWITCHING">
         switch (req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED: {
-                return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
+                List<Schedule> schedules;
+                try {
+                    schedules = database.getSchedules(Timestamp.valueOf(LocalDateTime.now()));
+                } catch (SQLException e) {
+                    return new Response(false, "Billboard retrieval failed");
+                }
+                // Filter the list to only schedules that should show up right now
+                List<Schedule> currentSchedules = schedules.stream().filter(s -> s.includes(Timestamp.valueOf(LocalDateTime.now()))).collect(Collectors.toList());
+                if (currentSchedules.size() == 0) return new Response(false, "There is no billboard scheduled for right now.");
+                Schedule schedule = Collections.max(currentSchedules);
+                try {
+                    return new Response(true, database.getBillboard(schedule.billboardName));
+                } catch (BillboardNotFoundException | SQLException e) {
+                    return new Response(false, "Billboard retrieval failed");
+                }
             }
             case LOGIN: {
                 Credentials credentials;
@@ -506,6 +531,10 @@ public class ClientHandler extends Thread {
 
     //</editor-fold>
 
+    /**
+     * Closes the client connector object
+     * @return returns true/false as to whether the object has been closed.
+     */
     public boolean closeConnection() {
         boolean closed = false; // For testing purposes only
         try {

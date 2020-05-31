@@ -29,7 +29,11 @@ public class ScheduleBillboards {
     protected JFrame scheduleFrame;
 
     /**
-     *  @param frame
+     * Set the schedule of all billboards given a list of all schedules and billboards
+     * @param frame A JFrame object
+     * @param connector A ClientConnector object
+     * @param schedule A list of schedules
+     * @param billboards A list of billboards
      */
     public ScheduleBillboards(JFrame frame, ClientConnector connector, List<BillboardSupport.Schedule> schedule, List<Billboard> billboards) {
         this.schedule = schedule;
@@ -50,6 +54,11 @@ public class ScheduleBillboards {
         });
 
         scheduleButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 scheduleFrame.setContentPane(new Schedule(scheduleFrame, connector, billboards).schedulePanel);
@@ -61,7 +70,7 @@ public class ScheduleBillboards {
     }
 
     /**
-     *
+     * Instantiate the UI components for the form.
      */
     private void createUIComponents() {
         final int daysInAWeek = 7;
@@ -76,8 +85,13 @@ public class ScheduleBillboards {
         }
 
         Object[][] scheduledBillboards = new Object[][] {
-                daysOfTheWeek,
-                {"Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"}
+                {daysOfTheWeek[0]},
+                {daysOfTheWeek[1]},
+                {daysOfTheWeek[2]},
+                {daysOfTheWeek[3]},
+                {daysOfTheWeek[4]},
+                {daysOfTheWeek[5]},
+                {daysOfTheWeek[6]}
         };
 
 

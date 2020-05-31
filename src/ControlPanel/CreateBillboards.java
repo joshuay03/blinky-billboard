@@ -67,8 +67,9 @@ public class CreateBillboards {
     protected JFrame previewFrame;
 
     /**
-     *
-     * @param frame
+     * Instantiates the frame for creating a new billboard
+     * @param frame A JFrame object
+     * @param connector A ClientConnector object
      */
     public CreateBillboards(JFrame frame, ClientConnector connector) {
         billboard = new Billboard();
@@ -117,6 +118,11 @@ public class CreateBillboards {
         });
 
         exportButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -166,16 +172,31 @@ public class CreateBillboards {
         });
 
         messageTextArea.getDocument().addDocumentListener(new DocumentListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the message data of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void insertUpdate(DocumentEvent e) {
                 billboard.setMessage(messageTextArea.getText());
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Remove the message data of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void removeUpdate(DocumentEvent e) {
                 billboard.setMessage(messageTextArea.getText());
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Change the message data of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void changedUpdate(DocumentEvent e) {
                 billboard.setMessage(messageTextArea.getText());
@@ -224,6 +245,11 @@ public class CreateBillboards {
         });
 
         pictureURLFormattedTextField.getDocument().addDocumentListener(new DocumentListener() {
+            /**
+             * Invoked when an action occurs.
+             * Set the image of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void insertUpdate(DocumentEvent e) {
                 try {
@@ -234,6 +260,11 @@ public class CreateBillboards {
                 }
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Remove the image of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void removeUpdate(DocumentEvent e) {
                 try {
@@ -244,6 +275,11 @@ public class CreateBillboards {
                 }
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Change the image of the billboard
+             * @param e the event to be processed
+             */
             @Override
             public void changedUpdate(DocumentEvent e) {
                 try {
@@ -256,16 +292,31 @@ public class CreateBillboards {
         });
 
         informationTextArea.getDocument().addDocumentListener(new DocumentListener() {
+            /**
+             * Invoked when an action occurs.
+             *  Set the information data.
+             * @param e the event to be processed
+             */
             @Override
             public void insertUpdate(DocumentEvent e) {
                 billboard.setInformation(informationTextArea.getText());
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Delete the information data.
+             * @param e the event to be processed
+             */
             @Override
             public void removeUpdate(DocumentEvent e) {
                 billboard.setInformation(informationTextArea.getText());
             }
 
+            /**
+             * Invoked when an action occurs.
+             * Change the information data.
+             * @param e the event to be processed
+             */
             @Override
             public void changedUpdate(DocumentEvent e) {
                 billboard.setInformation(informationTextArea.getText());
@@ -305,6 +356,11 @@ public class CreateBillboards {
         });
 
         saveBillboardButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -347,6 +403,12 @@ public class CreateBillboards {
         });
     }
 
+    /**
+     * Encode a gien file to base64 text
+     * @param file
+     * @return the encoded text
+     * @throws IOException
+     */
     private static String encodeFileToBase64Binary(File file) throws IOException {
         byte[] bytes = loadFile(file);
         byte[] encoded = Base64.getEncoder().encode(bytes);
@@ -355,6 +417,12 @@ public class CreateBillboards {
         return encodedString;
     }
 
+    /**
+     * Loads a given file, rreads the file into a byte array.
+     * @param file
+     * @return A byte aray of the file contents.
+     * @throws IOException
+     */
     private static byte[] loadFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);
 
