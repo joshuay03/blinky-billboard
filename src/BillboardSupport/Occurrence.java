@@ -13,6 +13,11 @@ public class Occurrence {
         this.name = name;
     }
 
+    /**
+     * Takes a timestamp and returns whether the occurrence includes it or not
+     * @param timestamp The timestamp to check
+     * @return Whether it's within the range of this occurrence
+     */
     public boolean includes(Timestamp timestamp){
         return timestamp.after(start) && timestamp.before(end);
     }
