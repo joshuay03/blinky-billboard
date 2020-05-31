@@ -13,10 +13,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static SocketCommunication.ServerRequest.LOGIN;
 import static SocketCommunication.ServerRequest.VIEWER_CURRENTLY_SCHEDULED;
@@ -122,7 +120,21 @@ public class ClientHandler extends Thread {
         //<editor-fold desc="REQUEST TYPE SWITCHING">
         switch (req.getRequestType()) {
             case VIEWER_CURRENTLY_SCHEDULED: {
-                return new Response(true, DummyBillboards.messagePictureAndInformationBillboard());
+                List<Schedule> schedules;
+                try {
+                    schedules = database.getSchedules(Timestamp.valueOf(LocalDateTime.now()));
+                } catch (SQLException e) {
+                    return new Response(false, "Billboard retrieval failed");
+                }
+                // Filter the list to only schedules that should show up right now
+                List<Schedule> currentSchedules = schedules.stream().filter(s -> s.includes(Timestamp.valueOf(LocalDateTime.now()))).collect(Collectors.toList());
+                if (currentSchedules.size() == 0) return new Response(false, "There is no billboard scheduled for right now.");
+                Schedule schedule = Collections.max(currentSchedules);
+                try {
+                    return new Response(true, database.getBillboard(schedule.billboardName));
+                } catch (BillboardNotFoundException | SQLException e) {
+                    return new Response(false, "Billboard retrieval failed");
+                }
             }
             case LOGIN: {
                 Credentials credentials;
