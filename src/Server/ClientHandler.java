@@ -182,6 +182,7 @@ public class ClientHandler extends Thread {
                 } catch (Exception e) {
                     return new Response(false, "Invalid billboard object");
                 }
+                if (billboard.getBillboardName() == null) return new Response(false, "Cannot create a billboard without a name.");
                 if (authenticatedUser.CanCreateBillboards()) {
                     // If the user is allowed to create billboards
                     try {
