@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="org.mariadb.jdbc:mariadb-java-client:2.5.4" type="repository">
-    <properties maven-id="org.mariadb.jdbc:mariadb-java-client:2.5.4" />
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/mariadb/jdbc/mariadb-java-client/2.5.4/mariadb-java-client-2.5.4.jar!/" />
-    </CLASSES>
+    <properties maven-id="org.mariadb.jdbc:mariadb-java-client:2.5.4">
+      <exclude>
+        <dependency maven-id="org.mariadb.jdbc:mariadb-java-client" />
+      </exclude>
+    </properties>
+    <CLASSES />
     <JAVADOC />
     <SOURCES />
   </library>
