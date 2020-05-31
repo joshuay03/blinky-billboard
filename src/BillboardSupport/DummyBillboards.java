@@ -10,7 +10,10 @@ public class DummyBillboards {
 
     static String dummyImage = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAIAAAD4YuoOAAAAKXRFWHRDcmVhdGlvbiBUaW1lAJCFIDI1IDMgMjAyMCAwOTowMjoxNyArMDkwMHlQ1XMAAAAHdElNRQfkAxkAAyQ8nibjAAAACXBIWXMAAAsSAAALEgHS3X78AAAABGdBTUEAALGPC/xhBQAAAS5JREFUeNq1kb9KxEAQxmcgcGhhJ4cnFwP6CIIiPoZwD+ALXGFxj6BgYeU7BO4tToSDFHYWZxFipeksbMf5s26WnAkJki2+/c03OzPZDRJNYcgVwfsU42cmKi5YjS1s4p4DCrkBPc0wTlkdX6bsG4hZQOj3HRDLHqh08U4Adb/zgEMtq5RuH3Axd45PbftdB2wO5OsWc7pOYaOeOk63wYfdFtL5qldB34W094ZfJ+4RlFldTrmW/ZNbn2g0of1vLHdZq77qSDCaSAsLf9kXh9w44PNoR/YSPHycEmbIOs5QzBJsmDHrWLPeF24ZkCe6ZxDCOqHcmxmsr+hsicahss+n8vYb8NHZPTJxi/RGC5IqbRwqH6uxVTX+5LvHtvT/V/R6PGh/iF4GHoBAwz7RD26spwq6Amh/AAAAAElFTkSuQmCC";
 
-
+    /**
+     * Method which instantiates a default billboard
+     * @return a default billboard
+     */
     public static Billboard defaultBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("Default");
@@ -23,6 +26,10 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with only a message
+     * @return a default billboard
+     */
     public static Billboard messageOnlyBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("MessageOnly");
@@ -31,6 +38,10 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with only a picture
+     * @return a default billboard
+     */
     public static Billboard pictureOnlyBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("PictureOnly");
@@ -39,15 +50,22 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with only information data
+     * @return a default billboard
+     */
     public static Billboard informationOnlyBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("InformationOnly");
         b.setInformation("Billboard with an information tag and nothing else. Note that the text is word-wrapped. The quick brown fox jumped over the lazy dogs.");
 
         return b;
-
     }
 
+    /**
+     * Method which instantiates a billboard with a message and a picture
+     * @return a default billboard
+     */
     public static Billboard messageAndPictureBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("MessageAndPic");
@@ -57,6 +75,10 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with a message and information
+     * @return a default billboard
+     */
     public static Billboard messageAndInformationBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("MessageAndInfo");
@@ -66,6 +88,10 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with a picture and information data
+     * @return a default billboard
+     */
     public static Billboard pictureAndInformationBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("PicAndInfo");
@@ -75,6 +101,10 @@ public class DummyBillboards {
         return b;
     }
 
+    /**
+     * Method which instantiates a billboard with a message, picture, and information data
+     * @return a default billboard
+     */
     public static Billboard messagePictureAndInformationBillboard() {
         Billboard b = new Billboard();
         b.setBillboardName("MessagePicAndInfo");
