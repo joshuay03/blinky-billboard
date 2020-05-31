@@ -98,7 +98,8 @@ public class EditUsers {
         editUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new EditExistingUser(frame, connector).editExistingUserPanel);
+                String username = userList.getSelectedValue();
+                frame.setContentPane(new EditExistingUser(frame, connector, username).editExistingUserPanel);
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
