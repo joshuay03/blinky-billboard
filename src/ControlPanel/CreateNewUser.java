@@ -51,6 +51,11 @@ public class CreateNewUser {
         });
 
         saveUserButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!Arrays.equals(confirmPasswordField.getPassword(), passwordField.getPassword())) {
