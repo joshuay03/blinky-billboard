@@ -134,6 +134,9 @@ public class EditUsers {
                 }
 
                 if (status) {
+                    userObjects.remove(username);
+                    model.removeElement(username);
+                    userList.setModel(model);
                     String msg = (String) response.getData();
                     JOptionPane.showMessageDialog(null, msg);
                 }
