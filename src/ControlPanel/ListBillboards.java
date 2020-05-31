@@ -123,6 +123,6 @@ public class ListBillboards {
         billboardJList.setModel(model);
 
         previewBillboardContentsFrame = new JFrame();
-        previewBillboardContentsFrame.setPreferredSize(new Dimension(600, 600));
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(500, 500));
     }
 }
