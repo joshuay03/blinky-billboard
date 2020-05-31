@@ -7,6 +7,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * A class to represent a "Schedule Billboards" page which is bound to ScheduleBillboards.form
@@ -56,35 +59,23 @@ public class ScheduleBillboards {
      *
      */
     private void createUIComponents() {
-        String[] columns = new String[] {"Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        Object[][] data = new Object[][] {
-                columns,
-                {"00:00 - 01:00", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"},
-                {"01:00 - 02:00", "", "", "", "", "", "", ""},
-                {"02:00 - 03:00", "", "", "", "", "", "", ""},
-                {"03:00 - 04:00", "", "", "", "", "", "", ""},
-                {"04:00 - 05:00", "", "", "", "", "", "", ""},
-                {"05:00 - 06:00", "", "", "", "", "", "", ""},
-                {"06:00 - 07:00", "", "", "", "", "", "", ""},
-                {"07:00 - 08:00", "", "", "", "", "", "", ""},
-                {"08:00 - 09:00", "", "", "", "", "", "", ""},
-                {"09:00 - 10:00", "", "", "", "", "", "", ""},
-                {"10:00 - 11:00", "", "", "", "", "", "", ""},
-                {"11:00 - 12:00", "", "", "", "", "", "", ""},
-                {"12:00 - 13:00", "", "", "", "", "", "", ""},
-                {"13:00 - 14:00", "", "", "", "", "", "", ""},
-                {"14:00 - 15:00", "", "", "", "", "", "", ""},
-                {"15:00 - 16:00", "", "", "", "", "", "", ""},
-                {"16:00 - 17:00", "", "", "", "", "", "", ""},
-                {"17:00 - 18:00", "", "", "", "", "", "", ""},
-                {"18:00 - 19:00", "", "", "", "", "", "", ""},
-                {"19:00 - 20:00", "", "", "", "", "", "", ""},
-                {"20:00 - 21:00", "", "", "", "", "", "", ""},
-                {"21:00 - 22:00", "", "", "", "", "", "", ""},
-                {"22:00 - 23:00", "", "", "", "", "", "", ""},
-                {"23:00 - 24:00", "", "", "", "", "", "", ""},
+        final int daysInAWeek = 7;
+        String[] daysOfTheWeek = new String[daysInAWeek];
+
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
+        Calendar calendar = Calendar.getInstance();
+
+        for (int i = 0; i < daysInAWeek; i++) {
+            daysOfTheWeek[i] = simpleDateformat.format(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        Object[][] scheduledBillboards = new Object[][] {
+                daysOfTheWeek,
+                {"Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name", "Billboard Name"}
         };
-        DefaultTableModel model = new DefaultTableModel(data, columns);
+
+        DefaultTableModel model = new DefaultTableModel(scheduledBillboards, daysOfTheWeek);
         scheduleTable = new JTable(model);
 
         scheduleFrame = new JFrame("Schedule a Billboard");
