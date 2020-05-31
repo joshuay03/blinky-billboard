@@ -72,9 +72,7 @@ public class OptionMenu {
     public OptionMenu(JFrame frame, ClientConnector connector) {
         this.connector = connector;
 
-        createButton.setVisible(connector.session.canCreateBillboards);
-        scheduleButton.setVisible(connector.session.scheduleBillboards);
-        editButton.setVisible(connector.session.editUsers);
+
 
         logoutButton.addActionListener(new ActionListener() {
             /**
@@ -198,5 +196,14 @@ public class OptionMenu {
 
             }
         });
+    }
+
+    private void createUIComponents() {
+        createButton = new JButton();
+        scheduleButton = new JButton();
+        editButton = new JButton();
+        createButton.setEnabled(connector.session.canCreateBillboards);
+        scheduleButton.setEnabled(connector.session.scheduleBillboards);
+        editButton.setEnabled(connector.session.editUsers);
     }
 }

@@ -23,7 +23,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="70b2c" class="javax.swing.JButton" binding="createButton">
+              <component id="70b2c" class="javax.swing.JButton" binding="createButton" custom-create="true">
                 <constraints>
                   <card name="Card1"/>
                 </constraints>
@@ -60,7 +60,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="957c0" class="javax.swing.JButton" binding="scheduleButton">
+              <component id="957c0" class="javax.swing.JButton" binding="scheduleButton" custom-create="true">
                 <constraints>
                   <card name="Card1"/>
                 </constraints>
@@ -78,7 +78,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="4e88f" class="javax.swing.JButton" binding="editButton">
+              <component id="4e88f" class="javax.swing.JButton" binding="editButton" custom-create="true">
                 <constraints>
                   <card name="Card1"/>
                 </constraints>
