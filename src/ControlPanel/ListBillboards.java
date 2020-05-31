@@ -102,6 +102,9 @@ public class ListBillboards {
                 }
 
                 if (status) {
+                    billboardList.remove(billboard);
+                    model.removeElement(billboard.getBillboardName());
+                    billboardJList.setModel(model);
                     JOptionPane.showMessageDialog(null, "Billboard successfully deleted.");
                 }
 
