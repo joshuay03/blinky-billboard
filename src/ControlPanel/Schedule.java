@@ -160,14 +160,17 @@ public class Schedule {
                 // check status of response
                 boolean status = response.isStatus();
 
+                // If we were unsuccessful, inform the user of the error reason
                 if (!status) {
                     String errorMsg = (String) response.getData();
                     JOptionPane.showMessageDialog(null, errorMsg);
-                    return;
-                }
 
-                JOptionPane.showMessageDialog(null, "Successfully scheduled billboard.");
-                scheduleFrame.setVisible(false);
+                }
+                // If we were successful, inform the user
+                else {
+                    JOptionPane.showMessageDialog(null, "Successfully scheduled billboard.");
+                    scheduleFrame.setVisible(false);
+                }
             }
         });
     }
