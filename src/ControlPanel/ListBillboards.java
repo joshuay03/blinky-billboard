@@ -89,34 +89,39 @@ public class ListBillboards {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
+                String[] buttons = { "Yes", "No" };
+                int returnValue = JOptionPane.showOptionDialog(frame, "Are you sure you want to delete this user?", "Confirm Deletion",
+                        JOptionPane.WARNING_MESSAGE, 0, null, buttons, buttons[1]);
 
-                Request deleteBillboard = Request.deleteBillboardReq(billboard.getBillboardName(), connector.session);
+                if (returnValue == 0) {
+                    Billboard billboard = billboardList.get(billboardJList.getSelectedIndex());
 
-                Response response;
+                    Request deleteBillboard = Request.deleteBillboardReq(billboard.getBillboardName(), connector.session);
 
-                try {
-                    response = deleteBillboard.Send(connector);
-                } catch (IOException excep) {
-                    JOptionPane.showMessageDialog(null, "Cannot delete billboard");
-                    return;
+                    Response response;
+
+                    try {
+                        response = deleteBillboard.Send(connector);
+                    } catch (IOException excep) {
+                        JOptionPane.showMessageDialog(null, "Cannot delete billboard");
+                        return;
+                    }
+
+                    // check status of response
+                    boolean status = response.isStatus();
+
+                    if (!status) {
+                        String errorMsg = (String) response.getData();
+                        JOptionPane.showMessageDialog(null, "Cannot delete billboard. Error: " + errorMsg);
+                    }
+
+                    if (status) {
+                        billboardList.remove(billboard);
+                        model.removeElement(billboard.getBillboardName());
+                        billboardJList.setModel(model);
+                        JOptionPane.showMessageDialog(null, "Billboard successfully deleted.");
+                    }
                 }
-
-                // check status of response
-                boolean status = response.isStatus();
-
-                if (!status) {
-                    String errorMsg = (String) response.getData();
-                    JOptionPane.showMessageDialog(null, "Cannot delete billboard. Error: " + errorMsg);
-                }
-
-                if (status) {
-                    billboardList.remove(billboard);
-                    model.removeElement(billboard.getBillboardName());
-                    billboardJList.setModel(model);
-                    JOptionPane.showMessageDialog(null, "Billboard successfully deleted.");
-                }
-
             }
         });
     }
