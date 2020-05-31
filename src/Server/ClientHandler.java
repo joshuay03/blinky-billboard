@@ -294,6 +294,7 @@ public class ClientHandler extends Thread {
                         if (user.getSaltedCredentials().getUsername().length() > 100)
                             return new Response(false, "Usernames must be up to 100 characters long");
 
+                        // TODO: replace with edit user query
                         database.RegisterUserInDatabase(user.getSaltedCredentials(),
                                 user.CanCreateBillboards(),
                                 user.CanEditAllBillboards(),
