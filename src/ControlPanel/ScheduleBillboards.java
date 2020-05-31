@@ -113,7 +113,7 @@ public class ScheduleBillboards {
                 cal.set(y, m, d, 23, 59, 59);
                 
                 // Consider each day separately
-                for (int d = 0; d < daysInAWeek - 1; d++) {
+                for (int i = 0; i < daysInAWeek - 1; i++) {
                     // Determine when a given day begins and ends, expressed as a timestamp
                     Timestamp endOfday = new Timestamp(cal.getTime().getTime());
                     Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000)); // 24 hrs * 60 m * 60 s * 1000ms
@@ -121,9 +121,9 @@ public class ScheduleBillboards {
                     // If a given occurrence's start time falls within the bounds of a day, add it to the list
                     // of occurrences on that day
                     if (startOfDay.before(o.start) && endOfday.after(o.start)) {
-                        occurrenceData.get(d).add(o);
+                        occurrenceData.get(i).add(o);
                     }
-                    cal.add(Calendar.DATE, d);
+                    cal.add(Calendar.DATE, i);
                 }
             });
         });
