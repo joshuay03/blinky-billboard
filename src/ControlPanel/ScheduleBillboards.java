@@ -31,7 +31,7 @@ public class ScheduleBillboards {
     /**
      *  @param frame
      */
-    public ScheduleBillboards(JFrame frame, ClientConnector connector, List<BillboardSupport.Schedule> schedule) {
+    public ScheduleBillboards(JFrame frame, ClientConnector connector, List<BillboardSupport.Schedule> schedule, List<Billboard> billboards) {
         this.schedule = schedule;
 
         backButton.addActionListener(new ActionListener() {
@@ -52,8 +52,9 @@ public class ScheduleBillboards {
         scheduleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                scheduleFrame.setContentPane(new Schedule(scheduleFrame, connector).schedulePanel);
+                scheduleFrame.setContentPane(new Schedule(scheduleFrame, connector, billboards).schedulePanel);
                 scheduleFrame.pack();
+                scheduleFrame.setLocationRelativeTo(frame);
                 scheduleFrame.setVisible(true);
             }
         });

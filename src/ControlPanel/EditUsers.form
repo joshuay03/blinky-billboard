@@ -75,7 +75,12 @@
             </constraints>
             <properties/>
             <border type="none"/>
-            <children/>
+            <children>
+              <component id="f34f1" class="javax.swing.JList" binding="userList">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
           </scrollpane>
         </children>
       </grid>

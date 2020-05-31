@@ -2,27 +2,22 @@ package ControlPanel;
 
 import BillboardSupport.Billboard;
 import BillboardSupport.RenderedBillboard;
-import Client.ClientConnector;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 
 /**
  * A frame which allows a preview of a billboard's contents.
  */
 public class PreviewBillboardContents {
     protected JPanel previewBillboardContentsPanel;
-    private JLabel infoColorLabel;
-    private JLabel backgroundLabel;
-    private JLabel infoLabel;
-    private JLabel picUrlLabel;
-    private JLabel picDataLabel;
-    private JLabel messageColorLabel;
-    private JLabel messageLabel;
+    private JLabel pictureLabel;
     private JLabel billboardNameLabel;
     private JTextArea informationTextArea;
-    private Billboard billboard;
+    private JPanel messageColourPanel;
+    private JPanel informationColourPanel;
+    private JPanel backgroundColourPanel;
+    private JTextArea messageTextArea;
 
     /**
      * Scales a given image
@@ -50,31 +45,31 @@ public class PreviewBillboardContents {
      * @param billboard
      */
     public PreviewBillboardContents(Billboard billboard) {
-        if(billboard.getBillboardName() != null) {
+        if (billboard.getBillboardName() != null) {
             billboardNameLabel.setText(billboard.getBillboardName());
         }
-        if(billboard.getMessage() != null) {
-            messageLabel.setText(billboard.getMessage());
+        if (billboard.getMessage() != null) {
+            messageTextArea.setText(billboard.getMessage());
         }
-        if(billboard.getMessageColour() != null) {
-            messageColorLabel.setText(billboard.getMessageColour().toString().replace("java.awt.Color", ""));
+        if (billboard.getMessageColour() != null) {
+            messageColourPanel.setBackground(billboard.getMessageColour());
         }
-        if(billboard.getImageURL() != null) {
-            picUrlLabel.setText(billboard.getImageURL().toString());
-        }
-        if(billboard.getInformation() != null) {
+        if (billboard.getInformation() != null) {
             informationTextArea.setText(billboard.getInformation());
             informationTextArea.setWrapStyleWord(true);
             informationTextArea.setLineWrap(true);
         }
-        if( billboard.getInformationColour() != null ) {
-            infoColorLabel.setText(billboard.getInformationColour().toString().replace("java.awt.Color", ""));
+        if (billboard.getInformationColour() != null ) {
+            informationColourPanel.setBackground(billboard.getInformationColour());
         }
-        if(billboard.getBackgroundColour() != null) {
-           backgroundLabel.setText(billboard.getBackgroundColour().toString().replace("java.awt.Color", ""));
+        if (billboard.getBackgroundColour() != null) {
+            backgroundColourPanel.setBackground(billboard.getBackgroundColour());
         }
-        if(billboard.getImageData() != null) {
-            picDataLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromBase64(billboard.getImageData()), 200, 100));
+        if (billboard.getImageData() != null) {
+            pictureLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromBase64(billboard.getImageData()), 200, 100));
+        }
+        else if (billboard.getImageURL() != null) {
+            pictureLabel.setIcon(getScaledImage(RenderedBillboard.getImageIconFromURL(billboard.getImageURL()), 200, 100));
         }
     }
 }

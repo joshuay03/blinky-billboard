@@ -111,6 +111,9 @@ public class ListBillboards {
                 }
 
                 if (status) {
+                    billboardList.remove(billboard);
+                    model.removeElement(billboard.getBillboardName());
+                    billboardJList.setModel(model);
                     JOptionPane.showMessageDialog(null, "Billboard successfully deleted.");
                 }
 
@@ -132,6 +135,6 @@ public class ListBillboards {
         billboardJList.setModel(model);
 
         previewBillboardContentsFrame = new JFrame();
-        previewBillboardContentsFrame.setPreferredSize(new Dimension(400, 400));
+        previewBillboardContentsFrame.setPreferredSize(new Dimension(500, 500));
     }
 }
