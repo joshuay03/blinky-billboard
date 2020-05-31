@@ -2,7 +2,7 @@ package BillboardSupport;
 
 import java.sql.Timestamp;
 
-public class Occurrence {
+public class Occurrence implements Comparable<Occurrence> {
     final public Timestamp start;
     final public Timestamp end;
     final public String name;
@@ -20,5 +20,9 @@ public class Occurrence {
      */
     public boolean includes(Timestamp timestamp){
         return timestamp.after(start) && timestamp.before(end);
+    }
+
+    public int compareTo(Occurrence occurrence) {
+        return this.start.compareTo(occurrence.start);
     }
 }

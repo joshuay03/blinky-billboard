@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -81,9 +82,12 @@ public class ScheduleBillboards {
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
         Calendar calendar = Calendar.getInstance();
         List<List<String>> data = new ArrayList<>();
+        List<List<Occurrence>> occurrenceData = new ArrayList<>();
 
         for (int i = 0; i < daysInAWeek; i++) {
             data.add(new ArrayList<>());
+            occurrenceData.add(new ArrayList<>());
+
             daysOfTheWeek[i] = simpleDateformat.format(calendar.getTime());
             data.get(i).add(daysOfTheWeek[i]);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
@@ -110,7 +114,7 @@ public class ScheduleBillboards {
                     Timestamp endOfday = new Timestamp(cal.getTime().getTime());
                     Timestamp startOfDay = new Timestamp(endOfday.getTime() - (24 * 60 * 60 * 1000));
                     if (startOfDay.before(o.start) && endOfday.after(o.start)) {
-                        data.get(i).add(o.name + " " + o.start.toString() + ":" + o.end.toString());
+                        occurrenceData.get(i).add(o);
                     }
                     cal.add(Calendar.DATE, i);
                 }
@@ -118,8 +122,14 @@ public class ScheduleBillboards {
         });
 
         DefaultTableModel model = new DefaultTableModel(0, 0);
+        DateFormat format = new SimpleDateFormat("HH:mm");
 
         for (int i =0; i < 7; i++) {
+            List<Occurrence> dayData = occurrenceData.get(i);
+            Collections.sort(dayData);
+            for (Occurrence o : dayData) {
+                data.get(i).add(o.name + " " + format.format(o.start) + "-" + format.format(o.end));
+            }
             model.addColumn(daysOfTheWeek[i], data.get(i).toArray());
         }
 
