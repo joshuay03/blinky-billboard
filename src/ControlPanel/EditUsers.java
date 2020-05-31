@@ -135,7 +135,8 @@ public class EditUsers {
                 }
 
                 if (status) {
-                    JOptionPane.showMessageDialog(null, "User successfully deleted.");
+                    String msg = (String) response.getData();
+                    JOptionPane.showMessageDialog(null, msg);
                 }
 
             }
