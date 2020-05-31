@@ -294,17 +294,13 @@ public class ClientHandler extends Thread {
                         if (user.getSaltedCredentials().getUsername().length() > 100)
                             return new Response(false, "Usernames must be up to 100 characters long");
 
-                        // TODO: replace with edit user query
-                        database.RegisterUserInDatabase(user.getSaltedCredentials(),
-                                user.CanCreateBillboards(),
-                                user.CanEditAllBillboards(),
-                                user.CanScheduleBillboards(),
-                                user.CanEditUsers());
+                        database.UpdateUserDetails(user);
 
                         return new Response(true, "User successfully saved!");
 
                     } catch (SQLException e) {
                         e.printStackTrace();
+                        return new Response(true, "User edit failed.");
                     }
                 } else {
                     return permissionDeniedResponse;
